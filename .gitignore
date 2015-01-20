@@ -1,0 +1,32 @@
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+desktop.ini
+
+# Build results
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+build/
+bld/
+[Oo]bj/
+*.xnb
+
+# Sprites, Music, Sounds
+Music/
+Sounds/
+Sprites/
+
+# Debug
+!Lidgren.Network.dll
+!.structure
+!Structures/
+Screenshots/
+Save/
+*.exe
+*.pdb
+Debug/Content/Effects/
+font.xnb
