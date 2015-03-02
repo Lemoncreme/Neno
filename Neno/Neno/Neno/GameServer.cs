@@ -32,6 +32,7 @@ namespace Neno
             //Config
             config = new NetPeerConfiguration("Neno");
             config.Port = 25565;
+            config.MaximumConnections = 8;
 
             //Start Server
             server = new NetServer(config);

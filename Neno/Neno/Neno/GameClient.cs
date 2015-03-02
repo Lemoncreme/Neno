@@ -31,7 +31,6 @@ namespace Neno
         {
             //Config
             config = new NetPeerConfiguration("Neno");
-            config.Port = 25565;
 
             //Start Server
             client = new NetClient(config);

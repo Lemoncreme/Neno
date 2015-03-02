@@ -87,10 +87,10 @@ namespace Neno
                     Client.init();
                     break;
                 case Focus.Server:
-                    Server = new GameServer();
-                    Server.init();
                     Client = new GameClient();
                     Client.init();
+                    Server = new GameServer();
+                    Server.init();
                     break;
             }
         }
@@ -194,8 +194,8 @@ namespace Neno
                     Client.draw();
                     break;
                 case Focus.Server:
-                    Client.draw();
                     Server.draw();
+                    Client.draw();
                     break;
             }
 
