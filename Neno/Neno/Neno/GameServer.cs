@@ -59,6 +59,7 @@ namespace Neno
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
             Main.sb.DrawString(Main.font, "Neno Server", Vector2.Zero, Color.White);
+            Main.sb.DrawString(Main.font, "Connections: " + server.ConnectionsCount, new Vector2(4, 64), Color.White, 0, Vector2.Zero, 0.25f, SpriteEffects.None, 0);
 
             Main.sb.End();
         }

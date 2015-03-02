@@ -45,11 +45,17 @@ namespace Neno
         public void init()
         {
             startClient();
+
+            //Connect to local
+            if (Main.focus == Focus.Server)
+                client.Connect("127.0.0.1", 25565);
         }
 
         public void step()
         {
             if (Key.pressed(Keys.Escape)) Main.Switch(Focus.Menu);
+
+            
         }
 
         public void draw()
