@@ -13,6 +13,10 @@ using Lidgren.Network;
 
 namespace Neno
 {
+    enum ServerMsg
+    {
+        init
+    }
     public class GameServer
     {
 
@@ -21,6 +25,8 @@ namespace Neno
 
         NetServer server;
         NetPeerConfiguration config;
+        public static string serverName;
+        public static int serverPort;
 
         #endregion
 
@@ -31,12 +37,42 @@ namespace Neno
         {
             //Config
             config = new NetPeerConfiguration("Neno");
-            config.Port = 25565;
-            config.MaximumConnections = 8;
+            config.Port = serverPort;
+            config.MaximumConnections = 6;
 
             //Start Server
             server = new NetServer(config);
-            server.Start(); Console.WriteLine("Server started");
+            server.Start(); Console.WriteLine("Server started on port " + server.Port + ", endpoint: " + server.Socket.LocalEndPoint);
+        }
+        void recMessage()
+        {
+            NetIncomingMessage inc;
+
+            while ((inc = server.ReadMessage()) != null)
+            {
+                switch (inc.MessageType)
+                {
+                    case NetIncomingMessageType.Data:
+                        switch ((ServerMsg)inc.ReadByte())
+                        {
+                            case ServerMsg.init: //Recieve init data request
+
+                                sendInitData(inc.SenderConnection);
+                                break;
+                        }
+                        break;
+                }
+            }
+        }
+        void sendInitData(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.init);
+            sendMsg.Write(serverName);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("Sent init data");
         }
 
         #endregion
@@ -52,6 +88,8 @@ namespace Neno
         public void step()
         {
             if (Key.pressed(Keys.Home)) Main.Switch(Focus.Menu);
+
+            recMessage();
         }
 
         public void draw()
@@ -67,6 +105,7 @@ namespace Neno
         public void end()
         {
             server.Shutdown("end");
+            Console.WriteLine("Server ended");
         }
     }
 }
