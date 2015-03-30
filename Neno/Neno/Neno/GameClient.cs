@@ -16,11 +16,13 @@ namespace Neno
     enum ClientStatus
     {
         Waiting_For_Connection,
-        Waiting_For_Data
+        Waiting_For_Data,
+        Disconnected,
+        Lobby
     }
     enum ClientMsg
     {
-        init
+        init, playerInfo, playerIsReady
     }
     public class GameClient
     {
@@ -35,6 +37,10 @@ namespace Neno
         ClientStatus Status = ClientStatus.Waiting_For_Connection;
         string serverName = "";
         string clientName = "";
+        byte playerID;
+        List<ClientPlayer> playerList = new List<ClientPlayer>();
+        TextBox readyBox;
+        bool ready = false;
 
         #endregion
 
@@ -53,6 +59,7 @@ namespace Neno
         void recMessage()
         {
             NetIncomingMessage inc;
+            byte ID;
 
             while ((inc = client.ReadMessage()) != null)
             {
@@ -64,7 +71,33 @@ namespace Neno
                         {
                             case ClientMsg.init: //Receive init data from server
                                 serverName = inc.ReadString();
-                                Console.WriteLine("Server name is " + serverName);
+                                playerID = inc.ReadByte();
+                                clientName = inc.ReadString();
+                                Console.WriteLine("Server name is " + serverName + ", I am client #" + playerID);
+                                Status = ClientStatus.Lobby;
+                                readyBox = new TextBox(Main.windowWidth / 2, 16, "I'm Ready!", 0.5f, Main.font, TextOrient.Middle);
+                                break;
+                            case ClientMsg.playerInfo:
+                                ID = inc.ReadByte();
+                                string name = inc.ReadString();
+                                bool ready = inc.ReadBoolean();
+                                playerList.Add(new ClientPlayer(name, ID, ready));
+                                break;
+                            case ClientMsg.playerIsReady:
+                                ID = inc.ReadByte();
+                                getPlayer(ID).Ready = true;
+                                break;
+                        }
+                        break;
+                    case NetIncomingMessageType.StatusChanged:
+                        switch ((NetConnectionStatus)inc.ReadByte())
+                        {
+                            case NetConnectionStatus.Disconnected:
+                                if (inc.ReadString() == "end")
+                                    Console.WriteLine("Server was closed by server owner");
+                                else
+                                    Console.WriteLine("Server was closed, unknown reason");
+                                Status = ClientStatus.Disconnected;
                                 break;
                         }
                         break;
@@ -79,7 +112,36 @@ namespace Neno
             sendMsg.Write(clientName);
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
-            Console.WriteLine("Sent ready");
+            Console.WriteLine("Sent init request");
+        }
+        void sendJoin()
+        {
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.join);
+            sendMsg.Write(playerID);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendReady()
+        {
+            ready = true;
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.ready);
+            sendMsg.Write(playerID);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("Sent ready to play");
+        }
+        ClientPlayer getPlayer(byte ID)
+        {
+            foreach (ClientPlayer player in playerList)
+            {
+                if (player.ID == playerID)
+                    return player;
+            }
+            return null;
         }
 
         #endregion
@@ -107,6 +169,10 @@ namespace Neno
         {
             if (Key.pressed(Keys.Escape)) Main.Switch(Focus.Menu);
 
+            if (Status != ClientStatus.Waiting_For_Connection
+                && Status != ClientStatus.Disconnected)
+            recMessage();
+
             switch (Status)
             {
                 case ClientStatus.Waiting_For_Connection:
@@ -118,7 +184,12 @@ namespace Neno
                     }
                     break;
                 case ClientStatus.Waiting_For_Data:
-                    recMessage();
+                    
+                    break;
+                case ClientStatus.Lobby:
+                    readyBox.CheckSelect();
+                    if (!ready && readyBox.CheckClicked())
+                        sendReady();
                     break;
             }
         }
@@ -127,8 +198,41 @@ namespace Neno
         {
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
-            Main.sb.Draw(Main.img("rock"), new Rectangle(64, 64, 64, 64), Color.White);
-            Main.sb.DrawString(Main.font, "Status: " + client.ConnectionStatus, new Vector2(8, 256), Color.White);
+            Color mainColor = Color.Black;
+
+            switch(Status)
+            {
+                case ClientStatus.Disconnected:
+                    Main.drawText(Main.consoleFont, "Disconnected! Press ENTER to attempt reconnection!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
+                    mainColor = Color.White;
+                    break;
+                case ClientStatus.Lobby:
+                    Main.sb.Draw(Main.img("bg"), 
+                        new Vector2(
+                            (float)Math.Sin(Main.Time / 200f) * 100 - 100,
+                            (float)Math.Sin(Main.Time / 200f + 20) * 100 - 100), Main.img("bg").Bounds, Color.White,
+                            (float)(Math.Sin(Main.Time / 2000f)), 
+                            new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
+                    readyBox.Draw("", Main.sb);
+                    break;
+            }
+
+            if (!Key.down(Keys.F1))
+            {
+                int i = 26;
+
+                Main.sb.DrawString(Main.consoleFont, "Neno Client", new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "Name: " + clientName, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "Status: " + Status, new Vector2(4, i), mainColor); i += 16;
+                foreach (ClientPlayer player in playerList)
+                {
+                    if (player.Ready)
+                        Main.sb.Draw(Main.img("checked"), new Vector2(4, i - 20), mainColor);
+                    else
+                        Main.sb.Draw(Main.img("unchecked"), new Vector2(4, i - 20), mainColor);
+                    Main.drawText(Main.font, (string)player.Name, new Vector2(80, i), mainColor, 1f, TextOrient.Left);
+                }
+            }
 
             Main.sb.End();
         }

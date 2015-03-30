@@ -80,6 +80,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientPlayer.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="GameClient.cs" />

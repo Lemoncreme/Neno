@@ -15,7 +15,7 @@ namespace Neno
 {
     enum ServerMsg
     {
-        init
+        init, join, ready
     }
     public class GameServer
     {
@@ -27,6 +27,8 @@ namespace Neno
         NetPeerConfiguration config;
         public static string serverName;
         public static int serverPort;
+        List<ServerPlayer> playerList = new List<ServerPlayer>();
+        byte turn = 0;
 
         #endregion
 
@@ -42,11 +44,13 @@ namespace Neno
 
             //Start Server
             server = new NetServer(config);
-            server.Start(); Console.WriteLine("Server started on port " + server.Port + ", endpoint: " + server.Socket.LocalEndPoint);
+            server.Start();
+            Console.WriteLine("Server running on port " + server.Port);
         }
         void recMessage()
         {
             NetIncomingMessage inc;
+            byte playerID = 0;
 
             while ((inc = server.ReadMessage()) != null)
             {
@@ -57,22 +61,115 @@ namespace Neno
                         {
                             case ServerMsg.init: //Recieve init data request
 
-                                sendInitData(inc.SenderConnection);
+                                //Get name and ID
+                                string name = inc.ReadString();
+                                playerID = (byte)playerList.Count;
+                                Console.WriteLine("Player " + name + " (" + playerID + ") joined");
+
+                                //Search and fix name dupes
+                                if (playerList.Count > 0)
+                                {
+                                    int add = -1;
+                                    foreach (ServerPlayer player in playerList)
+                                    {
+                                        if (player.Name == name)
+                                            add = 0;
+                                        else
+                                            if (player.Name == name + "_" + add)
+                                                add += 1;
+                                    }
+                                    if (add != -1)
+                                    {
+                                        name += "_" + add;
+                                        Console.WriteLine("Name dupe, player " + playerID + " is now called " + name);
+                                    }
+                                }
+
+                                //Add to playerlist
+                                playerList.Add(new ServerPlayer(name, playerID));
+
+                                //Send data
+                                sendInitData(inc.SenderConnection, playerID);
+
+                                //Send other players
+                                foreach (ServerPlayer player in playerList)
+                                {
+                                    sendPlayerInfo(inc.SenderConnection, player.ID);
+                                }
+                                break;
+                            case ServerMsg.join:
+                                playerID = inc.ReadByte();
+
+                                getPlayer(playerID).Status = PlayerStatus.Lobby;
+                                Console.WriteLine(getName(playerID) + " joined lobby");
+                                break;
+                            case ServerMsg.ready:
+                                playerID = inc.ReadByte();
+
+                                getPlayer(playerID).ready = true;
+                                Console.WriteLine(getName(playerID) + " is ready");
+                                sendPlayerReady(playerID);
                                 break;
                         }
                         break;
                 }
             }
         }
-        void sendInitData(NetConnection recipient)
+
+        #region Sending Messages
+        void sendInitData(NetConnection recipient, byte playerID)
         {
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
             sendMsg.Write((byte)ClientMsg.init);
+
+            //Server Name
             sendMsg.Write(serverName);
 
+            //Player Info
+            sendMsg.Write(playerID);
+            sendMsg.Write(getName(playerID));
+
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
-            Console.WriteLine("Sent init data");
+            Console.WriteLine("Sent init data to " + getName(playerID));
+        }
+        void sendPlayerInfo(NetConnection recipient, byte playerID)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Info about a player
+            sendMsg.Write((byte)ClientMsg.playerInfo);
+
+            sendMsg.Write(playerID);
+            sendMsg.Write(getName(playerID));
+            sendMsg.Write(getPlayer(playerID).ready);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendPlayerReady(byte playerID)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Info about a player
+            sendMsg.Write((byte)ClientMsg.playerIsReady);
+
+            sendMsg.Write(playerID);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        #endregion
+        string getName(byte playerID)
+        {
+            return getPlayer(playerID).Name;
+        }
+        ServerPlayer getPlayer(byte playerID)
+        {
+            foreach(ServerPlayer player in playerList)
+            {
+                if (player.ID == playerID)
+                    return player;
+            }
+            return null;
         }
 
         #endregion
@@ -94,12 +191,25 @@ namespace Neno
 
         public void draw()
         {
+            
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+            if (Key.down(Keys.F1))
+            {
+                int i = 4;
 
-            Main.sb.DrawString(Main.font, "Neno Server", Vector2.Zero, Color.White);
-            Main.sb.DrawString(Main.font, "Connections: " + server.ConnectionsCount, new Vector2(4, 64), Color.White, 0, Vector2.Zero, 0.25f, SpriteEffects.None, 0);
+                Main.sb.DrawString(Main.consoleFont, "Neno Server", new Vector2(4, i), Color.White); i += 22;
 
+                Main.sb.DrawString(Main.consoleFont, "Connections: " + server.ConnectionsCount, new Vector2(4, i), Color.White); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "# Recieved: " + server.Statistics.ReceivedPackets, new Vector2(4, i), Color.White); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "# Sent: " + server.Statistics.SentPackets, new Vector2(4, i), Color.White); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "Players: " + playerList.Count, new Vector2(4, i), Color.White); i += 16;
+
+                Main.sb.DrawString(Main.consoleFont, "Turn: " + getName(turn), new Vector2(4, i), Color.White); i += 16;
+            }
+            else
+                Main.sb.DrawString(Main.consoleFont, "Hold F1 to view server info", new Vector2(4, 4), new Color(1f, 1f, 1f, 0.1f));
             Main.sb.End();
+            
         }
 
         public void end()

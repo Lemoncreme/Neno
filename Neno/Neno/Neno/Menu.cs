@@ -31,27 +31,29 @@ namespace Neno
         {
             //Create Menus
             menuMain = new TextBox[] { 
-            new TextBox(4, 50, "Join", 0.5f, Main.font),
-            new TextBox(4, 100, "Host", 0.5f, Main.font),
-            new TextBox(4, 150, "Exit", 0.5f, Main.font)
+            new TextBox(4, 150, "Join", 0.5f, Main.font),
+            new TextBox(4, 200, "Host", 0.5f, Main.font),
+            new TextBox(4, 250, "Exit", 0.5f, Main.font)
             };
             menuJoin = new TextBox[] { 
-            new TextBox(4, 50, "IP", 0.5f, Main.font, TextOrient.Left, true, "127.0.0.1"),
-            new TextBox(4, 100, "Port", 0.5f, Main.font, TextOrient.Left, true, Settings.defaultPort.ToString()),
-            new TextBox(4, 150, "Connect", 0.5f, Main.font),
-            new TextBox(4, 200, "Back", 0.5f, Main.font)
+            new TextBox(4, 150, "IP: ", 0.5f, Main.font, TextOrient.Left, true, "127.0.0.1"),
+            new TextBox(4, 200, "Port: ", 0.5f, Main.font, TextOrient.Left, true, Settings.defaultPort.ToString()),
+            new TextBox(4, 250, "Connect", 0.5f, Main.font),
+            new TextBox(4, 300, "Back", 0.5f, Main.font)
             };
             menuServer = new TextBox[] { 
-            new TextBox(4, 50, "Name", 0.5f, Main.font, TextOrient.Left, true, "Neno Game Server"),
-            new TextBox(4, 100, "Port", 0.5f, Main.font, TextOrient.Left, true, Settings.defaultPort.ToString()),
-            new TextBox(4, 150, "Start Server", 0.5f, Main.font),
-            new TextBox(4, 200, "Back", 0.5f, Main.font)
+            new TextBox(4, 150, "Name: ", 0.5f, Main.font, TextOrient.Left, true, "Neno Game Server"),
+            new TextBox(4, 200, "Port: ", 0.5f, Main.font, TextOrient.Left, true, Settings.defaultPort.ToString()),
+            new TextBox(4, 250, "Start Server", 0.5f, Main.font),
+            new TextBox(4, 300, "Back", 0.5f, Main.font)
             };
             currentMenu = menuMain;
         }
 
         public void step()
         {
+            
+
             currentItem = null;
             foreach(TextBox item in currentMenu)
             {
@@ -92,9 +94,15 @@ namespace Neno
 
         public void draw()
         {
-            Main.sb.Begin();
+            Main.sb.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, DepthStencilState.Default, null);
 
-            Main.sb.DrawString(Main.font, "Neno Test", Vector2.Zero, Color.White);
+            Main.sb.Draw(Main.img("Boards/Battle"), new Rectangle(
+                (int)(Math.Sin(Main.Time / 100f) * 256f - 256f), 
+                (int)(Math.Sin(Main.Time / 250f) * 1000f - 1000f),
+                Main.img("Boards/Battle").Bounds.Width * 6,
+                Main.img("Boards/Battle").Bounds.Height * 6), Color.White);
+
+            Main.sb.Draw(Main.img("logo"), new Vector2(Main.windowWidth / 2, 0), Main.img("logo").Bounds, Color.Black, 0, new Vector2(Main.img("logo").Width / 2, 0), 0.5f, SpriteEffects.None, 0);
             foreach (TextBox item in currentMenu)
             {
                 item.Draw("", Main.sb);

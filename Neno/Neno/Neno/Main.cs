@@ -31,10 +31,14 @@ namespace Neno
         public static Menu GameMenu;
         public static GameClient Client;
         public static GameServer Server;
+        public static double Time = 0;
 
         //Drawing
         public static SpriteFont font;
+        public static SpriteFont consoleFont;
         public static Texture2D pix;
+        public static int windowWidth = 0;
+        public static int windowHeight = 0;
 
         //Mouse
         MouseState mouse;
@@ -100,7 +104,21 @@ namespace Neno
         }
         public static Texture2D img(string name)
         {
-            return self.Content.Load<Texture2D>(name);
+            return self.Content.Load<Texture2D>("Textures/" + name);
+        }
+        public static Song music(string name)
+        {
+            return self.Content.Load<Song>("Music/" + name);
+        }
+        public static void drawText(SpriteFont font, string Text, Vector2 pos, Color color, float scale, TextOrient orientation)
+        {
+            if (orientation == TextOrient.Middle)
+                pos.X -= font.MeasureString(Text).X / 2;
+            else
+            if (orientation == TextOrient.Right)
+                pos.X -= font.MeasureString(Text).X;
+
+            Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
         #endregion
@@ -121,6 +139,12 @@ namespace Neno
 
         protected override void Initialize()
         {
+            windowWidth = Window.ClientBounds.Width;
+            windowHeight = Window.ClientBounds.Height;
+            MediaPlayer.Play(Main.music("findingNeno"));
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.IsMuted = true;
+
             base.Initialize();
         }
 
@@ -131,7 +155,8 @@ namespace Neno
 
             //Font
             font = Content.Load<SpriteFont>("font1");
-            pix = Content.Load<Texture2D>("pix");
+            consoleFont = Content.Load<SpriteFont>("font2");
+            pix = Main.img("pix");
 
             GameMenu = new Menu();
             GameMenu.init();
@@ -147,6 +172,11 @@ namespace Neno
             //Global
             Timer.Update();
             Key.update();
+            Time += 1;
+            if (Time > int.MaxValue - 8)
+                Time = 0;
+            windowWidth = Window.ClientBounds.Width;
+            windowHeight = Window.ClientBounds.Height;
 
             //Mouse
             mousealt = mouse;
