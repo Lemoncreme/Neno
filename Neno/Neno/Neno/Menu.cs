@@ -83,6 +83,7 @@ namespace Neno
                             GameServer.serverName = menuServer[0].typeText;
                             GameServer.serverPort = Convert.ToInt32(menuJoin[1].typeText);
                             Main.Switch(Focus.Server);
+                            Main.Client.isOwner = true;
                             break;
                         case "Back":
                             currentMenu = menuMain;

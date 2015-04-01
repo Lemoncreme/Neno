@@ -113,10 +113,10 @@ namespace Neno
         public static void drawText(SpriteFont font, string Text, Vector2 pos, Color color, float scale, TextOrient orientation)
         {
             if (orientation == TextOrient.Middle)
-                pos.X -= font.MeasureString(Text).X / 2;
+                pos.X -= scale * font.MeasureString(Text).X / 2;
             else
             if (orientation == TextOrient.Right)
-                pos.X -= font.MeasureString(Text).X;
+                pos.X -= scale * font.MeasureString(Text).X;
 
             Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
@@ -224,8 +224,8 @@ namespace Neno
                     Client.draw();
                     break;
                 case Focus.Server:
-                    Server.draw();
                     Client.draw();
+                    Server.draw();
                     break;
             }
 

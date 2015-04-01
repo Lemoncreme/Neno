@@ -18,11 +18,12 @@ namespace Neno
         Waiting_For_Connection,
         Waiting_For_Data,
         Disconnected,
-        Lobby
+        Lobby,
+        Starting_Game
     }
     enum ClientMsg
     {
-        init, playerInfo, playerIsReady
+        init, playerInfo, playerIsReady, playerLeft, starting
     }
     public class GameClient
     {
@@ -40,7 +41,9 @@ namespace Neno
         byte playerID;
         List<ClientPlayer> playerList = new List<ClientPlayer>();
         TextBox readyBox;
+        TextBox startBox;
         bool ready = false;
+        public bool isOwner = false;
 
         #endregion
 
@@ -76,16 +79,32 @@ namespace Neno
                                 Console.WriteLine("Server name is " + serverName + ", I am client #" + playerID);
                                 Status = ClientStatus.Lobby;
                                 readyBox = new TextBox(Main.windowWidth / 2, 16, "I'm Ready!", 0.5f, Main.font, TextOrient.Middle);
+                                if (isOwner)
+                                { 
+                                    startBox = new TextBox(Main.windowWidth / 2, 80, "Start Game", 1f, Main.font, TextOrient.Middle);
+                                    startBox.Description = "Start game, if all players are ready";
+                                }
+                                sendJoin();
                                 break;
-                            case ClientMsg.playerInfo:
+                            case ClientMsg.playerInfo: //Information about another player
                                 ID = inc.ReadByte();
                                 string name = inc.ReadString();
                                 bool ready = inc.ReadBoolean();
                                 playerList.Add(new ClientPlayer(name, ID, ready));
+                                Console.WriteLine(name + " (" + ID + ") info");
                                 break;
-                            case ClientMsg.playerIsReady:
+                            case ClientMsg.playerIsReady: //Another player is ready to play
                                 ID = inc.ReadByte();
                                 getPlayer(ID).Ready = true;
+                                Console.WriteLine(getPlayer(ID).Name + " (" + ID + ") is ready");
+                                break;
+                            case ClientMsg.playerLeft: //A player left the game
+                                ID = inc.ReadByte();
+                                playerList.Remove(getPlayer(ID));
+                                break;
+                            case ClientMsg.starting: //The game has been started
+                                Status = ClientStatus.Starting_Game;
+                                readyBox = null; startBox = null;
                                 break;
                         }
                         break;
@@ -138,10 +157,30 @@ namespace Neno
         {
             foreach (ClientPlayer player in playerList)
             {
-                if (player.ID == playerID)
+                if (player.ID == ID)
                     return player;
             }
             return null;
+        }
+        bool checkAllReady()
+        {
+            int i = 0;
+            foreach (ClientPlayer player in playerList)
+            {
+                if (player.Ready) i++;
+            }
+            if (i == playerList.Count - 0)
+                return true;
+            else return false;
+        }
+        void sendStart()
+        {
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.start);
+            sendMsg.Write(playerID);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
         }
 
         #endregion
@@ -187,9 +226,20 @@ namespace Neno
                     
                     break;
                 case ClientStatus.Lobby:
+                    readyBox.X = Main.windowWidth / 2;
                     readyBox.CheckSelect();
                     if (!ready && readyBox.CheckClicked())
                         sendReady();
+                    if (isOwner)
+                    {
+                        startBox.X = Main.windowWidth / 2;
+                        startBox.CheckSelect();
+                        if (startBox.CheckClicked() && checkAllReady())
+                            sendStart();
+                    }
+                    break;
+                case ClientStatus.Starting_Game:
+
                     break;
             }
         }
@@ -202,8 +252,16 @@ namespace Neno
 
             switch(Status)
             {
+                case ClientStatus.Waiting_For_Connection:
+                    Main.drawText(Main.consoleFont, "Waiting for connection...", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
+                    mainColor = Color.White;
+                    break;
+                case ClientStatus.Waiting_For_Data:
+                    Main.drawText(Main.consoleFont, "Waiting for data...", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
+                    mainColor = Color.White;
+                    break;
                 case ClientStatus.Disconnected:
-                    Main.drawText(Main.consoleFont, "Disconnected! Press ENTER to attempt reconnection!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
+                    Main.drawText(Main.consoleFont, "Disconnected! Press ESCAPE to exit.", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
                     mainColor = Color.White;
                     break;
                 case ClientStatus.Lobby:
@@ -214,24 +272,38 @@ namespace Neno
                             (float)(Math.Sin(Main.Time / 2000f)), 
                             new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
                     readyBox.Draw("", Main.sb);
+                    startBox.Draw("", Main.sb);
+                    int i = 32;
+                    foreach (ClientPlayer player in playerList)
+                    {
+                        if (player.Ready)
+                            Main.sb.Draw(Main.img("checked"), new Vector2(4, i - 20), mainColor);
+                        else
+                            Main.sb.Draw(Main.img("unchecked"), new Vector2(4, i - 20), mainColor);
+                        Main.drawText(Main.font, (string)player.Name, new Vector2(80, i), mainColor, 1f, TextOrient.Left);
+                        i += 128;
+                    }
+                    break;
+                case ClientStatus.Starting_Game:
+                    Main.sb.Draw(Main.img("bg"),
+                        new Vector2(
+                            (float)Math.Sin(Main.Time / 200f) * 100 - 100,
+                            (float)Math.Sin(Main.Time / 200f + 20) * 100 - 100), Main.img("bg").Bounds, Color.DarkOliveGreen,
+                            (float)(Math.Sin(Main.Time / 2000f)),
+                            new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
+                    Main.drawText(Main.font, "Game is starting!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1f, TextOrient.Middle);
+                    Main.drawText(Main.font, "Give the server some time to generate battlefields.", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + 64), Color.White, 0.5f, TextOrient.Middle);
+                    mainColor = Color.White;
                     break;
             }
 
-            if (!Key.down(Keys.F1))
+            if (!Key.down(Keys.F1) && Key.down(Keys.F2))
             {
                 int i = 26;
 
                 Main.sb.DrawString(Main.consoleFont, "Neno Client", new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Name: " + clientName, new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Status: " + Status, new Vector2(4, i), mainColor); i += 16;
-                foreach (ClientPlayer player in playerList)
-                {
-                    if (player.Ready)
-                        Main.sb.Draw(Main.img("checked"), new Vector2(4, i - 20), mainColor);
-                    else
-                        Main.sb.Draw(Main.img("unchecked"), new Vector2(4, i - 20), mainColor);
-                    Main.drawText(Main.font, (string)player.Name, new Vector2(80, i), mainColor, 1f, TextOrient.Left);
-                }
             }
 
             Main.sb.End();

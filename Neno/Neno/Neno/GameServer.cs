@@ -15,7 +15,10 @@ namespace Neno
 {
     enum ServerMsg
     {
-        init, join, ready
+        init = 100, 
+        join = 101, 
+        ready = 102,
+        start = 103
     }
     public class GameServer
     {
@@ -28,7 +31,8 @@ namespace Neno
         public static string serverName;
         public static int serverPort;
         List<ServerPlayer> playerList = new List<ServerPlayer>();
-        byte turn = 0;
+        byte turn = 1;
+        byte lastID = 0;
 
         #endregion
 
@@ -41,11 +45,19 @@ namespace Neno
             config = new NetPeerConfiguration("Neno");
             config.Port = serverPort;
             config.MaximumConnections = 6;
+            config.EnableUPnP = true;
 
             //Start Server
             server = new NetServer(config);
             server.Start();
-            Console.WriteLine("Server running on port " + server.Port);
+            Console.WriteLine("<SERVER> " + "Server running on port " + server.Port + " on external IP " + server.UPnP.GetExternalIP());
+
+            //Try and forward port
+            var worked = server.UPnP.ForwardPort(serverPort, "Neno Game Server Port");
+            if (worked)
+                Console.WriteLine("<SERVER> " + "Succesfully port forwarded port " + serverPort);
+            else
+                Console.WriteLine("<SERVER> " + "Did not succesfully port forward port " + serverPort);
         }
         void recMessage()
         {
@@ -63,8 +75,9 @@ namespace Neno
 
                                 //Get name and ID
                                 string name = inc.ReadString();
-                                playerID = (byte)playerList.Count;
-                                Console.WriteLine("Player " + name + " (" + playerID + ") joined");
+                                playerID = (byte)(lastID + 1);
+                                lastID++;
+                                Console.WriteLine("<SERVER> " + "Player " + name + " (" + playerID + ") joined");
 
                                 //Search and fix name dupes
                                 if (playerList.Count > 0)
@@ -81,12 +94,12 @@ namespace Neno
                                     if (add != -1)
                                     {
                                         name += "_" + add;
-                                        Console.WriteLine("Name dupe, player " + playerID + " is now called " + name);
+                                        Console.WriteLine("<SERVER> " + "Name dupe, player " + playerID + " is now called " + name);
                                     }
                                 }
 
                                 //Add to playerlist
-                                playerList.Add(new ServerPlayer(name, playerID));
+                                playerList.Add(new ServerPlayer(name, playerID, inc.SenderConnection));
 
                                 //Send data
                                 sendInitData(inc.SenderConnection, playerID);
@@ -94,24 +107,49 @@ namespace Neno
                                 //Send other players
                                 foreach (ServerPlayer player in playerList)
                                 {
-                                    sendPlayerInfo(inc.SenderConnection, player.ID);
+                                    if (player.ID != playerID) sendPlayerInfo(inc.SenderConnection, player.ID);
                                 }
                                 break;
                             case ServerMsg.join:
                                 playerID = inc.ReadByte();
 
                                 getPlayer(playerID).Status = PlayerStatus.Lobby;
-                                Console.WriteLine(getName(playerID) + " joined lobby");
+                                Console.WriteLine("<SERVER> " + getName(playerID) + " joined lobby");
+                                sendPlayerInfoAll(playerID);
+
                                 break;
                             case ServerMsg.ready:
                                 playerID = inc.ReadByte();
 
                                 getPlayer(playerID).ready = true;
-                                Console.WriteLine(getName(playerID) + " is ready");
+                                Console.WriteLine("<SERVER> " + getName(playerID) + " is ready");
                                 sendPlayerReady(playerID);
+                                break;
+                            case ServerMsg.start:
+                                playerID = inc.ReadByte();
+
+                                if (playerID == 1)
+                                {
+                                    Console.WriteLine("<SERVER> starting game");
+                                    sendStarting();
+                                }
                                 break;
                         }
                         break;
+                        case NetIncomingMessageType.StatusChanged:
+                            switch ((NetConnectionStatus)inc.ReadByte())
+                            {
+                                case NetConnectionStatus.Disconnected:
+                                    ServerPlayer player = getPlayer(inc.SenderConnection);
+                                    if (inc.ReadString() == "end")
+                                        Console.WriteLine(player.Name + " exited to menu");
+                                    else
+                                        Console.WriteLine(player.Name + " disconnected");
+                                    sendPlayerRemoved(player.ID);
+                                    playerList.Remove(player);
+                                    break;
+                            }
+                            break;
                 }
             }
         }
@@ -131,7 +169,7 @@ namespace Neno
             sendMsg.Write(getName(playerID));
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
-            Console.WriteLine("Sent init data to " + getName(playerID));
+            Console.WriteLine("<SERVER> " + "Sent init data to " + getName(playerID));
         }
         void sendPlayerInfo(NetConnection recipient, byte playerID)
         {
@@ -150,10 +188,41 @@ namespace Neno
         {
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
-            //Info about a player
+            //Player is ready
             sendMsg.Write((byte)ClientMsg.playerIsReady);
+            sendMsg.Write(playerID);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendPlayerInfoAll(byte playerID)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Info about a player
+            sendMsg.Write((byte)ClientMsg.playerInfo);
 
             sendMsg.Write(playerID);
+            sendMsg.Write(getName(playerID));
+            sendMsg.Write(getPlayer(playerID).ready);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendPlayerRemoved(byte playerID)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Info about a player
+            sendMsg.Write((byte)ClientMsg.playerLeft);
+            sendMsg.Write(playerID);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendStarting()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Starting game
+            sendMsg.Write((byte)ClientMsg.starting);
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -167,6 +236,15 @@ namespace Neno
             foreach(ServerPlayer player in playerList)
             {
                 if (player.ID == playerID)
+                    return player;
+            }
+            return null;
+        }
+        ServerPlayer getPlayer(NetConnection connection)
+        {
+            foreach (ServerPlayer player in playerList)
+            {
+                if (player.Connection == connection)
                     return player;
             }
             return null;
@@ -192,22 +270,22 @@ namespace Neno
         public void draw()
         {
             
-            Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-            if (Key.down(Keys.F1))
+            Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, null, null);
+            if (server.ConnectionsCount > 0)
             {
-                int i = 4;
+                if (Key.down(Keys.F1))
+                {
+                    int i = 4;
 
-                Main.sb.DrawString(Main.consoleFont, "Neno Server", new Vector2(4, i), Color.White); i += 22;
+                    Main.sb.DrawString(Main.consoleFont, "Neno Server", new Vector2(4, i), Color.White); i += 22;
 
-                Main.sb.DrawString(Main.consoleFont, "Connections: " + server.ConnectionsCount, new Vector2(4, i), Color.White); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "# Recieved: " + server.Statistics.ReceivedPackets, new Vector2(4, i), Color.White); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "# Sent: " + server.Statistics.SentPackets, new Vector2(4, i), Color.White); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "Players: " + playerList.Count, new Vector2(4, i), Color.White); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "Connections: " + server.ConnectionsCount, new Vector2(4, i), Color.White); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "Players: " + playerList.Count, new Vector2(4, i), Color.White); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "UPnP Status: " + server.UPnP.Status, new Vector2(4, i), Color.White); i += 16;
 
-                Main.sb.DrawString(Main.consoleFont, "Turn: " + getName(turn), new Vector2(4, i), Color.White); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "Turn: " + getName(turn), new Vector2(4, i), Color.White); i += 16;
+                }
             }
-            else
-                Main.sb.DrawString(Main.consoleFont, "Hold F1 to view server info", new Vector2(4, 4), new Color(1f, 1f, 1f, 0.1f));
             Main.sb.End();
             
         }
@@ -215,7 +293,7 @@ namespace Neno
         public void end()
         {
             server.Shutdown("end");
-            Console.WriteLine("Server ended");
+            Console.WriteLine("<SERVER> " + "Server ended");
         }
     }
 }
