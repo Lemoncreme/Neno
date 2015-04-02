@@ -80,7 +80,9 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BattleBoard.cs" />
     <Compile Include="ClientPlayer.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="GameClient.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Sound.cs" />
     <Compile Include="TextBox.cs" />
     <Compile Include="Timer.cs" />
+    <Compile Include="WordBoard.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
