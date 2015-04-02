@@ -33,6 +33,9 @@ namespace Neno
         List<ServerPlayer> playerList = new List<ServerPlayer>();
         byte turn = 1;
         byte lastID = 0;
+        int battleBoardCount;
+        List<BattleBoard> battleBoards = new List<BattleBoard>();
+        WordBoard wordBoard;
 
         #endregion
 
@@ -131,6 +134,7 @@ namespace Neno
                                 if (playerID == 1)
                                 {
                                     Console.WriteLine("<SERVER> starting game");
+                                    turn = Main.choose<ServerPlayer>(playerList).ID;
                                     sendStarting();
                                 }
                                 break;
@@ -223,15 +227,17 @@ namespace Neno
 
             //Starting game
             sendMsg.Write((byte)ClientMsg.starting);
+            sendMsg.Write(turn);
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
         #endregion
+
         string getName(byte playerID)
         {
             return getPlayer(playerID).Name;
         }
-        ServerPlayer getPlayer(byte playerID)
+        public ServerPlayer getPlayer(byte playerID)
         {
             foreach(ServerPlayer player in playerList)
             {
@@ -248,6 +254,15 @@ namespace Neno
                     return player;
             }
             return null;
+        }
+
+        void Create()
+        {
+            //Create wordboard
+            wordBoard = new WordBoard();
+
+            //Create battleboards
+            battleBoardCount = playerList.Count;
         }
 
         #endregion

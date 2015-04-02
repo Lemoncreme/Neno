@@ -44,6 +44,8 @@ namespace Neno
         TextBox startBox;
         bool ready = false;
         public bool isOwner = false;
+        byte turn;
+        WordBoard wordBoard;
 
         #endregion
 
@@ -104,7 +106,9 @@ namespace Neno
                                 break;
                             case ClientMsg.starting: //The game has been started
                                 Status = ClientStatus.Starting_Game;
+                                turn = inc.ReadByte();
                                 readyBox = null; startBox = null;
+                                Start();
                                 break;
                         }
                         break;
@@ -181,6 +185,11 @@ namespace Neno
             sendMsg.Write(playerID);
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+        }
+        void Start()
+        {
+            //Create WordBoard
+            wordBoard = new WordBoard();
         }
 
         #endregion

@@ -32,6 +32,7 @@ namespace Neno
         public static GameClient Client;
         public static GameServer Server;
         public static double Time = 0;
+        public static Random R = new Random();
 
         //Drawing
         public static SpriteFont font;
@@ -119,6 +120,18 @@ namespace Neno
                 pos.X -= scale * font.MeasureString(Text).X;
 
             Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+        }
+        public static T choose<T>(List<T> list)
+        {
+            return list[rInt(0, list.Count)];
+        }
+        public static int rInt(int min, int max)
+        {
+            return R.Next(min, max + 1);
+        }
+        public static bool chance(int num)
+        {
+            return (R.Next(num) == 0);
         }
 
         #endregion
