@@ -17,6 +17,8 @@ namespace Neno
         public byte ID;
         public bool ready = false;
         public NetConnection Connection;
+        public int ping = 0;
+        public int lastResponse;
 
         public ServerPlayer(string name, byte id, NetConnection connection)
         {

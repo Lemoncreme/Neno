@@ -16,7 +16,8 @@
     <XnaProfile>Reach</XnaProfile>
     <XnaCrossPlatformGroupID>e541724b-42fe-43a8-ae5d-b1506f3d8815</XnaCrossPlatformGroupID>
     <XnaOutputType>Game</XnaOutputType>
-    <ApplicationIcon>Game.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -80,25 +81,26 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BattleBoard.cs" />
-    <Compile Include="ClientPlayer.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="GameServer.cs" />
-    <Compile Include="Key.cs" />
-    <Compile Include="GameClient.cs" />
-    <Compile Include="Menu.cs" />
+    <Compile Include="Game\BattleBoard.cs" />
+    <Compile Include="Other\NameGen.cs" />
+    <Compile Include="Network\ClientPlayer.cs" />
+    <Compile Include="Game\Entity.cs" />
+    <Compile Include="Network\GameServer.cs" />
+    <Compile Include="Other\Key.cs" />
+    <Compile Include="Network\GameClient.cs" />
+    <Compile Include="Main\Menu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Main.cs" />
-    <Compile Include="ServerPlayer.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="Sound.cs" />
-    <Compile Include="TextBox.cs" />
-    <Compile Include="Timer.cs" />
-    <Compile Include="WordBoard.cs" />
+    <Compile Include="Main\Program.cs" />
+    <Compile Include="Main\Main.cs" />
+    <Compile Include="Network\ServerPlayer.cs" />
+    <Compile Include="Main\Settings.cs" />
+    <Compile Include="Game\Sound.cs" />
+    <Compile Include="Drawing\TextBox.cs" />
+    <Compile Include="Other\Timer.cs" />
+    <Compile Include="Game\WordBoard.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Game.ico" />
+    <Content Include="game.ico" />
     <Content Include="GameThumbnail.png">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </Content>
@@ -131,6 +133,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

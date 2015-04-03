@@ -20,7 +20,7 @@ namespace Neno
     public class Entity
     {
         //Describes any moving, updating entity
-        string Name;
+        public string Name;
         int X;
         int Y;
         int HP;
@@ -33,7 +33,29 @@ namespace Neno
             Y = y;
             HP = hp;
             ownerID = ownerid;
-            Console.WriteLine("Entity created; name = " + Name + " location = " + x + "," + y + " owner = " + Main.Server.getPlayer(ownerID).Name);
+            Console.WriteLine("Entity created; name = " + Name + " location = " + x + "," + y + " owner = " + ownerID);
         }
+        public Entity(string name, byte[] packed)
+        {
+            Name = name;
+            Unpack(packed);
+
+            Console.WriteLine("Entity unpacked; name = " + Name + " location = " + X + "," + Y + " owner = " + ownerID);
+        }
+
+        public byte[] Pack()
+        {
+            return new byte[]{
+            (byte)X, (byte)Y, (byte)HP, ownerID
+            };
+        }
+        public void Unpack(byte[] packed)
+        {
+            X = (int)packed[0];
+            Y = (int)packed[1];
+            HP = (int)packed[2];
+            ownerID = packed[3];
+        }
+
     }
 }

@@ -23,7 +23,7 @@ namespace Neno
     }
     enum ClientMsg
     {
-        init, playerInfo, playerIsReady, playerLeft, starting
+        init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest
     }
     public class GameClient
     {
@@ -46,6 +46,7 @@ namespace Neno
         public bool isOwner = false;
         byte turn;
         WordBoard wordBoard;
+        List<BattleBoard> boardList = new List<BattleBoard>();
 
         #endregion
 
@@ -87,6 +88,7 @@ namespace Neno
                                     startBox.Description = "Start game, if all players are ready";
                                 }
                                 sendJoin();
+                                MediaPlayer.Play(Main.music("lobby"));
                                 break;
                             case ClientMsg.playerInfo: //Information about another player
                                 ID = inc.ReadByte();
@@ -109,6 +111,17 @@ namespace Neno
                                 turn = inc.ReadByte();
                                 readyBox = null; startBox = null;
                                 Start();
+                                break;
+                            case ClientMsg.newBoard: //Recieve init battle board
+                                int width = inc.ReadByte();
+                                int height = inc.ReadByte();
+                                int p1 = inc.ReadByte();
+                                int p2 = inc.ReadByte();
+                                byte[] tiles = inc.ReadBytes(width * height);
+                                boardList.Add(new BattleBoard());
+                                break;
+                            case ClientMsg.connectionTest: //Testing connected
+                                sendConnectionTest();
                                 break;
                         }
                         break;
@@ -186,6 +199,14 @@ namespace Neno
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
         }
+        void sendConnectionTest()
+        {
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.testResponse);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+        }
         void Start()
         {
             //Create WordBoard
@@ -243,7 +264,7 @@ namespace Neno
                     {
                         startBox.X = Main.windowWidth / 2;
                         startBox.CheckSelect();
-                        if (startBox.CheckClicked() && checkAllReady())
+                        if (startBox.CheckClicked() && checkAllReady() && playerList.Count > 1)
                             sendStart();
                     }
                     break;
@@ -281,7 +302,7 @@ namespace Neno
                             (float)(Math.Sin(Main.Time / 2000f)), 
                             new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
                     readyBox.Draw("", Main.sb);
-                    startBox.Draw("", Main.sb);
+                    if (isOwner) startBox.Draw("", Main.sb);
                     int i = 32;
                     foreach (ClientPlayer player in playerList)
                     {

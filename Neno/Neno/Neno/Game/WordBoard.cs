@@ -27,8 +27,8 @@ namespace Neno
         public WordBoard()
         {
             //Generate
-            Color[] boardImage = new Color[Main.img("wordBoard").Width * Main.img("wordBoard").Height];
-            Main.img("wordBoard").GetData<Color>(boardImage);
+            Color[] boardImage = new Color[Main.img("Boards/Word").Width * Main.img("Boards/Word").Height];
+            Main.img("Boards/Word").GetData<Color>(boardImage);
             for(int x = 0; x < 69; x++)
             {
                 for (int y = 0; y < 69; y++)

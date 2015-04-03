@@ -101,7 +101,7 @@ namespace Neno
         }
         public static SoundEffect sound(string name)
         {
-            return self.Content.Load<SoundEffect>(name);
+            return self.Content.Load<SoundEffect>("Sounds/" + name);
         }
         public static Texture2D img(string name)
         {
@@ -123,7 +123,7 @@ namespace Neno
         }
         public static T choose<T>(List<T> list)
         {
-            return list[rInt(0, list.Count)];
+            return list[rInt(0, list.Count - 1)];
         }
         public static int rInt(int min, int max)
         {
@@ -148,6 +148,7 @@ namespace Neno
             this.IsMouseVisible = true;
             this.Window.AllowUserResizing = true;
             this.Window.Title = "Neno";
+            MediaPlayer.IsMuted = true;
         }
 
         protected override void Initialize()
@@ -156,7 +157,7 @@ namespace Neno
             windowHeight = Window.ClientBounds.Height;
             MediaPlayer.Play(Main.music("findingNeno"));
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.IsMuted = true;
+            //MediaPlayer.IsMuted = true;
 
             base.Initialize();
         }

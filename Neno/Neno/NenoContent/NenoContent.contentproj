@@ -52,7 +52,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="type.wav">
+    <Compile Include="Sounds\type.wav">
       <Name>type</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
@@ -258,6 +258,18 @@
   <ItemGroup>
     <Compile Include="Textures\gameTiles.png">
       <Name>gameTiles</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\MusicOff.png">
+      <Name>MusicOff</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\musicOn.png">
+      <Name>musicOn</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

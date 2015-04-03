@@ -52,7 +52,11 @@ namespace Neno
 
         public void step()
         {
-            
+            if (Main.mouseLeftPressed && (new Rectangle(4, Main.windowHeight - 100, 92, 92).Contains((int)Main.mousePos.X, (int)Main.mousePos.Y)))
+            { 
+                MediaPlayer.IsMuted = !MediaPlayer.IsMuted;
+                Sound.Play("type");
+            }
 
             currentItem = null;
             foreach(TextBox item in currentMenu)
@@ -102,6 +106,15 @@ namespace Neno
                 (int)(Math.Sin(Main.Time / 250f) * 1000f - 1000f),
                 Main.img("Boards/Battle").Bounds.Width * 6,
                 Main.img("Boards/Battle").Bounds.Height * 6), Color.White);
+            Main.sb.Draw(Main.img("Boards/Battle"), new Rectangle(
+                (int)(Math.Sin(Main.Time / 100f) * 256f + 256f),
+                (int)(Math.Sin(Main.Time / 250f) * 1000f - 1000f),
+                Main.img("Boards/Battle").Bounds.Width * 6,
+                Main.img("Boards/Battle").Bounds.Height * 6), Color.White);
+            if (MediaPlayer.IsMuted)
+                Main.sb.Draw(Main.img("musicOff"), new Vector2(4, Main.windowHeight - 100), Color.Black);
+            else
+                Main.sb.Draw(Main.img("musicOn"), new Vector2(4, Main.windowHeight - 100), Color.Black);
 
             Main.sb.Draw(Main.img("logo"), new Vector2(Main.windowWidth / 2, 0), Main.img("logo").Bounds, Color.Black, 0, new Vector2(Main.img("logo").Width / 2, 0), 0.5f, SpriteEffects.None, 0);
             foreach (TextBox item in currentMenu)
