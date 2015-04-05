@@ -19,12 +19,18 @@ namespace Neno
         public NetConnection Connection;
         public int ping = 0;
         public int lastResponse;
+        public List<byte> letterTiles = new List<Byte>();
+        public bool readyToStart = false;
 
         public ServerPlayer(string name, byte id, NetConnection connection)
         {
             Name = name;
             ID = id;
             Connection = connection;
+            for(int i = 0; i < 12; i++)
+            {
+                letterTiles.Add((byte)Main.rInt(1, 26));
+            }
         }
     }
 }

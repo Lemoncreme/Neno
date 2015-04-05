@@ -185,7 +185,7 @@ namespace Neno
         {
             //Global
             Timer.Update();
-            Key.update();
+            if (self.IsActive) Key.update();
             Time += 1;
             if (Time > int.MaxValue - 8)
                 Time = 0;
@@ -193,17 +193,25 @@ namespace Neno
             windowHeight = Window.ClientBounds.Height;
 
             //Mouse
-            mousealt = mouse;
-            mouse = Mouse.GetState();
-            if (mouse.LeftButton == ButtonState.Pressed && mousealt.LeftButton == ButtonState.Released)
-                mouseLeftPressed = true;
+            if (self.IsActive)
+            {
+                mousealt = mouse;
+                mouse = Mouse.GetState();
+                if (mouse.LeftButton == ButtonState.Pressed && mousealt.LeftButton == ButtonState.Released)
+                    mouseLeftPressed = true;
+                else
+                    mouseLeftPressed = false;
+                if (mouse.RightButton == ButtonState.Pressed && mousealt.RightButton == ButtonState.Released)
+                    mouseRightPressed = true;
+                else
+                    mouseRightPressed = false;
+                mousePos = new Vector2(mouse.X, mouse.Y);
+            }
             else
+            {
                 mouseLeftPressed = false;
-            if (mouse.RightButton == ButtonState.Pressed && mousealt.RightButton == ButtonState.Released)
-                mouseRightPressed = true;
-            else
                 mouseRightPressed = false;
-            mousePos = new Vector2(mouse.X, mouse.Y);
+            }
 
             //Step
             switch (focus) 

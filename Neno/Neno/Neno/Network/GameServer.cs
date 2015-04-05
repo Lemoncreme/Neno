@@ -19,7 +19,8 @@ namespace Neno
         join = 101, 
         ready = 102,
         start = 103,
-        testResponse = 104
+        testResponse = 104,
+        readyToStart = 105
     }
     public class GameServer
     {
@@ -146,6 +147,17 @@ namespace Neno
                                 player = getPlayer(inc.SenderConnection);
                                 player.ping = DateTime.Now.Millisecond - player.lastResponse;
                                 break;
+                            case ServerMsg.readyToStart:
+                                player = getPlayer(inc.SenderConnection);
+                                player.readyToStart = true;
+                                int i = 0;
+                                foreach (ServerPlayer nextPlayer in playerList)
+                                {
+                                    if (nextPlayer.readyToStart) i++;
+                                }
+                                if (i == playerCount - 1)
+                                    sendAllReadyToStart();
+                                break;
                         }
                         break;
                         case NetIncomingMessageType.StatusChanged:
@@ -247,8 +259,8 @@ namespace Neno
             sendMsg.Write((byte)ClientMsg.newBoard);
 
             //Basic info
-            sendMsg.Write((byte)board.width);
-            sendMsg.Write((byte)board.height);
+            sendMsg.Write((byte)board.Width);
+            sendMsg.Write((byte)board.Height);
             sendMsg.Write(board.player1_ID);
             sendMsg.Write(board.player2_ID);
 
@@ -260,7 +272,9 @@ namespace Neno
             foreach(Entity entity in board.entityList)
             {
                 sendMsg.Write(entity.Name);
-                sendMsg.Write(entity.Pack());
+                var packed = entity.Pack();
+                sendMsg.Write(packed.Length);
+                sendMsg.Write(packed);
             }
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
@@ -281,6 +295,29 @@ namespace Neno
             }
 
             
+        }
+        void sendLetterTiles(NetConnection recipient, ServerPlayer player)
+        {
+            byte[] tilesArray = player.letterTiles.ToArray();
+
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.letterTiles);
+            sendMsg.Write(tilesArray.Length);
+            sendMsg.Write(tilesArray);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("<SERVER> " + "Sent letter tiles to " + player.Name);
+        }
+        void sendAllReadyToStart()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Starting game
+            sendMsg.Write((byte)ClientMsg.readyToStart);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("<SERVER> All ready to start!");
         }
         #endregion
 
@@ -320,14 +357,20 @@ namespace Neno
                 int nextplayer = 0;
                 for (int i = 0; i < MathHelper.Clamp(battleBoardCount - (ii + 1), 1, 15); i++)
                 {
-                    var nextBoard = new BattleBoard(playerList[nextplayer].ID, (byte)(playerList[nextplayer].ID + (ii + 1)));
+                    var nextPartner = nextplayer + (ii + 1);
+                    var nextBoard = new BattleBoard(playerList[nextplayer].ID, playerList[nextPartner].ID);
                     battleBoards.Add(nextBoard);
                     sendBoard(playerList[nextplayer].Connection, nextBoard);
+                    sendBoard(playerList[nextPartner].Connection, nextBoard);
                     nextplayer++;
                 }
             }
 
-
+            //Send player letter tiles
+            foreach (ServerPlayer player in playerList)
+            {
+                sendLetterTiles(player.Connection, player);
+            }
 
         }
         

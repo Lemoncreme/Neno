@@ -19,11 +19,18 @@ namespace Neno
         Waiting_For_Data,
         Disconnected,
         Lobby,
-        Starting_Game
+        Starting_Game,
+        In_Game
+    }
+    enum Viewing
+    {
+        Wordboard,
+        Battleboard,
+        Disconnected
     }
     enum ClientMsg
     {
-        init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest
+        init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart
     }
     public class GameClient
     {
@@ -47,6 +54,13 @@ namespace Neno
         byte turn;
         WordBoard wordBoard;
         List<BattleBoard> boardList = new List<BattleBoard>();
+        List<byte> letterTiles;
+
+        #region In-Game GUI
+        TextBox buttonWordBoard;
+        TextBox buttonInventory;
+        TextBox buttonOtherplayers;
+        #endregion
 
         #endregion
 
@@ -118,10 +132,38 @@ namespace Neno
                                 int p1 = inc.ReadByte();
                                 int p2 = inc.ReadByte();
                                 byte[] tiles = inc.ReadBytes(width * height);
-                                boardList.Add(new BattleBoard());
+
+                                int entityCount = inc.ReadInt32();
+                                List<Entity> entitylist = new List<Entity>();
+                                for (int i = 0; i < entityCount; i++ )
+                                {
+                                    string entityName = inc.ReadString();
+                                    int packedLength = inc.ReadInt32();
+                                    byte[] entityPacked = inc.ReadBytes(packedLength);
+                                    entitylist.Add(new Entity(entityName, entityPacked));
+                                }
+                                boardList.Add(new BattleBoard()
+                                {
+                                    Width = width,
+                                    Height = height,
+                                    player1_ID = (byte)p1,
+                                    player2_ID = (byte)p2
+                                });
+
                                 break;
                             case ClientMsg.connectionTest: //Testing connected
                                 sendConnectionTest();
+                                break;
+                            case ClientMsg.letterTiles: //Letter tiles
+                                int length = inc.ReadInt32();
+                                var tilesArray = inc.ReadBytes(length);
+                                letterTiles = tilesArray.ToList<byte>();
+                                Console.WriteLine("Recieved tiles");
+                                sendDone();
+                                break;
+                            case ClientMsg.readyToStart: //Server confirms that all players are ready to start game
+                                Status = ClientStatus.In_Game;
+                                Console.WriteLine("Game is ready!");
                                 break;
                         }
                         break;
@@ -140,6 +182,40 @@ namespace Neno
                 }
             }
         }
+        
+        ClientPlayer getPlayer(byte ID)
+        {
+            foreach (ClientPlayer player in playerList)
+            {
+                if (player.ID == ID)
+                    return player;
+            }
+            return null;
+        }
+        bool checkAllReady()
+        {
+            int i = 0;
+            foreach (ClientPlayer player in playerList)
+            {
+                if (player.Ready) i++;
+            }
+            if (i == playerList.Count - 0)
+                return true;
+            else return false;
+        }
+        
+        void Start()
+        {
+            //Create WordBoard
+            wordBoard = new WordBoard();
+
+            //Create buttons
+            buttonWordBoard = new TextBox(4, 4, "Wordboard", 0.5f, Main.font, TextOrient.Left);
+            buttonInventory = new TextBox(Main.windowWidth / 2, 4, "Inventory", 0.5f, Main.font, TextOrient.Middle);
+            buttonOtherplayers = new TextBox(Main.windowWidth - 4, 4, "Other Players", 0.5f, Main.font, TextOrient.Right);
+        }
+
+        #region Send Messages
         void sendInitRequest()
         {
             NetOutgoingMessage sendMsg = client.CreateMessage();
@@ -170,26 +246,6 @@ namespace Neno
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
             Console.WriteLine("Sent ready to play");
         }
-        ClientPlayer getPlayer(byte ID)
-        {
-            foreach (ClientPlayer player in playerList)
-            {
-                if (player.ID == ID)
-                    return player;
-            }
-            return null;
-        }
-        bool checkAllReady()
-        {
-            int i = 0;
-            foreach (ClientPlayer player in playerList)
-            {
-                if (player.Ready) i++;
-            }
-            if (i == playerList.Count - 0)
-                return true;
-            else return false;
-        }
         void sendStart()
         {
             NetOutgoingMessage sendMsg = client.CreateMessage();
@@ -207,10 +263,27 @@ namespace Neno
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
         }
-        void Start()
+        void sendDone()
         {
-            //Create WordBoard
-            wordBoard = new WordBoard();
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.readyToStart);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+        }
+        #endregion
+
+        void GameStep()
+        {
+            buttonWordBoard.CheckSelect();
+            buttonInventory.CheckSelect();
+            buttonOtherplayers.CheckSelect();
+        }
+        void GameDraw()
+        {
+            buttonWordBoard.Draw("", Main.sb);
+            buttonInventory.Draw("", Main.sb);
+            buttonOtherplayers.Draw("", Main.sb);
         }
 
         #endregion
@@ -271,6 +344,9 @@ namespace Neno
                 case ClientStatus.Starting_Game:
 
                     break;
+                case ClientStatus.In_Game:
+                    GameStep();
+                    break;
             }
         }
 
@@ -324,6 +400,17 @@ namespace Neno
                     Main.drawText(Main.font, "Game is starting!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1f, TextOrient.Middle);
                     Main.drawText(Main.font, "Give the server some time to generate battlefields.", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + 64), Color.White, 0.5f, TextOrient.Middle);
                     mainColor = Color.White;
+                    break;
+                case ClientStatus.In_Game:
+                    mainColor = Color.White;
+                    Main.sb.Draw(Main.img("bg"),
+                        new Vector2(
+                            (float)Math.Sin(Main.Time / 900f) * 100 - 100,
+                            (float)Math.Sin(Main.Time / 900f + 20) * 100 - 100), Main.img("bg").Bounds, Color.BlanchedAlmond,
+                            (float)(Math.Sin(Main.Time / 2000f)),
+                            new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
+
+                    GameDraw();
                     break;
             }
 

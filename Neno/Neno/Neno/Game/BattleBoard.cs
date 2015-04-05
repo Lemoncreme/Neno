@@ -13,8 +13,8 @@ namespace Neno
 {
     public class BattleBoard
     {
-        public int width = 48;
-        public int height = 96;
+        public int Width = 48;
+        public int Height = 96;
         public byte[] tiles; //Tile grid
         public List<Entity> entityList = new List<Entity>();
         /* Game Tiles Reference
@@ -27,14 +27,14 @@ namespace Neno
 
         public BattleBoard(byte p1, byte p2)
         {
-            tiles = new byte[width * height];
+            tiles = new byte[Width * Height];
             player1_ID = p1;
             player2_ID = p2;
 
             //Generate
-            for(int x = 0; x < width; x++)
+            for(int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     if (Main.chance(4))
                         setTile(x, y, (byte)Main.rInt(5, 8));
@@ -55,14 +55,18 @@ namespace Neno
 
             Console.WriteLine("BattleBoard generated for " + Main.Server.getPlayer(p1).Name + " and " + Main.Server.getPlayer(p2).Name);
         }
+        public BattleBoard()
+        {
+            Console.WriteLine("BattleBoard loaded");
+        }
 
         byte getTile(int x, int y)
         {
-            return tiles[(y * width) + x];
+            return tiles[(y * Width) + x];
         }
         void setTile(int x, int y, byte value)
         {
-            tiles[(y * width) + x] = value;
+            tiles[(y * Width) + x] = value;
         }
     }
 }

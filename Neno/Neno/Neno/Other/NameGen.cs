@@ -19,10 +19,10 @@ namespace Neno
         {
             StringBuilder name = new StringBuilder();
             bool firstIsVowel = false;
-            int range = 1;
-            if (Main.chance(2)) range = 2;
-            if (Main.chance(7)) range = 3;
-            if (Main.chance(16)) range = 4;
+            int range = 0;
+            if (Main.chance(2)) range = 1;
+            if (Main.chance(7)) range = 2;
+            if (Main.chance(16)) range = 3;
 
             //First letter
             if (Main.chance(1))
@@ -69,6 +69,17 @@ namespace Neno
                     else
                         name.Insert(name.Length, NameGen.Consanant());
                 }
+
+            //Last letter
+            if (firstIsVowel)
+                name.Insert(name.Length, NameGen.Consanant()); 
+            else
+            {
+                if (Main.chance(5))
+                    name.Insert(name.Length, NameGen.Vowels());
+                else
+                    name.Insert(name.Length, NameGen.Vowel()); 
+            }
 
 
             return name.ToString();
