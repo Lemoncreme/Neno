@@ -13,7 +13,7 @@ namespace Neno
 {
     public class WordBoard
     {
-        byte[,] tiles = new byte[69, 69];
+        public byte[,] tiles = new byte[69, 69];
         /* Tile Type Reference
          * 0 nothing
          * 1-26 words
@@ -23,6 +23,7 @@ namespace Neno
          * 30 Red - +20 Coins
          * 31 Yellow - +5 tiles
         */
+        public int Size = 69;
         public float viewX = 0;
         public float viewY = 0;
         public float Zoom = 1;
@@ -30,6 +31,9 @@ namespace Neno
         public float movingY = 0;
         public float movingMouseX = 0;
         public float movingMouseY = 0;
+        public int selectX = -1;
+        public int selectY = -1;
+        public bool Moving = false;
 
         public WordBoard()
         {

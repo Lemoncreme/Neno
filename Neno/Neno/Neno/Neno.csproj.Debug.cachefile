@@ -41,5 +41,8 @@ Content\Textures\gameTiles.xnb
 Content\Textures\MusicOff.xnb
 Content\Textures\musicOn.xnb
 Content\Sounds\type.xnb
+Content\Textures\trayLeft.xnb
+Content\Textures\trayMiddle.xnb
+Content\Textures\trayRight.xnb
 Content\Music\findingNeno.wma
 Content\Music\lobby.wma

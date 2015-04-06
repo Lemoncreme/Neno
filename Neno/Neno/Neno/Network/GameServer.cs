@@ -20,7 +20,8 @@ namespace Neno
         ready = 102,
         start = 103,
         testResponse = 104,
-        readyToStart = 105
+        readyToStart = 105,
+        placeTile = 106
     }
     enum ServerStatus
     {
@@ -176,6 +177,22 @@ namespace Neno
                                 if (i == playerCount - 1)
                                     sendAllReadyToStart();
                                 Status = ServerStatus.Playing;
+                                break;
+                            case ServerMsg.placeTile: //Client placed a tile
+                                player = getPlayer(inc.SenderConnection);
+                                byte tile = inc.ReadByte();
+                                byte x = inc.ReadByte();
+                                byte y = inc.ReadByte();
+                                byte inList = inc.ReadByte();
+                                wordBoard.tiles[x, y] = tile;
+                                sendAllTile(x, y, tile);
+                                if (tile > 0)
+                                    player.letterTiles.RemoveAt(inList);
+                                else
+                                    player.letterTiles.Add(inList);
+
+
+                                Console.WriteLine("<SERVER> " + player.Name + " placed a tile");
                                 break;
                         }
                         break;
@@ -337,6 +354,28 @@ namespace Neno
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
             Console.WriteLine("<SERVER> All ready to start!");
+        }
+        void sendAllTile(byte x, byte y, byte tile)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Starting game
+            sendMsg.Write((byte)ClientMsg.tilePlace);
+            sendMsg.Write(tile);
+            sendMsg.Write(x);
+            sendMsg.Write(y);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendNewLetterTile(NetConnection recipient, byte tile)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.newLetterTile);
+            sendMsg.Write(tile);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("<SERVER> " + "Sent new letter tile to " + getPlayer(recipient).Name);
         }
         #endregion
 
