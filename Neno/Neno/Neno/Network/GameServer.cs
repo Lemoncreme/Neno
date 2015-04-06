@@ -22,6 +22,10 @@ namespace Neno
         testResponse = 104,
         readyToStart = 105
     }
+    enum ServerStatus
+    {
+        Starting, Playing, Lobby
+    }
     public class GameServer
     {
 
@@ -39,6 +43,8 @@ namespace Neno
         int playerCount;
         List<BattleBoard> battleBoards = new List<BattleBoard>();
         WordBoard wordBoard;
+        ServerStatus Status = ServerStatus.Starting;
+        Timer pingTimer = new Timer(60, true);
 
         #endregion
 
@@ -64,6 +70,7 @@ namespace Neno
                 Console.WriteLine("<SERVER> " + "Succesfully port forwarded port " + serverPort);
             else
                 Console.WriteLine("<SERVER> " + "Did not succesfully port forward port " + serverPort);
+
         }
         void recMessage()
         {
@@ -80,42 +87,51 @@ namespace Neno
                         {
                             case ServerMsg.init: //Recieve init data request
 
-                                //Get name and ID
-                                string name = inc.ReadString();
-                                playerID = (byte)(lastID + 1);
-                                lastID++;
-                                Console.WriteLine("<SERVER> " + "Player " + name + " (" + playerID + ") joined");
-
-                                //Search and fix name dupes
-                                if (playerList.Count > 0)
+                                if (Status == ServerStatus.Lobby)
                                 {
-                                    int add = -1;
+                                    //Get name and ID
+                                    string name = inc.ReadString();
+                                    playerID = (byte)(lastID + 1);
+                                    lastID++;
+                                    Console.WriteLine("<SERVER> " + "Player " + name + " (" + playerID + ") joined");
+
+                                    //Search and fix name dupes
+                                    if (playerList.Count > 0)
+                                    {
+                                        int add = -1;
+                                        foreach (ServerPlayer Player in playerList)
+                                        {
+                                            if (Player.Name == name)
+                                                add = 0;
+                                            else
+                                                if (Player.Name == name + "_" + add)
+                                                    add += 1;
+                                        }
+                                        if (add != -1)
+                                        {
+                                            name += "_" + add;
+                                            Console.WriteLine("<SERVER> " + "Name dupe, player " + playerID + " is now called " + name);
+                                        }
+                                    }
+
+                                    //Add to playerlist
+                                    playerList.Add(new ServerPlayer(name, playerID, inc.SenderConnection));
+
+                                    //Send data
+                                    sendInitData(inc.SenderConnection, playerID);
+
+                                    //Send other players
                                     foreach (ServerPlayer Player in playerList)
                                     {
-                                        if (Player.Name == name)
-                                            add = 0;
-                                        else
-                                            if (Player.Name == name + "_" + add)
-                                                add += 1;
-                                    }
-                                    if (add != -1)
-                                    {
-                                        name += "_" + add;
-                                        Console.WriteLine("<SERVER> " + "Name dupe, player " + playerID + " is now called " + name);
+                                        if (Player.ID != playerID) sendPlayerInfo(inc.SenderConnection, Player.ID);
                                     }
                                 }
-
-                                //Add to playerlist
-                                playerList.Add(new ServerPlayer(name, playerID, inc.SenderConnection));
-
-                                //Send data
-                                sendInitData(inc.SenderConnection, playerID);
-
-                                //Send other players
-                                foreach (ServerPlayer Player in playerList)
+                                else
                                 {
-                                    if (Player.ID != playerID) sendPlayerInfo(inc.SenderConnection, Player.ID);
+                                    if (Status == ServerStatus.Starting) inc.SenderConnection.Disconnect("server not started");
+                                    if (Status == ServerStatus.Playing) inc.SenderConnection.Disconnect("game already in progress");
                                 }
+
                                 break;
                             case ServerMsg.join:
                                 playerID = inc.ReadByte();
@@ -146,6 +162,8 @@ namespace Neno
                             case ServerMsg.testResponse:
                                 player = getPlayer(inc.SenderConnection);
                                 player.ping = DateTime.Now.Millisecond - player.lastResponse;
+                                if (player.ping > Settings.timeOutPing)
+                                    Console.WriteLine("<SERVER> " + player.Name + " timed out!");
                                 break;
                             case ServerMsg.readyToStart:
                                 player = getPlayer(inc.SenderConnection);
@@ -157,6 +175,7 @@ namespace Neno
                                 }
                                 if (i == playerCount - 1)
                                     sendAllReadyToStart();
+                                Status = ServerStatus.Playing;
                                 break;
                         }
                         break;
@@ -388,6 +407,22 @@ namespace Neno
         public void step()
         {
             if (Key.pressed(Keys.Home)) Main.Switch(Focus.Menu);
+
+            switch(Status)
+            {
+                case ServerStatus.Starting:
+                    if (server.Status == NetPeerStatus.Running)
+                        Status = ServerStatus.Lobby;
+                    break;
+                case ServerStatus.Lobby:
+                    if (pingTimer.tick)
+                        sendTestConnection();
+                    break;
+                case ServerStatus.Playing:
+                    if (pingTimer.tick)
+                        sendTestConnection();
+                    break;
+            }
 
             recMessage();
         }

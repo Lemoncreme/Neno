@@ -47,6 +47,12 @@ namespace Neno
         public static Vector2 mousePos = Vector2.Zero;
         public static bool mouseLeftPressed = false;
         public static bool mouseRightPressed = false;
+        public static bool mouseLeftDown = false;
+        public static bool mouseRightDown = false;
+        public static bool mouseScrollUp = false;
+        public static bool mouseScrollDown = false;
+        int scroll = 0;
+
 
         #endregion
 
@@ -195,8 +201,21 @@ namespace Neno
             //Mouse
             if (self.IsActive)
             {
+                //Get Mouse state
                 mousealt = mouse;
                 mouse = Mouse.GetState();
+
+                //Buttons held
+                if (mouse.LeftButton == ButtonState.Pressed)
+                    mouseLeftDown = true;
+                else 
+                    mouseLeftDown = false;
+                if (mouse.RightButton == ButtonState.Pressed)
+                    mouseRightDown = true;
+                else
+                    mouseRightDown = false;
+
+                //Buttons pressed
                 if (mouse.LeftButton == ButtonState.Pressed && mousealt.LeftButton == ButtonState.Released)
                     mouseLeftPressed = true;
                 else
@@ -205,12 +224,26 @@ namespace Neno
                     mouseRightPressed = true;
                 else
                     mouseRightPressed = false;
+
+                //Mouse position
                 mousePos = new Vector2(mouse.X, mouse.Y);
+
+                //Scrolling
+                var newScroll = mouse.ScrollWheelValue;
+                mouseScrollUp = false;
+                mouseScrollDown = false;
+                if (scroll > newScroll)
+                    mouseScrollDown = true;
+                if (scroll < newScroll)
+                    mouseScrollUp = true;
+                scroll = mouse.ScrollWheelValue;
             }
             else
             {
                 mouseLeftPressed = false;
                 mouseRightPressed = false;
+                mouseScrollUp = false;
+                mouseScrollDown = false;
             }
 
             //Step

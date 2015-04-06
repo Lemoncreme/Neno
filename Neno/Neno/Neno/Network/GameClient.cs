@@ -26,7 +26,8 @@ namespace Neno
     {
         Wordboard,
         Battleboard,
-        Disconnected
+        Inventory,
+        Players
     }
     enum ClientMsg
     {
@@ -55,11 +56,16 @@ namespace Neno
         WordBoard wordBoard;
         List<BattleBoard> boardList = new List<BattleBoard>();
         List<byte> letterTiles;
+        Viewing view = Viewing.Wordboard;
+        
 
         #region In-Game GUI
         TextBox buttonWordBoard;
         TextBox buttonInventory;
         TextBox buttonOtherplayers;
+
+        //WordBoard
+        Matrix WordBoardView;
         #endregion
 
         #endregion
@@ -171,10 +177,11 @@ namespace Neno
                         switch ((NetConnectionStatus)inc.ReadByte())
                         {
                             case NetConnectionStatus.Disconnected:
-                                if (inc.ReadString() == "end")
+                                string disconnectMsg = inc.ReadString();
+                                if (disconnectMsg == "end")
                                     Console.WriteLine("Server was closed by server owner");
                                 else
-                                    Console.WriteLine("Server was closed, unknown reason");
+                                    Console.WriteLine("Connection was closed, " + disconnectMsg);
                                 Status = ClientStatus.Disconnected;
                                 break;
                         }
@@ -275,15 +282,52 @@ namespace Neno
 
         void GameStep()
         {
+            buttonWordBoard.X = 4; buttonWordBoard.Y = 4;
+            buttonInventory.X = Main.windowWidth / 2; buttonInventory.Y = 4;
+            buttonOtherplayers.X = Main.windowWidth - 4; buttonOtherplayers.Y = 4;
+
             buttonWordBoard.CheckSelect();
             buttonInventory.CheckSelect();
             buttonOtherplayers.CheckSelect();
+
+            if (buttonWordBoard.CheckClicked())
+                view = Viewing.Wordboard;
+            if (buttonInventory.CheckClicked())
+                view = Viewing.Inventory;
+            if (buttonOtherplayers.CheckClicked())
+                view = Viewing.Players;
+            if (Main.mouseScrollUp && wordBoard.Zoom < 8)
+                wordBoard.Zoom *= 2f;
+            if (Main.mouseScrollDown && wordBoard.Zoom > 1)
+                wordBoard.Zoom /= 2f;
+            if (Main.mouseLeftPressed)
+            {
+                wordBoard.movingX = wordBoard.viewX;
+                wordBoard.movingY = wordBoard.viewY;
+                wordBoard.movingMouseX = Main.mousePos.X;
+                wordBoard.movingMouseY = Main.mousePos.Y;
+            }
+            if (Main.mouseLeftDown)
+            {
+                wordBoard.viewX = wordBoard.movingX + Main.mousePos.X - wordBoard.movingMouseX;
+                wordBoard.viewY = wordBoard.movingY + Main.mousePos.Y - wordBoard.movingMouseY;
+            }
+            wordBoard.viewX = MathHelper.Clamp(wordBoard.viewX, 0, Main.img("Boards/Word").Width);
+            wordBoard.viewY = MathHelper.Clamp(wordBoard.viewY, 0, Main.img("Boards/Word").Height);
+            WordBoardView = Matrix.CreateTranslation(-wordBoard.viewX, -wordBoard.viewY, 0) * Matrix.CreateScale(wordBoard.Zoom);
         }
         void GameDraw()
         {
-            buttonWordBoard.Draw("", Main.sb);
-            buttonInventory.Draw("", Main.sb);
-            buttonOtherplayers.Draw("", Main.sb);
+
+
+            Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, WordBoardView);
+            switch(view)
+            {
+                case Viewing.Wordboard:
+                    Main.sb.Draw(Main.img("Boards/Word"), Vector2.Zero, Color.White);
+                    break;
+            }
+            Main.sb.End();
         }
 
         #endregion
@@ -352,6 +396,10 @@ namespace Neno
 
         public void draw()
         {
+
+            if (Status == ClientStatus.In_Game)
+                GameDraw();
+
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
             Color mainColor = Color.Black;
@@ -402,15 +450,18 @@ namespace Neno
                     mainColor = Color.White;
                     break;
                 case ClientStatus.In_Game:
-                    mainColor = Color.White;
+                    mainColor = Color.Black;
                     Main.sb.Draw(Main.img("bg"),
                         new Vector2(
                             (float)Math.Sin(Main.Time / 900f) * 100 - 100,
                             (float)Math.Sin(Main.Time / 900f + 20) * 100 - 100), Main.img("bg").Bounds, Color.BlanchedAlmond,
                             (float)(Math.Sin(Main.Time / 2000f)),
                             new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
-
-                    GameDraw();
+                    
+                    buttonWordBoard.Draw("", Main.sb);
+                    buttonInventory.Draw("", Main.sb);
+                    buttonOtherplayers.Draw("", Main.sb);
+                    
                     break;
             }
 
@@ -421,6 +472,9 @@ namespace Neno
                 Main.sb.DrawString(Main.consoleFont, "Neno Client", new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Name: " + clientName, new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Status: " + Status, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "x: " + wordBoard.viewX, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "y: " + wordBoard.viewY, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "z: " + wordBoard.Zoom, new Vector2(4, i), mainColor); i += 16;
             }
 
             Main.sb.End();

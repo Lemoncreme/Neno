@@ -23,6 +23,13 @@ namespace Neno
          * 30 Red - +20 Coins
          * 31 Yellow - +5 tiles
         */
+        public float viewX = 0;
+        public float viewY = 0;
+        public float Zoom = 1;
+        public float movingX = 0;
+        public float movingY = 0;
+        public float movingMouseX = 0;
+        public float movingMouseY = 0;
 
         public WordBoard()
         {
