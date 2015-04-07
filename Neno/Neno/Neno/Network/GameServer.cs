@@ -21,7 +21,8 @@ namespace Neno
         start = 103,
         testResponse = 104,
         readyToStart = 105,
-        placeTile = 106
+        placeTile = 106,
+        doneWord = 107
     }
     enum ServerStatus
     {
@@ -46,6 +47,7 @@ namespace Neno
         WordBoard wordBoard;
         ServerStatus Status = ServerStatus.Starting;
         Timer pingTimer = new Timer(60, true);
+        int turnNumber = 1;
 
         #endregion
 
@@ -156,6 +158,7 @@ namespace Neno
                                 {
                                     Console.WriteLine("<SERVER> starting game");
                                     turn = Main.choose<ServerPlayer>(playerList).ID;
+                                    Console.WriteLine("<SERVER> first turn is " + getPlayer(turn).Name);
                                     sendStarting();
                                     Create();
                                 }
@@ -193,6 +196,33 @@ namespace Neno
 
 
                                 Console.WriteLine("<SERVER> " + player.Name + " placed a tile");
+                                break;
+                            case ServerMsg.doneWord: //Client finished words
+                                player = getPlayer(inc.SenderConnection);
+                                int wordCount = inc.ReadByte();
+                                List<string> words = new List<string>();
+
+                                //Get words
+                                for (int ii = 0; ii < wordCount; ii++)
+                                {
+                                    words.Add(inc.ReadString());
+                                    player.wordsMade++;
+                                }
+                                Console.WriteLine("<SERVER> " + player.Name + " finished" + wordCount + "words");
+
+                                
+                                //Refill Letters
+                                while(player.letterTiles.Count < 12)
+                                {
+                                    byte newTile = Main.randomLetter();
+                                    player.letterTiles.Add(newTile);
+                                    sendNewLetterTile(inc.SenderConnection, newTile);
+                                }
+
+                                //Next turn
+                                turnNumber++;
+                                nextTurn();
+                                sendAllTurn();
                                 break;
                         }
                         break;
@@ -377,6 +407,17 @@ namespace Neno
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
             Console.WriteLine("<SERVER> " + "Sent new letter tile to " + getPlayer(recipient).Name);
         }
+        void sendAllTurn()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            //Starting game
+            sendMsg.Write((byte)ClientMsg.newTurn);
+            sendMsg.Write(turn);
+            sendMsg.Write(turnNumber);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
         #endregion
 
         string getName(byte playerID)
@@ -400,6 +441,22 @@ namespace Neno
                     return player;
             }
             return null;
+        }
+        void nextTurn()
+        {
+            //Get current turn player's index in list
+            var index = playerList.IndexOf(getPlayer(turn));
+
+            //Increment index by 1
+            if (index < playerList.Count - 1)
+                index++;
+            else
+                index = 0;
+
+            //New turn is ID of next player
+            turn = playerList[index].ID;
+
+            Console.WriteLine("<SERVER> it's now " + playerList[index].Name + "'s turn!");
         }
 
         void Create()
@@ -431,6 +488,8 @@ namespace Neno
             }
 
         }
+
+        
         
 
         #endregion

@@ -122,6 +122,8 @@ namespace Neno
                 item.Draw("", Main.sb);
             }
 
+            Main.drawText(Main.font, Settings.version, new Vector2(4, 4), Color.Black, 0.4f, TextOrient.Left);
+
             Main.sb.End();
         }
 

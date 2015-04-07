@@ -21,6 +21,7 @@ namespace Neno
         public int lastResponse;
         public List<byte> letterTiles = new List<Byte>();
         public bool readyToStart = false;
+        public int wordsMade = 0;
 
         public ServerPlayer(string name, byte id, NetConnection connection)
         {
@@ -29,7 +30,7 @@ namespace Neno
             Connection = connection;
             for(int i = 0; i < 12; i++)
             {
-                letterTiles.Add((byte)Main.rInt(1, 26));
+                letterTiles.Add(Main.randomLetter());
             }
         }
     }

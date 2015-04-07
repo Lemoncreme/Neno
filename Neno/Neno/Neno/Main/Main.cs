@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -34,6 +35,10 @@ namespace Neno
         public static double Time = 0;
         public static Random R = new Random();
 
+        //File
+        public static string workingDirectory = Directory.GetCurrentDirectory();
+        public static List<string> wordsList;
+
         //Drawing
         public static SpriteFont font;
         public static SpriteFont consoleFont;
@@ -41,6 +46,7 @@ namespace Neno
         public static int windowWidth = 0;
         public static int windowHeight = 0;
         public static string[] wordTileImg = new string[28];
+        public static string[] wordTileLetter = new string[27];
 
         //Mouse
         MouseState mouse;
@@ -141,6 +147,66 @@ namespace Neno
         {
             return (R.Next(num) == 0);
         }
+        public static byte randomLetter()
+        {
+            byte newLetter = 0;
+            int chance = Main.rInt(1, 100);
+            if (chance >= 1 && chance <= 12) newLetter = 5;
+            else
+                if (chance >= 13 && chance <= 21) newLetter = 1;
+                else
+                    if (chance >= 22 && chance <= 30) newLetter = 9;
+                    else
+                        if (chance >= 31 && chance <= 38) newLetter = 15;
+                        else
+                            if (chance >= 39 && chance <= 44) newLetter = 14;
+                            else
+                                if (chance >= 45 && chance <= 50) newLetter = 18;
+                                else
+                                    if (chance >= 51 && chance <= 56) newLetter = 20;
+                                    else
+                                        if (chance >= 57 && chance <= 60) newLetter = 12;
+                                        else
+                                            if (chance >= 61 && chance <= 64) newLetter = 19;
+                                            else
+                                                if (chance >= 65 && chance <= 68) newLetter = 21;
+                                                else
+                                                    if (chance >= 69 && chance <= 72) newLetter = 4;
+                                                    else
+                                                        if (chance >= 73 && chance <= 75) newLetter = 7;
+                                                        else
+                                                            if (chance >= 76 && chance <= 77) newLetter = 2;
+                                                            else
+                                                                if (chance >= 78 && chance <= 79) newLetter = 3;
+                                                                else
+                                                                    if (chance >= 80 && chance <= 81) newLetter = 13;
+                                                                    else
+                                                                        if (chance >= 82 && chance <= 83) newLetter = 16;
+                                                                        else
+                                                                            if (chance >= 84 && chance <= 85) newLetter = 6;
+                                                                            else
+                                                                                if (chance >= 86 && chance <= 87) newLetter = 8;
+                                                                                else
+                                                                                    if (chance >= 88 && chance <= 89) newLetter = 22;
+                                                                                    else
+                                                                                        if (chance >= 90 && chance <= 91) newLetter = 23;
+                                                                                        else
+                                                                                            if (chance >= 92 && chance <= 93) newLetter = 25;
+                                                                                            else
+                                                                                                if (chance == 94) newLetter = 11;
+                                                                                                else
+                                                                                                    if (chance == 95) newLetter = 10;
+                                                                                                    else
+                                                                                                        if (chance == 96) newLetter = 24;
+                                                                                                        else
+                                                                                                            if (chance == 97) newLetter = 17;
+                                                                                                            else
+                                                                                                                if (chance == 98) newLetter = 26;
+                                                                                                                else
+                                                                                                                    if (chance >= 99 && chance <= 100) newLetter = 27;
+
+            return newLetter;
+        }
 
         #region Drawing
 
@@ -226,6 +292,39 @@ namespace Neno
             MediaPlayer.Play(Main.music("findingNeno"));
             MediaPlayer.IsRepeating = true;
             //MediaPlayer.IsMuted = true;
+
+            //Letter Byte Values
+            wordTileLetter[1] = "a";
+            wordTileLetter[2] = "b";
+            wordTileLetter[3] = "c";
+            wordTileLetter[4] = "d";
+            wordTileLetter[5] = "e";
+            wordTileLetter[6] = "f";
+            wordTileLetter[7] = "g";
+            wordTileLetter[8] = "h";
+            wordTileLetter[9] = "i";
+            wordTileLetter[10] = "j";
+            wordTileLetter[11] = "k";
+            wordTileLetter[12] = "l";
+            wordTileLetter[13] = "m";
+            wordTileLetter[14] = "n";
+            wordTileLetter[15] = "o";
+            wordTileLetter[16] = "p";
+            wordTileLetter[17] = "q";
+            wordTileLetter[18] = "r";
+            wordTileLetter[19] = "s";
+            wordTileLetter[20] = "t";
+            wordTileLetter[21] = "u";
+            wordTileLetter[22] = "v";
+            wordTileLetter[23] = "w";
+            wordTileLetter[24] = "x";
+            wordTileLetter[25] = "y";
+            wordTileLetter[26] = "z";
+
+            //Word List
+            var words = File.ReadLines(Main.workingDirectory + "/wordsEn.txt");
+            wordsList = words.ToList();
+            Console.WriteLine("Loaded words list containing " + wordsList.Count + " words");
 
             base.Initialize();
         }

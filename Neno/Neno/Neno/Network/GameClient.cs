@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -31,7 +32,12 @@ namespace Neno
     }
     enum ClientMsg
     {
-        init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile
+        init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
+        newTurn, newWordNumber
+    }
+    enum Direction
+    {
+        Left, Right, Up, Down, None
     }
     public class GameClient
     {
@@ -56,21 +62,30 @@ namespace Neno
         WordBoard wordBoard;
         List<BattleBoard> boardList = new List<BattleBoard>();
         List<byte> letterTiles;
+        List<string> wordsCreated = new List<string>();
         Viewing view = Viewing.Wordboard;
-        
+        bool canInteract = false;
+        Direction direction = Direction.None;
+        int turnNumber = 1;
+        int wordsMade = 0;
 
         #region In-Game GUI
+        //Main Buttons
         TextBox buttonWordBoard;
         TextBox buttonInventory;
         TextBox buttonOtherplayers;
 
+        //Button Groups
+        List<TextBox> buttonsWordBoard = new List<TextBox>();
+
         //WordBoard
         Matrix WordBoardView;
+        List<Vector2> placedTiles = new List<Vector2>();
 
         //Letter Tile Tray
         int trayWidth;
         int trayPixelWidth;
-        int selectedLetter;
+        int selectedLetter = -1;
         bool pickupLetter = false;
         #endregion
 
@@ -135,6 +150,10 @@ namespace Neno
                             case ClientMsg.starting: //The game has been started
                                 Status = ClientStatus.Starting_Game;
                                 turn = inc.ReadByte();
+                                if (turn == playerID)
+                                    canInteract = true;
+                                else
+                                    canInteract = false;
                                 readyBox = null; startBox = null;
                                 Start();
                                 break;
@@ -176,6 +195,7 @@ namespace Neno
                             case ClientMsg.readyToStart: //Server confirms that all players are ready to start game
                                 Status = ClientStatus.In_Game;
                                 Console.WriteLine("Game is ready!");
+                                Console.WriteLine("It's " + getPlayer(turn).Name + "'s turn!");
                                 break;
                             case ClientMsg.tilePlace:
                                 tile = inc.ReadByte();
@@ -186,6 +206,15 @@ namespace Neno
                             case ClientMsg.newLetterTile:
                                 tile = inc.ReadByte();
                                 letterTiles.Add(tile);
+                                break;
+                            case ClientMsg.newTurn:
+                                turn = inc.ReadByte();
+                                turnNumber = inc.ReadInt32();
+                                Console.WriteLine("It's now " + getPlayer(turn).Name + "'s turn!");
+                                if (turn == playerID)
+                                    canInteract = true;
+                                else
+                                    canInteract = false;
                                 break;
                         }
                         break;
@@ -226,6 +255,105 @@ namespace Neno
                 return true;
             else return false;
         }
+
+        bool checkWord(string word)
+        {
+            return (Main.wordsList.Contains(word));
+        }
+        void findAllWords()
+        {
+            wordsCreated.Clear();
+            foreach (Vector2 pos in placedTiles)
+            {
+                var nextWords = findWords((int)pos.X, (int)pos.Y);
+                if (nextWords.Count > 0) if (!wordsCreated.Contains(nextWords[0])) wordsCreated.Add(nextWords[0]);
+                if (nextWords.Count > 1) if (!wordsCreated.Contains(nextWords[1])) wordsCreated.Add(nextWords[1]);
+            }
+            Console.WriteLine("Found " + wordsCreated.Count + " words");
+        }
+        List<string> findWords(int x, int y)
+        {
+            //Find words adjacent from an origin
+            List<string> newWords = new List<string>();
+            int originX = x; //Leftmost
+            int originY = y; //Topmost
+            int X = x; //Current X coord, used
+            int Y = y; //Current Y coord, used
+
+            //Find leftmost tile
+            while (wordBoard.tiles[originX - 1, y] >= 1 && wordBoard.tiles[originX - 1, y] <= 26)
+            {
+                originX--;
+            }
+            X = originX;
+
+            //Find topmost tile
+            while (wordBoard.tiles[x, originY - 1] >= 1 && wordBoard.tiles[x, originY - 1] <= 26)
+            {
+                originY--;
+            }
+            Y = originY;
+
+            //Find horizontal word
+            string word1 = "";
+            while (wordBoard.tiles[X, y] >= 1 && wordBoard.tiles[X, y] <= 26)
+            {
+                word1 += Main.wordTileLetter[wordBoard.tiles[X, y]];
+                X++;
+            }
+            if (word1.Length > 1) newWords.Add(word1);
+
+            //Find vertical word
+            string word2 = "";
+            while (wordBoard.tiles[x, Y] >= 1 && wordBoard.tiles[x, Y] <= 26)
+            {
+                word2 += Main.wordTileLetter[wordBoard.tiles[x, Y]];
+                Y++;
+            }
+            if (word2.Length > 1) newWords.Add(word2);
+
+            return newWords;
+        }
+        bool checkCanPlaceTile(int x, int y)
+        {
+            bool canPlace = true;
+
+            if (wordBoard.tiles[x, y] != 0)
+                return false;
+
+            if (x == 34 && y == 34)
+                canPlace = true;
+            else
+            {
+                if (direction == Direction.None)
+                    canPlace = true;
+                else
+                    if (direction == Direction.Left && wordBoard.tiles[x + 1, y] == 0)
+                        canPlace = false;
+                    else
+                        if (direction == Direction.Right && wordBoard.tiles[x - 1, y] == 0)
+                            canPlace = false;
+                        else
+                            if (direction == Direction.Up && wordBoard.tiles[x, y + 1] == 0)
+                                canPlace = false;
+                            else
+                                if (direction == Direction.Down && wordBoard.tiles[x, y - 1] == 0)
+                                    canPlace = false;
+
+                if (wordBoard.tiles[x + 1, y] == 0 &&
+                    wordBoard.tiles[x - 1, y] == 0 &&
+                    wordBoard.tiles[x, y + 1] == 0 &&
+                    wordBoard.tiles[x, y - 1] == 0 && turnNumber == 1)
+                    return false;
+
+                if (placedTiles.Count == 1)
+                    if (placedTiles[0].X != x && placedTiles[0].Y != y)
+                        return false;
+            }
+
+            return canPlace;
+        }
+
         
         void Start()
         {
@@ -236,6 +364,9 @@ namespace Neno
             buttonWordBoard = new TextBox(4, 4, "Wordboard", 0.5f, Main.font, TextOrient.Left);
             buttonInventory = new TextBox(Main.windowWidth / 2, 4, "Inventory", 0.5f, Main.font, TextOrient.Middle);
             buttonOtherplayers = new TextBox(Main.windowWidth - 4, 4, "Other Players", 0.5f, Main.font, TextOrient.Right);
+
+            //WordBoard Buttons
+            buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 110, "Submit Word", 0.5f, Main.font));
         }
 
         #region Send Messages
@@ -295,6 +426,7 @@ namespace Neno
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
         }
+        
 
         //Game
         void sendTilePlace(int x, int y, byte tile, int tilePositionInList)
@@ -306,6 +438,21 @@ namespace Neno
             sendMsg.Write((byte)x);
             sendMsg.Write((byte)y);
             sendMsg.Write((byte)tilePositionInList);
+
+            client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendWords(List<string> words)
+        {
+            NetOutgoingMessage sendMsg = client.CreateMessage();
+
+            sendMsg.Write((byte)ServerMsg.doneWord);
+            sendMsg.Write((byte)words.Count);
+            foreach (string Word in words)
+            { 
+                sendMsg.Write(Word);
+                wordsMade++;
+                Console.WriteLine("Checked and sent word: " + Word);
+            }
 
             client.SendMessage(sendMsg, client.ServerConnection, NetDeliveryMethod.ReliableOrdered);
         }
@@ -328,6 +475,51 @@ namespace Neno
                 view = Viewing.Inventory;
             if (buttonOtherplayers.CheckClicked())
                 view = Viewing.Players;
+
+            if (!pickupLetter)
+            switch(view)
+            {
+                case Viewing.Wordboard:
+                    foreach(TextBox nextBox in buttonsWordBoard)
+                    {
+                        switch(nextBox.Text)
+                        {
+                            case "Submit Word":
+                                nextBox.Y = Main.windowHeight - 110;
+                                nextBox.CheckSelect();
+                                if (canInteract)
+                                {
+                                    if (nextBox.CheckClicked())
+                                    {
+                                        findAllWords();
+                                        List<string> realWords = new List<string>();
+                                        foreach (string nextWord in wordsCreated)
+                                        {
+                                            if (checkWord(nextWord))
+                                            {
+                                                realWords.Add(nextWord);
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(nextWord + " is not a word!");
+                                                return;
+                                            }
+                                        }
+                                        if (realWords.Count > 0)
+                                        {
+                                            sendWords(realWords);
+                                            canInteract = false;
+                                            direction = Direction.None;
+                                            placedTiles.Clear();
+                                            wordsCreated.Clear();
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    break;
+            }
 
             //WordBoard Scrolling
             #region Scrolling Board
@@ -366,72 +558,120 @@ namespace Neno
             wordBoard.selectY = (int)MathHelper.Clamp((float)(Math.Floor((wordBoard.viewY + Main.mousePos.Y / wordBoard.Zoom) / 8f)), 0, wordBoard.Size);
             if (pickupLetter)
             {
-                if (Main.mouseRightPressed && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP) && wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] == 0)
+                //Place a tile
+                if (Main.mouseRightPressed 
+                    && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP)
+                    && checkCanPlaceTile((int)wordBoard.selectX, (int)wordBoard.selectY))
                 {
-                    sendTilePlace(wordBoard.selectX, wordBoard.selectY, letterTiles[selectedLetter], selectedLetter);
-                    wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] = letterTiles[selectedLetter];
+                    int x = wordBoard.selectX;
+                    int y = wordBoard.selectY;
+
+                    //Tile place
+                    sendTilePlace(x, y, letterTiles[selectedLetter], selectedLetter);
+                    wordBoard.tiles[x, y] = letterTiles[selectedLetter];
+
+                    //Remove from tiles
                     letterTiles.RemoveAt(selectedLetter);
+
+                    //Add to pos list
+                    placedTiles.Add(new Vector2(x, y));
+
+                    //Decide direction
+                    if (placedTiles.Count == 2)
+                    {
+                        if (placedTiles[0].X > x)
+                            direction = Direction.Left;
+                        if (placedTiles[0].X < x)
+                            direction = Direction.Right;
+                        if (placedTiles[0].Y > y)
+                            direction = Direction.Up;
+                        if (placedTiles[0].Y < y)
+                            direction = Direction.Down;
+                    }
+
+                    //Reset
                     pickupLetter = false;
                     selectedLetter = -1;
                 }
             }
             else
             {
+                //Pick back up a tile
+                if (placedTiles.Contains(new Vector2(wordBoard.selectX, wordBoard.selectY)))
                 if (Main.mouseRightPressed && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP) && wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] != 0)
                 {
                     sendTilePlace(wordBoard.selectX, wordBoard.selectY, 0, wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
                     letterTiles.Add(wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
                     wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] = 0;
+                    placedTiles.Remove(new Vector2(wordBoard.selectX, wordBoard.selectY));
+                    if (placedTiles.Count <= 1)
+                        direction = Direction.None;
                 }
             }
 
             //Tray
             trayWidth = (int)Math.Ceiling(letterTiles.Count / 2f);
             trayPixelWidth = trayWidth * Main.img("trayMiddle").Width;
-            if (!pickupLetter)
+            if (canInteract)
             {
-                selectedLetter = -1;
-                if (new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP))
-                    for (int i = 0; i < letterTiles.Count; i++)
-                    {
-                        if ((new Rectangle(
-                            (int)(Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64),
-                            (int)(Main.windowHeight - 74),
-                            64, 64)).Contains((int)Main.mousePos.X, (int)Main.mousePos.Y))
-                            selectedLetter = i;
-                    }
-            }
-            if (Main.mouseLeftPressed && selectedLetter != -1)
-            {
-                pickupLetter = true;
+                if (!pickupLetter)
+                {
+                    selectedLetter = -1;
+                    if (new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP))
+                        for (int i = 0; i < letterTiles.Count; i++)
+                        {
+                            if ((new Rectangle(
+                                (int)(Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64),
+                                (int)(Main.windowHeight - 74),
+                                64, 64)).Contains((int)Main.mousePos.X, (int)Main.mousePos.Y))
+                                selectedLetter = i;
+                        }
+                }
+                if (Main.mouseLeftPressed && selectedLetter != -1)
+                {
+                    pickupLetter = true;
+                }
             }
         }
         void GameDraw()
         {
+            //Background
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+            #region BG
             Main.sb.Draw(Main.img("bg"),
                 new Vector2(
                     (float)Math.Sin(Main.Time / 900f) * 100 - 100,
                     (float)Math.Sin(Main.Time / 900f + 20) * 100 - 100), Main.img("bg").Bounds, Color.BlanchedAlmond,
                     (float)(Math.Sin(Main.Time / 2000f)),
                     new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
+            #endregion
             Main.sb.End();
 
+            //Relative to Board
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, WordBoardView);
-            switch(view)
+            #region Board
+            switch (view)
             {
                 case Viewing.Wordboard:
                     Main.sb.Draw(Main.img("Boards/Word"), Vector2.Zero, Color.White);
                     break;
             }
+
+            //Draw Tiles
             for (int x = 0; x < wordBoard.Size; x++ )
             {
                 for (int y = 0; y < wordBoard.Size; y++)
                 {
-                    if (wordBoard.tiles[x, y] > 0 && wordBoard.tiles[x, y] <= 26)
-                    Main.sb.Draw(Main.img(Main.wordTileImg[wordBoard.tiles[x, y]]), new Rectangle(x * 8, y * 8, 8, 8), Color.White);
+                    if (wordBoard.tiles[x, y] > 0 && wordBoard.tiles[x, y] <= 27)
+                    { 
+                        Color color = Color.White;
+                        if (placedTiles.Contains(new Vector2(x, y)))
+                            color = Color.Goldenrod;
+                        Main.sb.Draw(Main.img(Main.wordTileImg[wordBoard.tiles[x, y]]), new Rectangle(x * 8, y * 8, 8, 8), color); 
+                    }
                 }
             }
+
             if (pickupLetter)
             {
                 /* DEBUG
@@ -441,9 +681,14 @@ namespace Neno
                     8, 8), new Color(1f, 1f, 1f, 0.6f));
                 */
             }
+            #endregion
             Main.sb.End();
 
+            //Top GUI
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+            #region Top GUI
+
+            //Tiles
             Main.DrawRectangle(0, Main.windowHeight - 110, Main.windowWidth, 110, new Color(0, 0, 0, 0.3f), false);
             int i = 0;
             foreach (byte Tile in letterTiles)
@@ -460,8 +705,36 @@ namespace Neno
                     (int)(64 + 16), (int)(64 + 16)), Color.Turquoise);
                 i++;
             }
+
+            //Picked up tile
             if (pickupLetter)
-                Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle((int)Main.mousePos.X - 32, (int)Main.mousePos.Y - 32, 64, 64), Color.White);
+            { 
+                Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle((int)Main.mousePos.X - 32, (int)Main.mousePos.Y - 32, 64, 64), Color.White); 
+                Main.drawText(Main.consoleFont, "Right click to place", new Vector2(Main.mousePos.X, Main.mousePos.Y - 85), Color.Black, 1, TextOrient.Middle);
+            }
+
+            //Who's Turn
+            if (turn == playerID)
+            {
+                Main.drawText(Main.font, "It's Your Turn!", new Vector2(Main.windowWidth / 2, (float)(74 + Math.Sin(Main.Time / 16) * 6)), Color.Black, 0.75f, TextOrient.Middle);
+                Main.drawText(Main.font, "It's Your Turn!", new Vector2(Main.windowWidth / 2, (float)(72 + Math.Sin(Main.Time / 16) * 6)), Color.DarkTurquoise, 0.75f, TextOrient.Middle);
+            }
+            else
+                Main.drawText(Main.font, getPlayer(turn).Name + "'s turn", new Vector2(Main.windowWidth / 2, 72), Color.Black, 0.75f, TextOrient.Middle);
+
+            //Buttons
+            switch (view)
+            {
+                case Viewing.Wordboard:
+                    foreach (TextBox nextBox in buttonsWordBoard)
+                    {
+                        nextBox.Draw("", Main.sb);
+                    }
+                    Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
+                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 240), Color.Black, 0.5f, TextOrient.Left);
+                    break;
+            }
+            #endregion
             Main.sb.End();
         }
 
@@ -607,6 +880,8 @@ namespace Neno
                 Main.sb.DrawString(Main.consoleFont, "Viewing: " + view, new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "x: " + wordBoard.selectX, new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "y: " + wordBoard.selectY, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "canInteract: " + canInteract, new Vector2(4, i), mainColor); i += 16;
+                Main.sb.DrawString(Main.consoleFont, "direction: " + direction, new Vector2(4, i), mainColor); i += 16;
             }
 
             Main.sb.End();

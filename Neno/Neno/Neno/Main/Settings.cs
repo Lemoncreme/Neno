@@ -16,5 +16,6 @@ namespace Neno
     {
         public const int defaultPort = 25565; //Default network port
         public const int timeOutPing = 10000; //Amount of ms before timeout
+        public const string version = "Version 0.0"; //Game version, displayed in window
     }
 }
