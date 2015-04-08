@@ -21,7 +21,8 @@ namespace Neno
         Disconnected,
         Lobby,
         Starting_Game,
-        In_Game
+        In_Game,
+        None
     }
     enum Viewing
     {
@@ -33,11 +34,11 @@ namespace Neno
     enum ClientMsg
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
-        newTurn, newWordNumber
+        newTurn, newWordNumber, ping, backToLobby
     }
     enum Direction
     {
-        Left, Right, Up, Down, None
+        Horizontal, Vertical, None
     }
     public class GameClient
     {
@@ -68,6 +69,8 @@ namespace Neno
         Direction direction = Direction.None;
         int turnNumber = 1;
         int wordsMade = 0;
+        int ping = 0;
+        bool choosingWild = false;
 
         #region In-Game GUI
         //Main Buttons
@@ -81,6 +84,7 @@ namespace Neno
         //WordBoard
         Matrix WordBoardView;
         List<Vector2> placedTiles = new List<Vector2>();
+        List<Vector2> placedWilds = new List<Vector2>();
 
         //Letter Tile Tray
         int trayWidth;
@@ -146,6 +150,8 @@ namespace Neno
                             case ClientMsg.playerLeft: //A player left the game
                                 ID = inc.ReadByte();
                                 playerList.Remove(getPlayer(ID));
+                                if (Status == ClientStatus.In_Game)
+                                    Status = ClientStatus.None;
                                 break;
                             case ClientMsg.starting: //The game has been started
                                 Status = ClientStatus.Starting_Game;
@@ -197,17 +203,17 @@ namespace Neno
                                 Console.WriteLine("Game is ready!");
                                 Console.WriteLine("It's " + getPlayer(turn).Name + "'s turn!");
                                 break;
-                            case ClientMsg.tilePlace:
+                            case ClientMsg.tilePlace: //Tile placed on board
                                 tile = inc.ReadByte();
                                 byte x = inc.ReadByte();
                                 byte y = inc.ReadByte();
                                 wordBoard.tiles[x, y] = tile;
                                 break;
-                            case ClientMsg.newLetterTile:
+                            case ClientMsg.newLetterTile: //Get a new placeable tile
                                 tile = inc.ReadByte();
                                 letterTiles.Add(tile);
                                 break;
-                            case ClientMsg.newTurn:
+                            case ClientMsg.newTurn: //New turn
                                 turn = inc.ReadByte();
                                 turnNumber = inc.ReadInt32();
                                 Console.WriteLine("It's now " + getPlayer(turn).Name + "'s turn!");
@@ -215,6 +221,28 @@ namespace Neno
                                     canInteract = true;
                                 else
                                     canInteract = false;
+                                break;
+                            case ClientMsg.ping: //Connection speed
+                                ping = inc.ReadInt32();
+                                break;
+                            case ClientMsg.backToLobby: //Someone disconnected during the game, go back to lobby
+                                boardList.Clear();
+                                wordBoard = null;
+                                ready = false;
+                                foreach(ClientPlayer player in playerList)
+                                { player.Ready = false; }
+                                Status = ClientStatus.Lobby;
+                                wordsCreated.Clear();
+                                wordsMade = 0;
+                                turn = 0;
+                                turnNumber = 0;
+                                readyBox = new TextBox(Main.windowWidth / 2, 16, "I'm Ready!", 0.5f, Main.font, TextOrient.Middle);
+                                if (isOwner)
+                                {
+                                    startBox = new TextBox(Main.windowWidth / 2, 80, "Start Game", 1f, Main.font, TextOrient.Middle);
+                                    startBox.Description = "Start game, if all players are ready";
+                                }
+                                view = Viewing.Wordboard;
                                 break;
                         }
                         break;
@@ -343,17 +371,11 @@ namespace Neno
                 if (direction == Direction.None)
                     canPlace = true;
                 else
-                    if (direction == Direction.Left && wordBoard.tiles[x + 1, y] == 0)
+                    if (direction == Direction.Horizontal && wordBoard.tiles[x + 1, y] == 0 && wordBoard.tiles[x - 1, y] == 0)
                         canPlace = false;
                     else
-                        if (direction == Direction.Right && wordBoard.tiles[x - 1, y] == 0)
+                        if (direction == Direction.Vertical && wordBoard.tiles[x, y - 1] == 0 && wordBoard.tiles[x, y + 1] == 0)
                             canPlace = false;
-                        else
-                            if (direction == Direction.Up && wordBoard.tiles[x, y + 1] == 0)
-                                canPlace = false;
-                            else
-                                if (direction == Direction.Down && wordBoard.tiles[x, y - 1] == 0)
-                                    canPlace = false;
 
                 if (wordBoard.tiles[x + 1, y] == 0 &&
                     wordBoard.tiles[x - 1, y] == 0 &&
@@ -368,6 +390,35 @@ namespace Neno
 
             return canPlace;
         }
+        void placeTile(int x, int y, byte tile)
+        {
+            //Tile place
+            sendTilePlace(x, y, tile, selectedLetter);
+            wordBoard.tiles[x, y] = tile;
+
+            //Remove from tiles
+            letterTiles.RemoveAt(selectedLetter);
+
+            //Add to pos list
+            placedTiles.Add(new Vector2(x, y));
+
+            //Decide direction
+            if (placedTiles.Count == 2)
+            {
+                if (placedTiles[0].X > x)
+                    direction = Direction.Horizontal;
+                if (placedTiles[0].X < x)
+                    direction = Direction.Horizontal;
+                if (placedTiles[0].Y > y)
+                    direction = Direction.Vertical;
+                if (placedTiles[0].Y < y)
+                    direction = Direction.Vertical;
+            }
+
+            //Reset
+            pickupLetter = false;
+            selectedLetter = -1;
+        }
 
         
         void Start()
@@ -381,7 +432,8 @@ namespace Neno
             buttonOtherplayers = new TextBox(Main.windowWidth - 4, 4, "Other Players", 0.5f, Main.font, TextOrient.Right);
 
             //WordBoard Buttons
-            buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 110, "Submit Word", 0.5f, Main.font));
+            buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 106, "Submit Word", 0.5f, Main.font));
+            buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 160, "Choose Letter: ", 0.5f, Main.font, TextOrient.Middle, true, "a"));
         }
 
         #region Send Messages
@@ -510,7 +562,7 @@ namespace Neno
                         {
                             case "Submit Word":
                                 #region Submitting Words
-                                nextBox.Y = Main.windowHeight - 110;
+                                nextBox.Y = Main.windowHeight - 106;
                                 nextBox.CheckSelect();
                                 if (canInteract)
                                 {
@@ -544,6 +596,52 @@ namespace Neno
                                     }
                                 }
                                 #endregion
+                                break;
+                            case "Choose Letter: ":
+                                nextBox.Y = Main.windowHeight - 160;
+                                nextBox.CheckSelect();
+                                if (choosingWild)
+                                { 
+                                    nextBox.Visible = true;
+                                    if (Key.pressed(Keys.Enter) && nextBox.clicked)
+                                        if (nextBox.typeText == "a" || nextBox.typeText == "A" ||
+                                            nextBox.typeText == "b" || nextBox.typeText == "B" ||
+                                            nextBox.typeText == "c" || nextBox.typeText == "C" ||
+                                            nextBox.typeText == "d" || nextBox.typeText == "D" ||
+                                            nextBox.typeText == "e" || nextBox.typeText == "E" ||
+                                            nextBox.typeText == "f" || nextBox.typeText == "F" ||
+                                            nextBox.typeText == "g" || nextBox.typeText == "G" ||
+                                            nextBox.typeText == "h" || nextBox.typeText == "H" ||
+                                            nextBox.typeText == "i" || nextBox.typeText == "I" ||
+                                            nextBox.typeText == "j" || nextBox.typeText == "J" ||
+                                            nextBox.typeText == "k" || nextBox.typeText == "K" ||
+                                            nextBox.typeText == "l" || nextBox.typeText == "L" ||
+                                            nextBox.typeText == "m" || nextBox.typeText == "M" ||
+                                            nextBox.typeText == "n" || nextBox.typeText == "N" ||
+                                            nextBox.typeText == "o" || nextBox.typeText == "O" ||
+                                            nextBox.typeText == "p" || nextBox.typeText == "P" ||
+                                            nextBox.typeText == "q" || nextBox.typeText == "Q" ||
+                                            nextBox.typeText == "r" || nextBox.typeText == "R" ||
+                                            nextBox.typeText == "s" || nextBox.typeText == "S" ||
+                                            nextBox.typeText == "t" || nextBox.typeText == "T" ||
+                                            nextBox.typeText == "u" || nextBox.typeText == "U" ||
+                                            nextBox.typeText == "v" || nextBox.typeText == "V" ||
+                                            nextBox.typeText == "w" || nextBox.typeText == "W" ||
+                                            nextBox.typeText == "x" || nextBox.typeText == "X" ||
+                                            nextBox.typeText == "y" || nextBox.typeText == "Y" ||
+                                            nextBox.typeText == "z" || nextBox.typeText == "Z")
+                                    {
+                                        placeTile((int)placedWilds[placedWilds.Count - 1].X, (int)placedWilds[placedWilds.Count - 1].Y, (byte)Array.IndexOf(Main.wordTileLetter, "nextBox.typeText"));
+                                    }
+                                    if (Key.pressed(Keys.Escape))
+                                    {
+                                        choosingWild = false;
+                                        canInteract = true;
+                                        placedWilds.RemoveAt(placedWilds.Count - 1);
+                                    }
+                                }
+                                else
+                                    nextBox.Visible = false;
                                 break;
                         }
                     }
@@ -597,32 +695,18 @@ namespace Neno
                     int x = wordBoard.selectX;
                     int y = wordBoard.selectY;
 
-                    //Tile place
-                    sendTilePlace(x, y, letterTiles[selectedLetter], selectedLetter);
-                    wordBoard.tiles[x, y] = letterTiles[selectedLetter];
-
-                    //Remove from tiles
-                    letterTiles.RemoveAt(selectedLetter);
-
-                    //Add to pos list
-                    placedTiles.Add(new Vector2(x, y));
-
-                    //Decide direction
-                    if (placedTiles.Count == 2)
+                    if (letterTiles[selectedLetter] != 27)
                     {
-                        if (placedTiles[0].X > x)
-                            direction = Direction.Left;
-                        if (placedTiles[0].X < x)
-                            direction = Direction.Right;
-                        if (placedTiles[0].Y > y)
-                            direction = Direction.Up;
-                        if (placedTiles[0].Y < y)
-                            direction = Direction.Down;
+                        placeTile(x, y, letterTiles[selectedLetter]);
                     }
-
-                    //Reset
-                    pickupLetter = false;
-                    selectedLetter = -1;
+                    else
+                    //Add to wild list if wild
+                    if (letterTiles[selectedLetter] == 27)
+                    {
+                        placedWilds.Add(new Vector2(x, y));
+                        choosingWild = true;
+                        canInteract = false;
+                    }
                 }
                 else
                     if ((Main.mouseRightPressed || (Main.mouseLeftPressed)
@@ -638,10 +722,29 @@ namespace Neno
                 if (placedTiles.Contains(new Vector2(wordBoard.selectX, wordBoard.selectY)))
                 if (Main.mouseRightPressed && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP) && wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] != 0)
                 {
-                    sendTilePlace(wordBoard.selectX, wordBoard.selectY, 0, wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
-                    letterTiles.Add(wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
+                    //Send to server
+                    if (!placedWilds.Contains(new Vector2(wordBoard.selectX, wordBoard.selectY)))
+                        sendTilePlace(wordBoard.selectX, wordBoard.selectY, 0, wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
+                    else
+                        sendTilePlace(wordBoard.selectX, wordBoard.selectY, 0, 27);
+
+                    //Add back to tiles tray
+                    if (!placedWilds.Contains(new Vector2(wordBoard.selectX, wordBoard.selectY)))
+                        letterTiles.Add(wordBoard.tiles[wordBoard.selectX, wordBoard.selectY]);
+                    else
+                        letterTiles.Add(27);
+
+                    //Remove from wild list if wild
+                    if (placedWilds.Contains(new Vector2(wordBoard.selectX, wordBoard.selectY)))
+                        placedWilds.Remove(new Vector2(wordBoard.selectX, wordBoard.selectY));
+                    
+                    //Edit board
                     wordBoard.tiles[wordBoard.selectX, wordBoard.selectY] = 0;
+
+                    //Remove from placed tiles list
                     placedTiles.Remove(new Vector2(wordBoard.selectX, wordBoard.selectY));
+
+
                     if (placedTiles.Count <= 1)
                         direction = Direction.None;
                 }
@@ -679,10 +782,14 @@ namespace Neno
             //Background
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
             #region BG
+            Color color = Color.BlanchedAlmond;
+            if (view == Viewing.Inventory) color = Color.DarkTurquoise;
+            if (view == Viewing.Players) color = Color.DarkSlateBlue;
+
             Main.sb.Draw(Main.img("bg"),
                 new Vector2(
                     (float)Math.Sin(Main.Time / 900f) * 100 - 100,
-                    (float)Math.Sin(Main.Time / 900f + 20) * 100 - 100), Main.img("bg").Bounds, Color.BlanchedAlmond,
+                    (float)Math.Sin(Main.Time / 900f + 20) * 100 - 100), Main.img("bg").Bounds, color,
                     (float)(Math.Sin(Main.Time / 2000f)),
                     new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
             #endregion
@@ -707,7 +814,7 @@ namespace Neno
                     {
                         if (wordBoard.tiles[x, y] > 0 && wordBoard.tiles[x, y] <= 27)
                         {
-                            Color color = Color.White;
+                            color = Color.White;
                             if (placedTiles.Contains(new Vector2(x, y)))
                                 color = Color.Goldenrod;
                             Main.sb.Draw(Main.img(Main.wordTileImg[wordBoard.tiles[x, y]]), new Rectangle(x * 8, y * 8, 8, 8), color);
@@ -721,30 +828,70 @@ namespace Neno
             //Top GUI
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
             #region Top GUI
+            int xx = 0; int yy = 0;
 
-            //Tiles
-            Main.DrawRectangle(0, Main.windowHeight - 110, Main.windowWidth, 110, new Color(0, 0, 0, 0.3f), false);
-            int i = 0;
-            foreach (byte Tile in letterTiles)
-            { 
-                var nextImg = Main.img(Main.wordTileImg[Tile]);
-                if (selectedLetter != i)
-                Main.sb.Draw(nextImg, new Vector2(
-                    Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64, Main.windowHeight - 74), 
-                    nextImg.Bounds, Color.White, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
-                else
-                Main.sb.Draw(nextImg, new Rectangle(
-                    (int)(Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64 - 8), 
-                    (int)(Main.windowHeight - 74 - 8),
-                    (int)(64 + 16), (int)(64 + 16)), Color.Turquoise);
-                i++;
-            }
+            //Views
+            switch(view)
+            {
+                case Viewing.Wordboard:
+                    #region WordBoard GUI
+                    //Tiles
+                    Main.DrawRectangle(0, Main.windowHeight - 110, Main.windowWidth, 110, new Color(0, 0, 0, 0.3f), false);
+                    int i = 0;
+                    foreach (byte Tile in letterTiles)
+                    {
+                        var nextImg = Main.img(Main.wordTileImg[Tile]);
+                        if (selectedLetter != i)
+                            Main.sb.Draw(nextImg, new Vector2(
+                                Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64, Main.windowHeight - 74),
+                                nextImg.Bounds, Color.White, 0, Vector2.Zero, 2, SpriteEffects.None, 0);
+                        else
+                            Main.sb.Draw(nextImg, new Rectangle(
+                                (int)(Main.windowWidth / 2 - ((letterTiles.Count / 2) * 64) + i * 64 - 8),
+                                (int)(Main.windowHeight - 74 - 8),
+                                (int)(64 + 16), (int)(64 + 16)), Color.Turquoise);
+                        i++;
+                    }
 
-            //Picked up tile
-            if (pickupLetter)
-            { 
-                Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle((int)Main.mousePos.X - 32, (int)Main.mousePos.Y - 32, 64, 64), Color.White); 
-                Main.drawText(Main.consoleFont, "Right click to place", new Vector2(Main.mousePos.X, Main.mousePos.Y - 85), Color.Black, 1, TextOrient.Middle);
+                    //Picked up tile
+                    if (pickupLetter)
+                    {
+                        Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle((int)Main.mousePos.X - 32, (int)Main.mousePos.Y - 32, 64, 64), Color.White);
+                        Main.drawText(Main.consoleFont, "Right click to place", new Vector2(Main.mousePos.X, Main.mousePos.Y - 85), Color.Black, 1, TextOrient.Middle);
+                    }
+
+                    //Other
+                    foreach (TextBox nextBox in buttonsWordBoard)
+                    {
+                        nextBox.Draw("", Main.sb);
+                    }
+                    Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 140), Color.Black, 0.5f, TextOrient.Left);
+                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
+                    #endregion
+                    break;
+                case Viewing.Inventory:
+                    #region Inventory
+                    xx = 4; yy = 72;
+                    Main.drawText(Main.consoleFont, "Name: " + clientName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Server Name: " + serverName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Players: " + playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Ping: " + ping, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    #endregion
+                    break;
+                case Viewing.Players:
+                    #region Players
+                    xx = 4; yy = 72;
+                    Main.drawText(Main.consoleFont, "Players", new Vector2(xx, yy), Color.Black, 1f, TextOrient.Left); yy += 18;
+                    foreach(ClientPlayer next in playerList)
+                    {
+                        color = Color.White;
+                        if (turn == next.ID) color = Color.Orange;
+                        Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
+                    }
+                    #endregion
+                    break;
             }
 
             //Who's Turn
@@ -756,18 +903,6 @@ namespace Neno
             else
                 Main.drawText(Main.font, getPlayer(turn).Name + "'s turn", new Vector2(Main.windowWidth / 2, 72), Color.Black, 0.75f, TextOrient.Middle);
 
-            //Other GUI
-            switch (view)
-            {
-                case Viewing.Wordboard:
-                    foreach (TextBox nextBox in buttonsWordBoard)
-                    {
-                        nextBox.Draw("", Main.sb);
-                    }
-                    Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 140), Color.Black, 0.5f, TextOrient.Left);
-                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
-                    break;
-            }
             #endregion
             Main.sb.End();
         }
@@ -795,7 +930,7 @@ namespace Neno
 
         public void step()
         {
-            if (Key.pressed(Keys.Escape)) Main.Switch(Focus.Menu);
+            if (Key.pressed(Keys.Escape) && !choosingWild) Main.Switch(Focus.Menu);
 
             if (Status != ClientStatus.Waiting_For_Connection
                 && Status != ClientStatus.Disconnected)
@@ -863,6 +998,10 @@ namespace Neno
                     Main.drawText(Main.consoleFont, "Disconnected! Press ESCAPE to exit.", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
                     mainColor = Color.White;
                     break;
+                case ClientStatus.None:
+                    Main.drawText(Main.consoleFont, "A player disconnected, ending the game.", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 1, TextOrient.Middle);
+                    mainColor = Color.White;
+                    break;
                 case ClientStatus.Lobby:
                     Main.sb.Draw(Main.img("bg"), 
                         new Vector2(
@@ -911,11 +1050,14 @@ namespace Neno
                 Main.sb.DrawString(Main.consoleFont, "Neno Client", new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Name: " + clientName, new Vector2(4, i), mainColor); i += 16;
                 Main.sb.DrawString(Main.consoleFont, "Status: " + Status, new Vector2(4, i), mainColor); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "Viewing: " + view, new Vector2(4, i), mainColor); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "x: " + wordBoard.selectX, new Vector2(4, i), mainColor); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "y: " + wordBoard.selectY, new Vector2(4, i), mainColor); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "canInteract: " + canInteract, new Vector2(4, i), mainColor); i += 16;
-                Main.sb.DrawString(Main.consoleFont, "direction: " + direction, new Vector2(4, i), mainColor); i += 16;
+                if (Status == ClientStatus.In_Game)
+                {
+                    Main.sb.DrawString(Main.consoleFont, "Viewing: " + view, new Vector2(4, i), mainColor); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "x: " + wordBoard.selectX, new Vector2(4, i), mainColor); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "y: " + wordBoard.selectY, new Vector2(4, i), mainColor); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "canInteract: " + canInteract, new Vector2(4, i), mainColor); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "direction: " + direction, new Vector2(4, i), mainColor); i += 16;
+                }
             }
 
             Main.sb.End();

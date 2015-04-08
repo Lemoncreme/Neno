@@ -46,7 +46,7 @@ namespace Neno
         List<BattleBoard> battleBoards = new List<BattleBoard>();
         WordBoard wordBoard;
         ServerStatus Status = ServerStatus.Starting;
-        Timer pingTimer = new Timer(60, true);
+        Timer pingTimer = new Timer(30, true);
         int turnNumber = 1;
 
         #endregion
@@ -166,6 +166,7 @@ namespace Neno
                             case ServerMsg.testResponse:
                                 player = getPlayer(inc.SenderConnection);
                                 player.ping = DateTime.Now.Millisecond - player.lastResponse;
+                                sendPing(inc.SenderConnection);
                                 if (player.ping > Settings.timeOutPing)
                                     Console.WriteLine("<SERVER> " + player.Name + " timed out!");
                                 break;
@@ -177,9 +178,17 @@ namespace Neno
                                 {
                                     if (nextPlayer.readyToStart) i++;
                                 }
+                                
                                 if (i == playerCount - 1)
+                                {
+                                    foreach (ServerPlayer nextPlayer in playerList)
+                                    {
+                                        nextPlayer.Status = PlayerStatus.Playing;
+                                    }
                                     sendAllReadyToStart();
-                                Status = ServerStatus.Playing;
+                                    Status = ServerStatus.Playing;
+                                    Console.WriteLine("<SERVER> Everybody is ready!");
+                                }
                                 break;
                             case ServerMsg.placeTile: //Client placed a tile
                                 player = getPlayer(inc.SenderConnection);
@@ -237,6 +246,8 @@ namespace Neno
                                         Console.WriteLine(player.Name + " disconnected");
                                     sendPlayerRemoved(player.ID);
                                     playerList.Remove(player);
+                                    if (Status == ServerStatus.Playing)
+                                        backToLobby();
                                     break;
                             }
                             break;
@@ -418,6 +429,23 @@ namespace Neno
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
+        void sendPing(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.ping);
+            sendMsg.Write(getPlayer(recipient).ping);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBackToLobby()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.backToLobby);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
         #endregion
 
         string getName(byte playerID)
@@ -457,6 +485,24 @@ namespace Neno
             turn = playerList[index].ID;
 
             Console.WriteLine("<SERVER> it's now " + playerList[index].Name + "'s turn!");
+        }
+        void backToLobby()
+        {
+            sendBackToLobby();
+            foreach (ServerPlayer player in playerList)
+            { 
+                player.ready = false;
+                player.readyToStart = false;
+                player.Status = PlayerStatus.Lobby;
+                player.letterTiles.Clear();
+                player.wordsMade = 0;
+            }
+            turnNumber = 1;
+            turn = 0;
+            battleBoards.Clear();
+            wordBoard = null;
+            battleBoardCount = 0;
+            Status = ServerStatus.Lobby;
         }
 
         void Create()
@@ -540,13 +586,14 @@ namespace Neno
                     Main.sb.DrawString(Main.consoleFont, "Connections: " + server.ConnectionsCount, new Vector2(4, i), Color.White); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "Players: " + playerList.Count, new Vector2(4, i), Color.White); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "UPnP Status: " + server.UPnP.Status, new Vector2(4, i), Color.White); i += 16;
-
-                    Main.sb.DrawString(Main.consoleFont, "Turn: " + getName(turn), new Vector2(4, i), Color.White); i += 16;
-                    Main.sb.DrawString(Main.consoleFont, "Player Ping:", new Vector2(4, i), Color.White); i += 16;
-
-                    foreach(ServerPlayer player in playerList)
+                    if (Status == ServerStatus.Playing)
                     {
-                        Main.sb.DrawString(Main.consoleFont, player.Name + " = " + player.ping + "ms", new Vector2(4, i), Color.White); i += 16;
+                        Main.sb.DrawString(Main.consoleFont, "Turn: " + getName(turn), new Vector2(4, i), Color.White); i += 16;
+                        Main.sb.DrawString(Main.consoleFont, "Player Ping:", new Vector2(4, i), Color.White); i += 16;
+                        foreach (ServerPlayer player in playerList)
+                        {
+                            Main.sb.DrawString(Main.consoleFont, player.Name + " = " + player.ping + "ms", new Vector2(4, i), Color.White); i += 16;
+                        }
                     }
                 }
             }
