@@ -33,11 +33,11 @@ Content\Textures\Tiles\tile_x.xnb
 Content\Textures\Tiles\tile_y.xnb
 Content\Textures\Tiles\tile_z.xnb
 Content\Textures\bg.xnb
-Content\Music\findingNeno.xnb
-Content\Music\lobby.xnb
 Content\Textures\checked.xnb
 Content\Textures\unchecked.xnb
 Content\Textures\gameTiles.xnb
+Content\Music\findingNeno.xnb
+Content\Music\lobby.xnb
 Content\Textures\MusicOff.xnb
 Content\Textures\musicOn.xnb
 Content\Sounds\type.xnb

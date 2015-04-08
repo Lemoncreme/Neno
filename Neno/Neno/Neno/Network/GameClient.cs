@@ -314,6 +314,21 @@ namespace Neno
 
             return newWords;
         }
+        bool checkConnectedToOtherWords()
+        {
+            bool isConnected = false;
+
+            foreach(Vector2 pos in placedTiles)
+            {
+                if ((wordBoard.tiles[(int)pos.X + 1, (int)pos.Y] > 0 && !placedTiles.Contains(new Vector2(pos.X + 1, pos.Y))) ||
+                    (wordBoard.tiles[(int)pos.X - 1, (int)pos.Y] > 0 && !placedTiles.Contains(new Vector2(pos.X - 1, pos.Y))) ||
+                    (wordBoard.tiles[(int)pos.X, (int)pos.Y + 1] > 0 && !placedTiles.Contains(new Vector2(pos.X, pos.Y + 1))) ||
+                    (wordBoard.tiles[(int)pos.X, (int)pos.Y - 1] > 0 && !placedTiles.Contains(new Vector2(pos.X, pos.Y - 1))))
+                    isConnected = true;
+            }
+
+            return isConnected;
+        }
         bool checkCanPlaceTile(int x, int y)
         {
             bool canPlace = true;
@@ -475,7 +490,16 @@ namespace Neno
                 view = Viewing.Inventory;
             if (buttonOtherplayers.CheckClicked())
                 view = Viewing.Players;
+            if (view != Viewing.Wordboard)
+            {
+                pickupLetter = false;
+                selectedLetter = -1;
+            }
 
+            switch(view)
+            { 
+                case Viewing.Wordboard:
+                #region WordBoard
             if (!pickupLetter)
             switch(view)
             {
@@ -485,36 +509,41 @@ namespace Neno
                         switch(nextBox.Text)
                         {
                             case "Submit Word":
+                                #region Submitting Words
                                 nextBox.Y = Main.windowHeight - 110;
                                 nextBox.CheckSelect();
                                 if (canInteract)
                                 {
                                     if (nextBox.CheckClicked())
                                     {
-                                        findAllWords();
-                                        List<string> realWords = new List<string>();
-                                        foreach (string nextWord in wordsCreated)
+                                        if (checkConnectedToOtherWords() || turnNumber == 1)
                                         {
-                                            if (checkWord(nextWord))
+                                            findAllWords();
+                                            List<string> realWords = new List<string>();
+                                            foreach (string nextWord in wordsCreated)
                                             {
-                                                realWords.Add(nextWord);
+                                                if (checkWord(nextWord))
+                                                {
+                                                    realWords.Add(nextWord);
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(nextWord + " is not a word!");
+                                                    return;
+                                                }
                                             }
-                                            else
+                                            if (realWords.Count > 0)
                                             {
-                                                Console.WriteLine(nextWord + " is not a word!");
-                                                return;
+                                                sendWords(realWords);
+                                                canInteract = false;
+                                                direction = Direction.None;
+                                                placedTiles.Clear();
+                                                wordsCreated.Clear();
                                             }
-                                        }
-                                        if (realWords.Count > 0)
-                                        {
-                                            sendWords(realWords);
-                                            canInteract = false;
-                                            direction = Direction.None;
-                                            placedTiles.Clear();
-                                            wordsCreated.Clear();
                                         }
                                     }
                                 }
+                                #endregion
                                 break;
                         }
                     }
@@ -526,11 +555,13 @@ namespace Neno
             if (Main.mouseScrollUp && wordBoard.Zoom < 8)
             {
                 wordBoard.Zoom *= 2f;
+                wordBoard.viewX = wordBoard.viewX + (Main.mousePos.X / wordBoard.Zoom);
+                wordBoard.viewY = wordBoard.viewY + (Main.mousePos.Y / wordBoard.Zoom);
             }
             if (Main.mouseScrollDown && wordBoard.Zoom > 1)
             {
-                wordBoard.viewX = wordBoard.viewX + (-Main.mousePos.X) / wordBoard.Zoom;
-                wordBoard.viewY = wordBoard.viewY + (-Main.mousePos.Y) / wordBoard.Zoom;
+                wordBoard.viewX = wordBoard.viewX - (Main.mousePos.X / wordBoard.Zoom);
+                wordBoard.viewY = wordBoard.viewY - (Main.mousePos.Y / wordBoard.Zoom);
                 wordBoard.Zoom /= 2f;
             }
             if (Main.mouseLeftPressed && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP))
@@ -593,6 +624,13 @@ namespace Neno
                     pickupLetter = false;
                     selectedLetter = -1;
                 }
+                else
+                    if ((Main.mouseRightPressed || (Main.mouseLeftPressed)
+                    && new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP)))
+                    {
+                        pickupLetter = false;
+                        selectedLetter = -1;
+                    }
             }
             else
             {
@@ -632,6 +670,9 @@ namespace Neno
                     pickupLetter = true;
                 }
             }
+            #endregion
+                    break;
+            }
         }
         void GameDraw()
         {
@@ -648,41 +689,34 @@ namespace Neno
             Main.sb.End();
 
             //Relative to Board
-            Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, WordBoardView);
-            #region Board
-            switch (view)
+            if (view == Viewing.Wordboard)
             {
-                case Viewing.Wordboard:
-                    Main.sb.Draw(Main.img("Boards/Word"), Vector2.Zero, Color.White);
-                    break;
-            }
-
-            //Draw Tiles
-            for (int x = 0; x < wordBoard.Size; x++ )
-            {
-                for (int y = 0; y < wordBoard.Size; y++)
+                Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, WordBoardView);
+                #region Board
+                switch (view)
                 {
-                    if (wordBoard.tiles[x, y] > 0 && wordBoard.tiles[x, y] <= 27)
-                    { 
-                        Color color = Color.White;
-                        if (placedTiles.Contains(new Vector2(x, y)))
-                            color = Color.Goldenrod;
-                        Main.sb.Draw(Main.img(Main.wordTileImg[wordBoard.tiles[x, y]]), new Rectangle(x * 8, y * 8, 8, 8), color); 
+                    case Viewing.Wordboard:
+                        Main.sb.Draw(Main.img("Boards/Word"), Vector2.Zero, Color.White);
+                        break;
+                }
+
+                //Draw Tiles
+                for (int x = 0; x < wordBoard.Size; x++)
+                {
+                    for (int y = 0; y < wordBoard.Size; y++)
+                    {
+                        if (wordBoard.tiles[x, y] > 0 && wordBoard.tiles[x, y] <= 27)
+                        {
+                            Color color = Color.White;
+                            if (placedTiles.Contains(new Vector2(x, y)))
+                                color = Color.Goldenrod;
+                            Main.sb.Draw(Main.img(Main.wordTileImg[wordBoard.tiles[x, y]]), new Rectangle(x * 8, y * 8, 8, 8), color);
+                        }
                     }
                 }
+                #endregion
+                Main.sb.End();
             }
-
-            if (pickupLetter)
-            {
-                /* DEBUG
-                Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle(
-                    (int)Math.Floor(wordBoard.selectX * 8f),
-                    (int)Math.Floor(wordBoard.selectY * 8f),
-                    8, 8), new Color(1f, 1f, 1f, 0.6f));
-                */
-            }
-            #endregion
-            Main.sb.End();
 
             //Top GUI
             Main.sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
@@ -722,7 +756,7 @@ namespace Neno
             else
                 Main.drawText(Main.font, getPlayer(turn).Name + "'s turn", new Vector2(Main.windowWidth / 2, 72), Color.Black, 0.75f, TextOrient.Middle);
 
-            //Buttons
+            //Other GUI
             switch (view)
             {
                 case Viewing.Wordboard:
@@ -730,8 +764,8 @@ namespace Neno
                     {
                         nextBox.Draw("", Main.sb);
                     }
-                    Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
-                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 240), Color.Black, 0.5f, TextOrient.Left);
+                    Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 140), Color.Black, 0.5f, TextOrient.Left);
+                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
                     break;
             }
             #endregion
