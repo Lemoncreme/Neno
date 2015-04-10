@@ -47,7 +47,9 @@ namespace Neno
         WordBoard wordBoard;
         ServerStatus Status = ServerStatus.Starting;
         Timer pingTimer = new Timer(30, true);
+        Timer timeLeftTimer = new Timer(15, true);
         int turnNumber = 1;
+        int turnTime = 0;
 
         #endregion
 
@@ -186,6 +188,7 @@ namespace Neno
                                         nextPlayer.Status = PlayerStatus.Playing;
                                     }
                                     sendAllReadyToStart();
+                                    turnTime = Settings.wordBoardTimeLimit + 60;
                                     Status = ServerStatus.Playing;
                                     Console.WriteLine("<SERVER> Everybody is ready!");
                                 }
@@ -325,6 +328,7 @@ namespace Neno
             //Starting game
             sendMsg.Write((byte)ClientMsg.starting);
             sendMsg.Write(turn);
+            sendMsg.Write(Settings.wordBoardTimeLimit);
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -436,7 +440,7 @@ namespace Neno
             sendMsg.Write((byte)ClientMsg.ping);
             sendMsg.Write(getPlayer(recipient).ping);
 
-            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.UnreliableSequenced);
         }
         void sendBackToLobby()
         {
@@ -445,6 +449,23 @@ namespace Neno
             sendMsg.Write((byte)ClientMsg.backToLobby);
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendCurrentTurnTime(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.currentTimeLeft);
+            sendMsg.Write(turnTime);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableSequenced);
+        }
+        void sendTimeUp(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.timeUp);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
         #endregion
 
@@ -483,6 +504,9 @@ namespace Neno
 
             //New turn is ID of next player
             turn = playerList[index].ID;
+
+            //Time limit
+            turnTime = Settings.wordBoardTimeLimit;
 
             Console.WriteLine("<SERVER> it's now " + playerList[index].Name + "'s turn!");
         }
@@ -565,6 +589,24 @@ namespace Neno
                 case ServerStatus.Playing:
                     if (pingTimer.tick)
                         sendTestConnection();
+                    if (turnTime > 0)
+                    {
+                        turnTime -= 1;
+                        if (timeLeftTimer.tick)
+                            sendCurrentTurnTime(getPlayer(turn).Connection);
+                        if (turnTime == 0)
+                        { 
+                            //Forced end turn
+                            sendTimeUp(getPlayer(turn).Connection);
+                            getPlayer(turn).letterTiles.Clear();
+                            for (int i = 0; i < 12; i++)
+                                getPlayer(turn).letterTiles.Add(Main.randomLetter());
+                            sendLetterTiles(getPlayer(turn).Connection, getPlayer(turn));
+                            turnNumber++;
+                            nextTurn();
+                            sendAllTurn();
+                        }
+                    }
                     break;
             }
 

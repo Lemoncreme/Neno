@@ -34,7 +34,7 @@ namespace Neno
     enum ClientMsg
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
-        newTurn, newWordNumber, ping, backToLobby
+        newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp
     }
     enum Direction
     {
@@ -57,6 +57,7 @@ namespace Neno
         List<ClientPlayer> playerList = new List<ClientPlayer>();
         TextBox readyBox;
         TextBox startBox;
+        TextBox timeLimitBox;
         bool ready = false;
         public bool isOwner = false;
         byte turn;
@@ -71,6 +72,7 @@ namespace Neno
         int wordsMade = 0;
         int ping = 0;
         bool choosingWild = false;
+        int currentTurnTime = 0;
 
         #region In-Game GUI
         //Main Buttons
@@ -130,7 +132,7 @@ namespace Neno
                                 if (isOwner)
                                 { 
                                     startBox = new TextBox(Main.windowWidth / 2, 80, "Start Game", 1f, Main.font, TextOrient.Middle);
-                                    startBox.Description = "Start game, if all players are ready";
+                                    timeLimitBox = new TextBox(Main.windowWidth - 4, 120, "WordBoard Time Limit: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardTimeLimit / 60).ToString());
                                 }
                                 sendJoin();
                                 MediaPlayer.Play(Main.music("lobby"));
@@ -156,6 +158,7 @@ namespace Neno
                             case ClientMsg.starting: //The game has been started
                                 Status = ClientStatus.Starting_Game;
                                 turn = inc.ReadByte();
+                                Settings.wordBoardTimeLimit = inc.ReadInt32();
                                 if (turn == playerID)
                                     canInteract = true;
                                 else
@@ -243,6 +246,23 @@ namespace Neno
                                     startBox.Description = "Start game, if all players are ready";
                                 }
                                 view = Viewing.Wordboard;
+                                break;
+                            case ClientMsg.currentTimeLeft: //Time left in turn
+                                currentTurnTime = inc.ReadInt32();
+                                break;
+                            case ClientMsg.timeUp: //Time ran out for this turn
+                                foreach(Vector2 pos in placedTiles)
+                                {
+                                    //Send to server
+                                    sendTilePlace((int)pos.X, (int)pos.Y, 0, 1);
+
+                                    //Edit board
+                                    wordBoard.tiles[(int)pos.X, (int)pos.Y] = 0;
+
+                                    //Remove from placed tiles list
+                                    placedTiles.Remove(new Vector2(wordBoard.selectX, wordBoard.selectY));
+                                }
+                                EndTurn();
                                 break;
                         }
                         break;
@@ -377,10 +397,11 @@ namespace Neno
                         if (direction == Direction.Vertical && wordBoard.tiles[x, y - 1] == 0 && wordBoard.tiles[x, y + 1] == 0)
                             canPlace = false;
 
+                if (turnNumber == 1)
                 if (wordBoard.tiles[x + 1, y] == 0 &&
                     wordBoard.tiles[x - 1, y] == 0 &&
                     wordBoard.tiles[x, y + 1] == 0 &&
-                    wordBoard.tiles[x, y - 1] == 0 && turnNumber == 1)
+                    wordBoard.tiles[x, y - 1] == 0)
                     return false;
 
                 if (placedTiles.Count == 1)
@@ -433,7 +454,16 @@ namespace Neno
 
             //WordBoard Buttons
             buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 106, "Submit Word", 0.5f, Main.font));
-            buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 160, "Choose Letter: ", 0.5f, Main.font, TextOrient.Middle, true, "a"));
+            buttonsWordBoard.Add(new TextBox(Main.windowWidth, Main.windowHeight / 2, "Choose Letter: ", 1f, Main.font, TextOrient.Middle, true, ""));
+            buttonsWordBoard[1].boxColor.A = 180;
+        }
+        void EndTurn()
+        {
+            canInteract = false;
+            direction = Direction.None;
+            placedTiles.Clear();
+            wordsCreated.Clear();
+            placedWilds.Clear();
         }
 
         #region Send Messages
@@ -587,10 +617,7 @@ namespace Neno
                                             if (realWords.Count > 0)
                                             {
                                                 sendWords(realWords);
-                                                canInteract = false;
-                                                direction = Direction.None;
-                                                placedTiles.Clear();
-                                                wordsCreated.Clear();
+                                                EndTurn();
                                             }
                                         }
                                     }
@@ -598,12 +625,14 @@ namespace Neno
                                 #endregion
                                 break;
                             case "Choose Letter: ":
-                                nextBox.Y = Main.windowHeight - 160;
+                                #region Choose a letter for a wild
+                                nextBox.Y = Main.windowHeight / 2;
+                                nextBox.X = Main.windowWidth / 2;
                                 nextBox.CheckSelect();
                                 if (choosingWild)
                                 { 
-                                    nextBox.Visible = true;
-                                    if (Key.pressed(Keys.Enter) && nextBox.clicked)
+                                    nextBox.dontDraw = false;
+                                    if (nextBox.typeText.Length == 1 && nextBox.clicked)
                                         if (nextBox.typeText == "a" || nextBox.typeText == "A" ||
                                             nextBox.typeText == "b" || nextBox.typeText == "B" ||
                                             nextBox.typeText == "c" || nextBox.typeText == "C" ||
@@ -631,7 +660,10 @@ namespace Neno
                                             nextBox.typeText == "y" || nextBox.typeText == "Y" ||
                                             nextBox.typeText == "z" || nextBox.typeText == "Z")
                                     {
-                                        placeTile((int)placedWilds[placedWilds.Count - 1].X, (int)placedWilds[placedWilds.Count - 1].Y, (byte)Array.IndexOf(Main.wordTileLetter, "nextBox.typeText"));
+                                        placeTile((int)placedWilds[placedWilds.Count - 1].X, (int)placedWilds[placedWilds.Count - 1].Y, (byte)Array.IndexOf(Main.wordTileLetter, nextBox.typeText));
+                                        choosingWild = false;
+                                        canInteract = true;
+                                        nextBox.typeText = "";
                                     }
                                     if (Key.pressed(Keys.Escape))
                                     {
@@ -641,7 +673,8 @@ namespace Neno
                                     }
                                 }
                                 else
-                                    nextBox.Visible = false;
+                                    nextBox.dontDraw = true;
+                                #endregion
                                 break;
                         }
                     }
@@ -698,14 +731,17 @@ namespace Neno
                     if (letterTiles[selectedLetter] != 27)
                     {
                         placeTile(x, y, letterTiles[selectedLetter]);
+                        choosingWild = false;
                     }
                     else
                     //Add to wild list if wild
-                    if (letterTiles[selectedLetter] == 27)
                     {
+                        wordBoard.tiles[x, y] = 27;
                         placedWilds.Add(new Vector2(x, y));
                         choosingWild = true;
                         canInteract = false;
+                        pickupLetter = false;
+                        buttonsWordBoard[1].clicked = true;
                     }
                 }
                 else
@@ -830,6 +866,10 @@ namespace Neno
             #region Top GUI
             int xx = 0; int yy = 0;
 
+            //Darken
+            if (choosingWild)
+                Main.DrawRectangle(new Rectangle(0, 0, Main.windowWidth, Main.windowHeight), new Color(0f, 0f, 0f, 0.4f));
+
             //Views
             switch(view)
             {
@@ -854,7 +894,7 @@ namespace Neno
                     }
 
                     //Picked up tile
-                    if (pickupLetter)
+                    if (pickupLetter && !choosingWild)
                     {
                         Main.sb.Draw(Main.img(Main.wordTileImg[letterTiles[selectedLetter]]), new Rectangle((int)Main.mousePos.X - 32, (int)Main.mousePos.Y - 32, 64, 64), Color.White);
                         Main.drawText(Main.consoleFont, "Right click to place", new Vector2(Main.mousePos.X, Main.mousePos.Y - 85), Color.Black, 1, TextOrient.Middle);
@@ -878,6 +918,7 @@ namespace Neno
                     Main.drawText(Main.consoleFont, "Ping: " + ping, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Time Limit: " + (Settings.wordBoardTimeLimit / 60) + " seconds", new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     #endregion
                     break;
                 case Viewing.Players:
@@ -897,6 +938,13 @@ namespace Neno
             //Who's Turn
             if (turn == playerID)
             {
+                Color turnTimeColor = Color.Black;
+                if (currentTurnTime < Settings.wordBoardTimeLimit / 2) turnTimeColor = Color.BlueViolet;
+                if (currentTurnTime < Settings.wordBoardTimeLimit / 3) turnTimeColor = Color.DarkOrange;
+                if (currentTurnTime < Settings.wordBoardTimeLimit / 4) turnTimeColor = Color.DarkRed;
+                if (currentTurnTime < Settings.wordBoardTimeLimit / 5) turnTimeColor = new Color((float)Math.Sin(Main.Time / 3), (float)Math.Sin(Main.Time / 3), 0f);
+                Main.drawText(Main.font, "Time left: " + Math.Floor((double)currentTurnTime / 60), new Vector2(Main.windowWidth / 2, 152), new Color(0f, 0f, 0f, 0.5f), 0.75f, TextOrient.Middle);
+                Main.drawText(Main.font, "Time left: " + Math.Floor((double)currentTurnTime / 60), new Vector2(Main.windowWidth / 2, 150), turnTimeColor, 0.75f, TextOrient.Middle);
                 Main.drawText(Main.font, "It's Your Turn!", new Vector2(Main.windowWidth / 2, (float)(74 + Math.Sin(Main.Time / 16) * 6)), Color.Black, 0.75f, TextOrient.Middle);
                 Main.drawText(Main.font, "It's Your Turn!", new Vector2(Main.windowWidth / 2, (float)(72 + Math.Sin(Main.Time / 16) * 6)), Color.DarkTurquoise, 0.75f, TextOrient.Middle);
             }
@@ -959,7 +1007,29 @@ namespace Neno
                         startBox.X = Main.windowWidth / 2;
                         startBox.CheckSelect();
                         if (startBox.CheckClicked() && checkAllReady() && playerList.Count > 1)
-                            sendStart();
+                        {
+                            float read = Settings.defaultWordBoardTimeLimit;
+                            try
+                            { read = Convert.ToInt32(timeLimitBox.typeText); }
+                            catch (FormatException)
+                            { read = Settings.defaultWordBoardTimeLimit; }
+                            Settings.wordBoardTimeLimit = (int)MathHelper.Clamp(read * 60, 10 * 60, 1000 * 60);
+                            timeLimitBox.typeText = (Settings.wordBoardTimeLimit / 60f).ToString();
+                            sendStart(); 
+                        }
+
+                        timeLimitBox.X = Main.windowWidth - 4;
+                        timeLimitBox.CheckSelect();
+                        if (!timeLimitBox.clicked)
+                        {
+                            float read = Settings.defaultWordBoardTimeLimit;
+                            try
+                            { read = Convert.ToInt32(timeLimitBox.typeText); }
+                            catch (FormatException)
+                            { read = Settings.defaultWordBoardTimeLimit; }
+                            Settings.wordBoardTimeLimit = (int)MathHelper.Clamp(read * 60, 10 * 60, 1000 * 60);
+                            timeLimitBox.typeText = (Settings.wordBoardTimeLimit / 60f).ToString();
+                        }
                     }
                     break;
                 case ClientStatus.Starting_Game:
@@ -1010,7 +1080,11 @@ namespace Neno
                             (float)(Math.Sin(Main.Time / 2000f)), 
                             new Vector2(Main.img("bg").Bounds.Width / 2, Main.img("bg").Bounds.Height / 2), new Vector2(6, 6), SpriteEffects.None, 0);
                     readyBox.Draw("", Main.sb);
-                    if (isOwner) startBox.Draw("", Main.sb);
+                    if (isOwner) 
+                    {
+                        startBox.Draw("", Main.sb);
+                        timeLimitBox.Draw("", Main.sb); 
+                    }
                     int i = 32;
                     foreach (ClientPlayer player in playerList)
                     {
@@ -1057,6 +1131,7 @@ namespace Neno
                     Main.sb.DrawString(Main.consoleFont, "y: " + wordBoard.selectY, new Vector2(4, i), mainColor); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "canInteract: " + canInteract, new Vector2(4, i), mainColor); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "direction: " + direction, new Vector2(4, i), mainColor); i += 16;
+                    Main.sb.DrawString(Main.consoleFont, "choosing wild: " + choosingWild, new Vector2(4, i), mainColor); i += 16;
                 }
             }
 

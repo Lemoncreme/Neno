@@ -203,7 +203,7 @@ namespace Neno
                                                                                                             else
                                                                                                                 if (chance == 98) newLetter = 26;
                                                                                                                 else
-                                                                                                                    if (chance >= 99 && chance <= 100) newLetter = 27;
+                                                                                                                    if (chance >= 99) newLetter = 27;
 
             return newLetter;
         }

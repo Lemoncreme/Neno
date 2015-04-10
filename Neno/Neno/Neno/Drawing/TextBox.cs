@@ -26,15 +26,15 @@ namespace Neno
         float Scale;
         SpriteFont Font;
         TextOrient Orient = TextOrient.Left;
-        Color textColor = Color.White;
-        Color boxColor = new Color(0, 0, 0, 100);
+        public Color textColor = Color.White;
+        public Color boxColor = new Color(0, 0, 0, 100);
         Color currentTextColor = Color.White;
         Color currentBoxColor = new Color(0, 0, 0, 100);
         public bool Select = false;
         Rectangle Rect;
         int Padding = 4;
         Texture2D Texture = Main.pix;
-        public string typeText;
+        public string typeText = "";
         bool typebox = false;
         Keys[] buffer;
         Keys[] bufferAlt = Key.keyboard.GetPressedKeys();
@@ -426,13 +426,11 @@ namespace Neno
             {
                 Type();
             }
-            if (typebox)
-                extraText += typeText;
 
 
             string text = Text;
-            if (extraText != null) 
-                text += extraText;
+            if (extraText != null)
+                text += extraText + typeText;
 
             //Word wrap
             if (maxWidth > 0)
