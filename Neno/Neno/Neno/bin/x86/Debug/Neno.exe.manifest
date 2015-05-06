@@ -79,14 +79,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="61304">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="61816">
       <assemblyIdentity name="Neno" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>eR18ualdJffId2a3xiRYIINu1lw=</dsig:DigestValue>
+        <dsig:DigestValue>fJ6+SGaU/cGDWnUehAnHylUNaZQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -114,7 +114,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>xbtbxykcGHl3CHWuuCHuPMEm58s=</dsig:DigestValue>
+      <dsig:DigestValue>rco3esbsSMe6/xVWGAjG7GvSoN4=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\Music\findingNeno.xnb" size="129">
@@ -132,7 +132,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>U+fl6sTE98PZ8hL6Z/nVhqg2/zc=</dsig:DigestValue>
+      <dsig:DigestValue>yontdPpLwjWEf+zMZ1vnFI4eUNI=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\Music\lobby.xnb" size="123">

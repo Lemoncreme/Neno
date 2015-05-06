@@ -329,6 +329,7 @@ namespace Neno
             sendMsg.Write((byte)ClientMsg.starting);
             sendMsg.Write(turn);
             sendMsg.Write(Settings.wordBoardTimeLimit);
+            sendMsg.Write((byte)Settings.wordBoardRounds);
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }

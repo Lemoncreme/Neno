@@ -58,6 +58,7 @@ namespace Neno
         TextBox readyBox;
         TextBox startBox;
         TextBox timeLimitBox;
+        TextBox roundsBox;
         bool ready = false;
         public bool isOwner = false;
         byte turn;
@@ -133,6 +134,7 @@ namespace Neno
                                 { 
                                     startBox = new TextBox(Main.windowWidth / 2, 80, "Start Game", 1f, Main.font, TextOrient.Middle);
                                     timeLimitBox = new TextBox(Main.windowWidth - 4, 120, "WordBoard Time Limit: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardTimeLimit / 60).ToString());
+                                    roundsBox = new TextBox(Main.windowWidth - 4, 160, "WordBoard Rounds: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardRounds).ToString());
                                 }
                                 sendJoin();
                                 MediaPlayer.Play(Main.music("lobby"));
@@ -159,6 +161,7 @@ namespace Neno
                                 Status = ClientStatus.Starting_Game;
                                 turn = inc.ReadByte();
                                 Settings.wordBoardTimeLimit = inc.ReadInt32();
+                                Settings.wordBoardRounds = inc.ReadByte();
                                 if (turn == playerID)
                                     canInteract = true;
                                 else
@@ -382,6 +385,9 @@ namespace Neno
             bool canPlace = true;
 
             if (wordBoard.tiles[x, y] != 0)
+                return false;
+
+            if (x == 0 || x == wordBoard.Size || y == 0 || y == wordBoard.Size)
                 return false;
 
             if (x == 34 && y == 34)
@@ -906,7 +912,7 @@ namespace Neno
                         nextBox.Draw("", Main.sb);
                     }
                     Main.drawText(Main.font, "Words Made: " + wordsMade, new Vector2(4, Main.windowHeight - 140), Color.Black, 0.5f, TextOrient.Left);
-                    Main.drawText(Main.font, "Turn #: " + turnNumber, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
+                    Main.drawText(Main.font, "Turn #: " + turnNumber + " / " + Settings.wordBoardRounds, new Vector2(4, Main.windowHeight - 170), Color.Black, 0.5f, TextOrient.Left);
                     #endregion
                     break;
                 case Viewing.Inventory:
@@ -917,7 +923,7 @@ namespace Neno
                     Main.drawText(Main.consoleFont, "Players: " + playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Ping: " + ping, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
-                    Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber + " / " + Settings.wordBoardRounds, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Time Limit: " + (Settings.wordBoardTimeLimit / 60) + " seconds", new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     #endregion
                     break;
@@ -1030,6 +1036,19 @@ namespace Neno
                             Settings.wordBoardTimeLimit = (int)MathHelper.Clamp(read * 60, 10 * 60, 1000 * 60);
                             timeLimitBox.typeText = (Settings.wordBoardTimeLimit / 60f).ToString();
                         }
+
+                        roundsBox.X = Main.windowWidth - 4;
+                        roundsBox.CheckSelect();
+                        if (!roundsBox.clicked)
+                        {
+                            float read = Settings.defaultWordBoardRounds;
+                            try
+                            { read = Convert.ToInt32(roundsBox.typeText); }
+                            catch (FormatException)
+                            { read = Settings.defaultWordBoardRounds; }
+                            Settings.wordBoardRounds = (int)MathHelper.Clamp(read, 1, 250);
+                            roundsBox.typeText = (Settings.wordBoardRounds).ToString();
+                        }
                     }
                     break;
                 case ClientStatus.Starting_Game:
@@ -1083,7 +1102,8 @@ namespace Neno
                     if (isOwner) 
                     {
                         startBox.Draw("", Main.sb);
-                        timeLimitBox.Draw("", Main.sb); 
+                        timeLimitBox.Draw("", Main.sb);
+                        roundsBox.Draw("", Main.sb); 
                     }
                     int i = 32;
                     foreach (ClientPlayer player in playerList)

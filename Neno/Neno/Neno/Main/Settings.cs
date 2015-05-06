@@ -18,7 +18,9 @@ namespace Neno
         public const int timeOutPing = 10000; //Amount of ms before timeout
         public const string version = "Version 0.0"; //Game version, displayed in window
         public const int defaultWordBoardTimeLimit = 60 * 45; //Time limit for turns in WordBoard
+        public const int defaultWordBoardRounds = 4; //Rounds per player for a full wordboard round
 
         public static int wordBoardTimeLimit = 60 * 45; //Time limit for turns in WordBoard
+        public static int wordBoardRounds = 4; //Rounds per player for a full wordboard round
     }
 }
