@@ -207,6 +207,14 @@ namespace Neno
 
             return newLetter;
         }
+        public static Rectangle fromSheet(int frame, int w = 256, int h = 256, int rows = 32, int columns = 32)
+        {
+            int width = w / columns;
+            int height = h / rows;
+            int c = frame % columns;
+            int r = (int)((float)frame / (float)columns);
+            return new Rectangle(width * c, height * r, width, height);
+        }
 
         #region Drawing
 

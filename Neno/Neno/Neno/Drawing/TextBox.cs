@@ -45,6 +45,7 @@ namespace Neno
         public bool dontDraw = false;
         public string Description = "";
         public int maxWidth = 0;
+        public int tag = 0; //Extra tag
 
         public TextBox(int x, int y, string text, float scale, SpriteFont font)
         {
@@ -386,7 +387,7 @@ namespace Neno
         public bool CheckSelect()
         {
             Select = false;
-            if (Rect.Contains((int)Main.mousePos.X, (int)Main.mousePos.Y))
+            if (Rect.Contains((int)Main.mousePos.X, (int)Main.mousePos.Y) && !dontDraw)
                 Select = true;
 
             return (Select);
@@ -394,7 +395,7 @@ namespace Neno
 
         public bool CheckClicked()
         {
-            if (Main.mouseLeftPressed)
+            if (Main.mouseLeftPressed && !dontDraw)
             {
                 Select = false;
                 if (Rect.Contains((int)Main.mousePos.X, (int)Main.mousePos.Y))

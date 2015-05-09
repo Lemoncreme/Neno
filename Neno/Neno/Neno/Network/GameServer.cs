@@ -22,7 +22,8 @@ namespace Neno
         testResponse = 104,
         readyToStart = 105,
         placeTile = 106,
-        doneWord = 107
+        doneWord = 107,
+        doneTurn = 108
     }
     enum ServerStatus
     {
@@ -50,6 +51,7 @@ namespace Neno
         Timer timeLeftTimer = new Timer(15, true);
         int turnNumber = 1;
         int turnTime = 0;
+        Viewing view = Viewing.Wordboard;
 
         #endregion
 
@@ -80,7 +82,8 @@ namespace Neno
         void recMessage()
         {
             NetIncomingMessage inc;
-            byte playerID = 0;
+            byte playerID, p1, p2;
+            BattleBoard board;
             ServerPlayer player;
 
             while ((inc = server.ReadMessage()) != null)
@@ -232,9 +235,18 @@ namespace Neno
                                 }
 
                                 //Next turn
-                                turnNumber++;
                                 nextTurn();
-                                sendAllTurn();
+                                break;
+                            case ServerMsg.doneTurn: //Client finished a battle turn
+                                player = getPlayer(inc.SenderConnection);
+                                p1 = inc.ReadByte();
+                                p2 = inc.ReadByte();
+                                board = getBoard(p1, p2);
+
+                                Console.WriteLine("<SERVER> " + player.Name + " finished a turn");
+
+                                nextBattleTurn(board);
+
                                 break;
                         }
                         break;
@@ -458,13 +470,70 @@ namespace Neno
             sendMsg.Write((byte)ClientMsg.currentTimeLeft);
             sendMsg.Write(turnTime);
 
-            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableSequenced);
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
         void sendTimeUp(NetConnection recipient)
         {
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
             sendMsg.Write((byte)ClientMsg.timeUp);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendSwitchToBattle()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleMode);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBattleTurn(NetConnection recipient, BattleBoard board)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleTurn);
+            sendMsg.Write((byte)board.player1_ID);
+            sendMsg.Write((byte)board.player2_ID);
+            sendMsg.Write((byte)board.turn);
+            sendMsg.Write((byte)board.turnNumber);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBattleTimes(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleTimeLeft);
+            int i = 0;
+            foreach (BattleBoard next in battleBoards)
+            {
+                if (next.turn == getPlayer(recipient).ID)
+                    if (next.time % 60 == 0)
+                    {
+                        i++;
+                    }
+            }
+            sendMsg.Write((byte)i);
+            foreach(BattleBoard next in battleBoards)
+            {
+                if (next.turn == getPlayer(recipient).ID)
+                    if (next.time % 60 == 0)
+                    {
+                        sendMsg.Write(next.player1_ID);
+                        sendMsg.Write(next.player2_ID);
+                        sendMsg.Write(next.time);
+                    }
+            }
+
+            if (i > 0)
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBattleTimeUp(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleTimeUp);
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
@@ -494,6 +563,16 @@ namespace Neno
         }
         void nextTurn()
         {
+            //Check if end of current game
+            if (turnNumber == Settings.wordBoardRounds * playerList.Count)
+            {
+                Console.WriteLine("<SERVER> Switching to BattleBoard mode");
+                switchToBattle();
+            }
+
+            //Increase turn number
+            turnNumber++;
+
             //Get current turn player's index in list
             var index = playerList.IndexOf(getPlayer(turn));
 
@@ -509,7 +588,37 @@ namespace Neno
             //Time limit
             turnTime = Settings.wordBoardTimeLimit;
 
+            //Send
+            sendAllTurn();
+
             Console.WriteLine("<SERVER> it's now " + playerList[index].Name + "'s turn!");
+        }
+        void nextBattleTurn(BattleBoard board)
+        {
+            //Check if end of current game
+            if (turnNumber == Settings.wordBoardRounds * playerList.Count)
+            {
+                Console.WriteLine("<SERVER> The battle on the board between " + getName(board.player1_ID) + " and " + getName(board.player2_ID) + " has ended");
+                //TODO: End board
+            }
+            
+            //Increment turn number
+            board.turnNumber++;
+
+            //Next turn
+            if (board.turn == board.player1_ID)
+                board.turn = board.player2_ID;
+            else
+                board.turn = board.player1_ID;
+
+            //Time limit
+            board.time = Settings.battleTimeLimit;
+
+            //Send to both players on board
+            sendBattleTurn(getPlayer(board.player1_ID).Connection, board);
+            sendBattleTurn(getPlayer(board.player2_ID).Connection, board);
+
+            Console.WriteLine("<SERVER> It's now " + getName(board.turn) + "'s turn on battle board " + board.player1_ID + "-" + board.player2_ID);
         }
         void backToLobby()
         {
@@ -528,6 +637,27 @@ namespace Neno
             wordBoard = null;
             battleBoardCount = 0;
             Status = ServerStatus.Lobby;
+        }
+        void switchToBattle()
+        {
+            //Reset variables form WordBoard
+            turnNumber = 1;
+            turn = 0;
+
+            //View
+            view = Viewing.Battleboard;
+
+            //Send players battleboard message
+            sendSwitchToBattle();
+        }
+        public BattleBoard getBoard(byte playerID1, byte playerID2)
+        {
+            foreach (BattleBoard next in battleBoards)
+            {
+                if (next.player1_ID == playerID1 && next.player2_ID == playerID2)
+                    return next;
+            }
+            return null;
         }
 
         void Create()
@@ -590,24 +720,49 @@ namespace Neno
                 case ServerStatus.Playing:
                     if (pingTimer.tick)
                         sendTestConnection();
-                    if (turnTime > 0)
+                    switch(view)
                     {
-                        turnTime -= 1;
-                        if (timeLeftTimer.tick)
-                            sendCurrentTurnTime(getPlayer(turn).Connection);
-                        if (turnTime == 0)
-                        { 
-                            //Forced end turn
-                            sendTimeUp(getPlayer(turn).Connection);
-                            getPlayer(turn).letterTiles.Clear();
-                            for (int i = 0; i < 12; i++)
-                                getPlayer(turn).letterTiles.Add(Main.randomLetter());
-                            sendLetterTiles(getPlayer(turn).Connection, getPlayer(turn));
-                            turnNumber++;
-                            nextTurn();
-                            sendAllTurn();
-                        }
+                        case Viewing.Wordboard:
+                            if (turnTime > 0)
+                            {
+                                turnTime -= 1;
+                                if (timeLeftTimer.tick)
+                                    sendCurrentTurnTime(getPlayer(turn).Connection);
+                                if (turnTime == 0)
+                                {
+                                    //Forced end turn
+                                    sendTimeUp(getPlayer(turn).Connection);
+                                    getPlayer(turn).letterTiles.Clear();
+                                    for (int i = 0; i < 12; i++)
+                                        getPlayer(turn).letterTiles.Add(Main.randomLetter());
+                                    sendLetterTiles(getPlayer(turn).Connection, getPlayer(turn));
+                                    nextTurn();
+                                    sendAllTurn();
+                                }
+                            }
+                            break;
+                        case Viewing.Battleboard:
+                            foreach(ServerPlayer next in playerList)
+                            {
+                                sendBattleTimes(next.Connection);
+                            }
+                            foreach(BattleBoard next in battleBoards)
+                            {
+                                if (next.time > 0)
+                                {
+                                    next.time -= 1;
+                                    if (next.time == 0)
+                                    {
+                                        //Forced end turn
+                                        sendBattleTimeUp(getPlayer(next.turn).Connection);
+                                        nextBattleTurn(next);
+                                        sendBattleTurn(getPlayer(next.turn).Connection, next);
+                                    }
+                                }
+                            }
+                            break;
                     }
+                    
                     break;
             }
 

@@ -19,7 +19,9 @@ namespace Neno
         public const string version = "Version 0.0"; //Game version, displayed in window
         public const int defaultWordBoardTimeLimit = 60 * 45; //Time limit for turns in WordBoard
         public const int defaultWordBoardRounds = 4; //Rounds per player for a full wordboard round
+        public const int defaultBattleTimeLimit = 60 * 45; //Time limit for turns in WordBoard
 
+        public static int battleTimeLimit = 60 * 45; //Time limit for turns in WordBoard
         public static int wordBoardTimeLimit = 60 * 45; //Time limit for turns in WordBoard
         public static int wordBoardRounds = 4; //Rounds per player for a full wordboard round
     }

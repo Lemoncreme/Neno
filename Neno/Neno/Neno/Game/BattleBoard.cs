@@ -24,12 +24,30 @@ namespace Neno
         */
         public byte player1_ID;
         public byte player2_ID;
+        public byte otherPlayer;
+        public byte turn;
+        public byte turnNumber = 0;
+        public int time = Settings.battleTimeLimit;
+
+        #region Camera Movement
+        public float viewX = 0;
+        public float viewY = 0;
+        public float Zoom = 1;
+        public float movingX = 0;
+        public float movingY = 0;
+        public float movingMouseX = 0;
+        public float movingMouseY = 0;
+        public int selectX = -1;
+        public int selectY = -1;
+        public bool Moving = false;
+        #endregion
 
         public BattleBoard(byte p1, byte p2)
         {
             tiles = new byte[Width * Height];
             player1_ID = p1;
             player2_ID = p2;
+            turn = player1_ID;
 
             //Generate
             for(int x = 0; x < Width; x++)
@@ -60,11 +78,11 @@ namespace Neno
             Console.WriteLine("BattleBoard loaded");
         }
 
-        byte getTile(int x, int y)
+        public byte getTile(int x, int y)
         {
             return tiles[(y * Width) + x];
         }
-        void setTile(int x, int y, byte value)
+        public void setTile(int x, int y, byte value)
         {
             tiles[(y * Width) + x] = value;
         }
