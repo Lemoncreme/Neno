@@ -44,6 +44,13 @@ Content\Sounds\type.xnb
 Content\Textures\trayLeft.xnb
 Content\Textures\trayMiddle.xnb
 Content\Textures\trayRight.xnb
+Content\Sounds\delete.xnb
+Content\Sounds\error.xnb
+Content\Sounds\new.xnb
+Content\Sounds\pickup.xnb
+Content\Sounds\place.xnb
+Content\Sounds\timer.xnb
+Content\Sounds\join.xnb
 Content\Music\findingNeno.wma
 Content\Music\lobby.wma
 wordsEn.txt

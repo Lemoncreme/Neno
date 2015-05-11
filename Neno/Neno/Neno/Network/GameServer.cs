@@ -568,6 +568,7 @@ namespace Neno
             {
                 Console.WriteLine("<SERVER> Switching to BattleBoard mode");
                 switchToBattle();
+                return;
             }
 
             //Increase turn number

@@ -100,7 +100,7 @@ namespace Neno
         #endregion
 
         #region Battle
-        BattleBoard currentBoard;
+        BattleBoard currentBoard = null;
         Matrix BattleBoardView;
         #endregion
 
@@ -159,6 +159,7 @@ namespace Neno
                                 ID = inc.ReadByte();
                                 getPlayer(ID).Ready = true;
                                 Console.WriteLine(getPlayer(ID).Name + " (" + ID + ") is ready");
+                                Sound.Play("join");
                                 break;
                             case ClientMsg.playerLeft: //A player left the game
                                 ID = inc.ReadByte();
@@ -172,7 +173,10 @@ namespace Neno
                                 Settings.wordBoardTimeLimit = inc.ReadInt32();
                                 Settings.wordBoardRounds = inc.ReadByte();
                                 if (turn == playerID)
+                                { 
                                     canInteract = true;
+                                    Sound.Loop("timer");
+                                }
                                 else
                                     canInteract = false;
                                 readyBox = null; startBox = null;
@@ -210,7 +214,7 @@ namespace Neno
                                     otherPlayer = otherplayer
                                 };
                                 boardList.Add(nextBoard);
-                                buttonsBattleBoard.Add(new TextBox(0, 90 + boardList.Count * 24, "> " + getPlayer(nextBoard.otherPlayer).Name, 0.5f, Main.font) { tag = boardList.Count - 1 });
+                                buttonsBattleBoard.Add(new TextBox(0, 90 + boardList.Count * 36, "> (" + getPlayer(nextBoard.otherPlayer).Name + ")", 0.4f, Main.font) { tag = boardList.Count - 1 });
                                 break;
                             case ClientMsg.connectionTest: //Testing connected
                                 sendConnectionTest();
@@ -242,9 +246,17 @@ namespace Neno
                                 turnNumber = inc.ReadInt32();
                                 Console.WriteLine("It's now " + getPlayer(turn).Name + "'s turn!");
                                 if (turn == playerID)
+                                {
                                     canInteract = true;
+                                    Sound.Stop("timer");
+                                    Sound.Loop("timer");
+                                }
                                 else
+                                {
                                     canInteract = false;
+                                    Sound.Stop("timer");
+                                    Sound.Play("new");
+                                }
                                 break;
                             case ClientMsg.ping: //Connection speed
                                 ping = inc.ReadInt32();
@@ -282,6 +294,9 @@ namespace Neno
 
                                     //Remove from placed tiles list
                                     placedTiles.Remove(new Vector2(wordBoard.selectX, wordBoard.selectY));
+
+                                    Sound.Stop("timer");
+                                    Sound.Play("new");
                                 }
                                 EndTurn();
                                 break;
@@ -497,6 +512,7 @@ namespace Neno
             buttonBattleBoard.dontDraw = false;
             currentBoard = boardList[0];
             showTurn = false;
+            Sound.Stop("timer");
         }
         public BattleBoard getBoard(byte playerID1, byte playerID2)
         {
@@ -506,6 +522,16 @@ namespace Neno
                     return next;
             }
             return null;
+        }
+        int numberBattleTurns()
+        {
+            int i = 0;
+            foreach(BattleBoard next in boardList)
+            {
+                if (next.turn == playerID)
+                    i++;
+            }
+            return i;
         }
 
         
@@ -824,6 +850,7 @@ namespace Neno
                         pickupLetter = false;
                         buttonsWordBoard[1].clicked = true;
                     }
+                    Sound.Play("place");
                 }
                 else
                     if ((Main.mouseRightPressed || (Main.mouseLeftPressed)
@@ -831,6 +858,7 @@ namespace Neno
                     {
                         pickupLetter = false;
                         selectedLetter = -1;
+                        Sound.Play("error");
                     }
             }
             else
@@ -864,6 +892,8 @@ namespace Neno
 
                     if (placedTiles.Count <= 1)
                         direction = Direction.None;
+
+                    Sound.Play("delete");
                 }
             }
 
@@ -888,6 +918,7 @@ namespace Neno
                 if (Main.mouseLeftPressed && selectedLetter != -1)
                 {
                     pickupLetter = true;
+                    Sound.Play("pickup");
                 }
             }
             #endregion
@@ -904,7 +935,7 @@ namespace Neno
                                     nextBox.CheckSelect();
                                     if (nextBox.CheckClicked())
                                     {
-                                        sendEndTurn(boardList[nextBox.tag]);
+                                        sendEndTurn(currentBoard);
                                     }
                                 }
                                 break;
@@ -1102,20 +1133,42 @@ namespace Neno
                     Main.drawText(Main.consoleFont, "Server Name: " + serverName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Players: " + playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Ping: " + ping, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
-                    Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
-                    Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber + " / " + Settings.wordBoardRounds * playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
-                    Main.drawText(Main.consoleFont, "Time Limit: " + (Settings.wordBoardTimeLimit / 60) + " seconds", new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    if (currentBoard == null)
+                    {
+                        Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                        Main.drawText(Main.consoleFont, "Turn Number: " + turnNumber + " / " + Settings.wordBoardRounds * playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                        Main.drawText(Main.consoleFont, "Time Limit: " + (Settings.wordBoardTimeLimit / 60) + " seconds", new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    }
+                    else
+                    {
+                        Main.drawText(Main.consoleFont, "Boards: " + boardList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                        Main.drawText(Main.consoleFont, "Current Turns: " + numberBattleTurns(), new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                        Main.drawText(Main.consoleFont, "Boards Won: " + 0, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18; //TODO: Boards won
+                    }
                     #endregion
                     break;
                 case Viewing.Players:
                     #region Players
                     xx = 4; yy = 72;
                     Main.drawText(Main.consoleFont, "Players", new Vector2(xx, yy), Color.Black, 1f, TextOrient.Left); yy += 18;
-                    foreach(ClientPlayer next in playerList)
+                    if (currentBoard == null)
                     {
-                        color = Color.White;
-                        if (turn == next.ID) color = Color.Orange;
-                        Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
+                        foreach (ClientPlayer next in playerList)
+                        {
+                            color = Color.White;
+                            if (turn == next.ID) color = Color.Orange;
+                            Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
+                        }
+                    }
+                    else
+                    {
+                        foreach (ClientPlayer next in playerList)
+                        {
+                            color = Color.White;
+                            if (getBoard(next.ID, playerID).turn == playerID
+                                || getBoard(playerID, next.ID).turn == playerID) color = Color.Orange;
+                            Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
+                        }
                     }
                     #endregion
                     break;
@@ -1345,6 +1398,7 @@ namespace Neno
         public void end()
         {
             client.Shutdown("end");
+            Sound.StopAll();
             Console.WriteLine("Client ended");
         }
     }
