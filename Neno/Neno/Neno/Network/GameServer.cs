@@ -215,16 +215,21 @@ namespace Neno
                             case ServerMsg.doneWord: //Client finished words
                                 player = getPlayer(inc.SenderConnection);
                                 int wordCount = inc.ReadByte();
-                                List<string> words = new List<string>();
+                                int value = 0;
 
                                 //Get words
                                 for (int ii = 0; ii < wordCount; ii++)
                                 {
-                                    words.Add(inc.ReadString());
+                                    string next = inc.ReadString();
+                                    player.words.Add(next);
                                     player.wordsMade++;
+                                    value += next.Length;
                                 }
                                 Console.WriteLine("<SERVER> " + player.Name + " finished" + wordCount + "words");
 
+                                //Coins
+                                player.coins += value;
+                                sendCoins(inc.SenderConnection);
                                 
                                 //Refill Letters
                                 while(player.letterTiles.Count < 12)
@@ -537,6 +542,28 @@ namespace Neno
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
+        void sendCoins(NetConnection recipient)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.newCoins);
+            sendMsg.Write(getPlayer(recipient).coins);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendSwitchToWordBoard()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.wordMode);
+            sendMsg.Write((byte)turn);
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBoardEnd(BattleBoard board)
+        {
+
+        }
         #endregion
 
         string getName(byte playerID)
@@ -601,6 +628,7 @@ namespace Neno
             {
                 Console.WriteLine("<SERVER> The battle on the board between " + getName(board.player1_ID) + " and " + getName(board.player2_ID) + " has ended");
                 //TODO: End board
+
             }
             
             //Increment turn number
@@ -641,12 +669,20 @@ namespace Neno
         }
         void switchToBattle()
         {
-            //Reset variables form WordBoard
+            //Reset variables from WordBoard
             turnNumber = 1;
             turn = 0;
 
             //View
             view = Viewing.Battleboard;
+
+            //Send players battleboard message
+            sendSwitchToBattle();
+        }
+        void switchToWord()
+        {
+            //View
+            view = Viewing.Wordboard;
 
             //Send players battleboard message
             sendSwitchToBattle();
@@ -740,6 +776,11 @@ namespace Neno
                                     nextTurn();
                                     sendAllTurn();
                                 }
+                            }
+                            if (Key.pressed(Keys.F4) && Settings.isDebug)
+                            {
+                                Console.WriteLine("<SERVER> <D> Switching to BattleBoard mode");
+                                switchToBattle();
                             }
                             break;
                         case Viewing.Battleboard:

@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\BattleBoard.cs" />
+    <Compile Include="Game\Char.cs" />
     <Compile Include="Other\NameGen.cs" />
     <Compile Include="Network\ClientPlayer.cs" />
     <Compile Include="Game\Entity.cs" />

@@ -67,5 +67,15 @@ namespace Neno
             Console.WriteLine("WordBoard created");
             boardImage = null;
         }
+
+        public bool isEmpty()
+        {
+            foreach(byte next in tiles)
+            {
+                if (next >= 1 && next <= 26)
+                    return false;
+            }
+            return true;
+        }
     }
 }

@@ -135,6 +135,18 @@ namespace Neno
 
             Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
+        public static void drawTextBox(SpriteFont font, string Text, Vector2 pos, Color color, float scale, TextOrient orientation, Color boxColor)
+        {
+            if (orientation == TextOrient.Middle)
+                pos.X -= scale * font.MeasureString(Text).X / 2;
+            else
+                if (orientation == TextOrient.Right)
+                    pos.X -= scale * font.MeasureString(Text).X;
+
+            Main.sb.Draw(Main.pix, new Rectangle((int)pos.X - 2, (int)pos.Y - 1, (int)font.MeasureString(Text).X + 4, (int)font.MeasureString(Text).Y + 2), boxColor);
+
+            Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+        }
         public static T choose<T>(List<T> list)
         {
             return list[rInt(0, list.Count - 1)];
@@ -142,6 +154,10 @@ namespace Neno
         public static int rInt(int min, int max)
         {
             return R.Next(min, max + 1);
+        }
+        public static float rFloat(float max)
+        {
+            return (float)(R.NextDouble() * max);
         }
         public static bool chance(int num)
         {

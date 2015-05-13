@@ -86,5 +86,16 @@ namespace Neno
         {
             tiles[(y * Width) + x] = value;
         }
+        public Entity findEntity(int x, int y, EntityType type)
+        {
+            foreach(Entity ent in entityList)
+            {
+                if (ent.Type == type && ent.X == x && ent.Y == y)
+                {
+                    return ent;
+                }
+            }
+            return null;
+        }
     }
 }

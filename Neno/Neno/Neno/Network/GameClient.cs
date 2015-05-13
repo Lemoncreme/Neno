@@ -34,7 +34,8 @@ namespace Neno
     enum ClientMsg
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
-        newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp
+        newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp, newCoins,
+        wordMode, boardEnd
     }
     enum Direction
     {
@@ -75,6 +76,8 @@ namespace Neno
         bool choosingWild = false;
         int currentTurnTime = 0;
         bool showTurn = true;
+        List<string> totalWords = new List<string>();
+        int coins = 0;
 
         #region In-Game GUI
         //Main Buttons
@@ -102,6 +105,10 @@ namespace Neno
         #region Battle
         BattleBoard currentBoard = null;
         Matrix BattleBoardView;
+        Entity entSelect = null;
+        string mouseMessage = "";
+        Color mouseMessageColor = Color.White;
+        Timer mouseMessageTimer = new Timer(0, false);
         #endregion
 
         #endregion
@@ -132,6 +139,13 @@ namespace Neno
                     case NetIncomingMessageType.Data:
                         switch ((ClientMsg)inc.ReadByte())
                         {
+                            case ClientMsg.wordMode: //Wordboard mode
+                                SwitchToWord();
+                                turn = inc.ReadByte();
+                                break;
+                            case ClientMsg.newCoins: //New coin number
+                                coins = inc.ReadInt32();
+                                break;
                             case ClientMsg.init: //Receive init data from server
                                 serverName = inc.ReadString();
                                 playerID = inc.ReadByte();
@@ -143,7 +157,7 @@ namespace Neno
                                 { 
                                     startBox = new TextBox(Main.windowWidth / 2, 80, "Start Game", 1f, Main.font, TextOrient.Middle);
                                     timeLimitBox = new TextBox(Main.windowWidth - 4, 120, "WordBoard Time Limit: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardTimeLimit / 60).ToString());
-                                    roundsBox = new TextBox(Main.windowWidth - 4, 160, "WordBoard Rounds: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardRounds).ToString());
+                                    roundsBox = new TextBox(Main.windowWidth - 4, 170, "WordBoard Rounds: ", 0.5f, Main.font, TextOrient.Right, true, (Settings.wordBoardRounds).ToString());
                                 }
                                 sendJoin();
                                 MediaPlayer.Play(Main.music("lobby"));
@@ -211,7 +225,8 @@ namespace Neno
                                     player2_ID = (byte)p2,
                                     turn = (byte)p1,
                                     tiles = newTiles,
-                                    otherPlayer = otherplayer
+                                    otherPlayer = otherplayer,
+                                    entityList = entitylist
                                 };
                                 boardList.Add(nextBoard);
                                 buttonsBattleBoard.Add(new TextBox(0, 90 + boardList.Count * 36, "> (" + getPlayer(nextBoard.otherPlayer).Name + ")", 0.4f, Main.font) { tag = boardList.Count - 1 });
@@ -513,12 +528,32 @@ namespace Neno
             currentBoard = boardList[0];
             showTurn = false;
             Sound.Stop("timer");
+            resetBattleView();
+        }
+        void SwitchToWord()
+        {
+            Console.WriteLine("Switching to word mode");
+            view = Viewing.Wordboard;
+            buttonWordBoard.dontDraw = false;
+            buttonBattleBoard.dontDraw = true;
+            currentBoard = null;
+            showTurn = true;
+            entSelect = null;
         }
         public BattleBoard getBoard(byte playerID1, byte playerID2)
         {
             foreach (BattleBoard next in boardList)
             {
                 if (next.player1_ID == playerID1 && next.player2_ID == playerID2)
+                    return next;
+            }
+            return null;
+        }
+        public BattleBoard getBoard(byte otherplayer)
+        {
+            foreach (BattleBoard next in boardList)
+            {
+                if (next.otherPlayer == otherplayer)
                     return next;
             }
             return null;
@@ -532,6 +567,27 @@ namespace Neno
                     i++;
             }
             return i;
+        }
+        void mouseMsg(string msg, Color clr)
+        {
+            mouseMessage = msg;
+            mouseMessageColor = clr;
+            mouseMessageTimer = new Timer(120, false);
+        }
+        void mouseMsg(string msg)
+        {
+            mouseMessage = msg;
+            mouseMessageColor = Color.White;
+            mouseMessageTimer = new Timer(120, false);
+        }
+        void resetBattleView()
+        {
+            currentBoard.Zoom = 2;
+            if (currentBoard.player1_ID == playerID)
+                currentBoard.viewY = 0;
+            else
+                currentBoard.viewY = Main.img("Boards/Battle").Height - Main.windowHeight / 2;
+            currentBoard.viewX = Main.img("Boards/Battle").Width / 2;
         }
 
         
@@ -707,7 +763,7 @@ namespace Neno
                         {
                             if (nextBox.CheckClicked())
                             {
-                                if (checkConnectedToOtherWords() || turnNumber == 1)
+                                if (checkConnectedToOtherWords() || placedTiles.Contains(new Vector2(34, 34)))
                                 {
                                     findAllWords();
                                     List<string> realWords = new List<string>();
@@ -726,6 +782,10 @@ namespace Neno
                                     if (realWords.Count > 0)
                                     {
                                         sendWords(realWords);
+                                        foreach(string word in realWords)
+                                        {
+                                            totalWords.Add(word);
+                                        }
                                         EndTurn();
                                     }
                                 }
@@ -944,7 +1004,11 @@ namespace Neno
                                 {
                                     nextBox.CheckSelect();
                                     if (nextBox.CheckClicked())
+                                    {
                                         currentBoard = boardList[nextBox.tag];
+                                        entSelect = null;
+                                        resetBattleView();
+                                    }
                                 }
                                 break;
                         }
@@ -963,7 +1027,7 @@ namespace Neno
                         currentBoard.viewY = currentBoard.viewY - (Main.mousePos.Y / currentBoard.Zoom);
                         currentBoard.Zoom /= 2f;
                     }
-                    if (Main.mouseLeftPressed && !new Rectangle(0, Main.windowHeight - 110, Main.windowWidth, 110).Contains(Main.mousePosP))
+                    if (Main.mouseLeftPressed)
                     {
                         currentBoard.movingX = currentBoard.viewX;
                         currentBoard.movingY = currentBoard.viewY;
@@ -986,8 +1050,39 @@ namespace Neno
                     currentBoard.selectX = (int)MathHelper.Clamp((float)(Math.Floor((currentBoard.viewX + Main.mousePos.X / currentBoard.Zoom) / 8f)), 0, currentBoard.Width);
                     currentBoard.selectY = (int)MathHelper.Clamp((float)(Math.Floor((currentBoard.viewY + Main.mousePos.Y / currentBoard.Zoom) / 8f)), 0, currentBoard.Height);
                 #endregion
+                    #region Select Entity
+                    if (currentBoard.turn == playerID)
+                    {
+                        var ent = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
+
+                        if (Main.mouseLeftPressed)
+                        {
+                            if (entSelect == null && ent != null && ent.ownerID == playerID)
+                            {
+                                entSelect = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
+                                Sound.Play("place");
+                            }
+                            else
+                                if (ent != null && ent.ownerID != playerID)
+                                {
+                                    mouseMsg("That's not yours", Color.Yellow);
+                                }
+                        }
+
+                        if (Key.pressed(Keys.Escape))
+                        {
+                            entSelect = null;
+                            Sound.Play("pickup");
+                        }
+                    }
+                    else
+                        entSelect = null;
+                    #endregion
                     break;
             }
+
+            if (mouseMessageTimer.tick)
+                mouseMessage = "";
         }
         void GameDraw()
         {
@@ -1052,6 +1147,17 @@ namespace Neno
                             }
                         }
                     }
+
+                    float pulse = (float)(Math.Sin(Main.Time / 6f) * 0.3f + 0.5f);
+
+                    //Draw Chars
+                    foreach(Entity ent in currentBoard.entityList)
+                    {
+                        if (entSelect == ent)
+                            Main.sb.Draw(Main.pix, new Rectangle(ent.X * 8, ent.Y * 8, 8, 8),
+                                new Color(pulse, pulse, pulse, 1f));
+                        Char.draw(new Vector2(ent.X * 8, ent.Y * 8), ent.hairColor, ent.skinColor, Color.DarkSeaGreen, Color.SkyBlue, Color.DarkSlateBlue);
+                    }
                     #endregion
                     Main.sb.End();
                 }
@@ -1070,6 +1176,21 @@ namespace Neno
             {
                 case Viewing.Battleboard:
                     #region Battleboard GUI
+                    //Mouse
+                    if (mouseMessage != "")
+                        Main.drawTextBox(Main.consoleFont, mouseMessage, new Vector2(Main.mousePos.X, Main.mousePos.Y - 24), mouseMessageColor, 0.5f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+
+                    //Char Info
+                    if (entSelect != null)
+                    {
+                        Main.DrawRectangle(new Rectangle(Main.windowWidth - 200, Main.windowHeight - 400, 200, 400), new Color(0f, 0f, 0f, 0.6f));
+                        int y = Main.windowHeight - 398;
+                        Main.drawText(Main.consoleFont, entSelect.Name, new Vector2(Main.windowWidth - 100, y), Color.White, 1.25f, TextOrient.Middle); y += 30;
+                        Main.drawText(Main.consoleFont, "Type is " + entSelect.Type.ToString(), new Vector2(Main.windowWidth - 198, y), Color.LightGoldenrodYellow, 1f, TextOrient.Left); y += 20;
+                        Main.drawText(Main.consoleFont, "HP = " + entSelect.HP + " / " + entSelect.MaxHP, new Vector2(Main.windowWidth - 198, y), Color.LightCoral, 1f, TextOrient.Left); y += 20;
+                        Main.drawText(Main.consoleFont, "Stamina = " + entSelect.Stamina + " / " + entSelect.MaxStamina, new Vector2(Main.windowWidth - 198, y), Color.LightGreen, 1f, TextOrient.Left); y += 20;
+                    }
+
                     //Other
                     foreach (TextBox nextBox in buttonsBattleBoard)
                     {
@@ -1133,6 +1254,7 @@ namespace Neno
                     Main.drawText(Main.consoleFont, "Server Name: " + serverName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Players: " + playerList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Ping: " + ping, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
+                    Main.drawText(Main.consoleFont, "Coins: " + coins, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     if (currentBoard == null)
                     {
                         Main.drawText(Main.consoleFont, "Words Made: " + wordsMade, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
@@ -1144,6 +1266,14 @@ namespace Neno
                         Main.drawText(Main.consoleFont, "Boards: " + boardList.Count, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                         Main.drawText(Main.consoleFont, "Current Turns: " + numberBattleTurns(), new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                         Main.drawText(Main.consoleFont, "Boards Won: " + 0, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18; //TODO: Boards won
+                    }
+
+                    yy = 64;
+                    xx = Main.windowWidth - 4;
+                    Main.drawText(Main.consoleFont, "Words", new Vector2(xx, yy), Color.White, 1f, TextOrient.Right); yy += 18;
+                    foreach(string word in totalWords)
+                    {
+                        Main.drawText(Main.consoleFont, word, new Vector2(xx, yy), Color.White, 1f, TextOrient.Right); yy += 18;
                     }
                     #endregion
                     break;
@@ -1165,8 +1295,10 @@ namespace Neno
                         foreach (ClientPlayer next in playerList)
                         {
                             color = Color.White;
-                            if (getBoard(next.ID, playerID).turn == playerID
-                                || getBoard(playerID, next.ID).turn == playerID) color = Color.Orange;
+                            if (next.ID == playerID)
+                                color = Color.Beige;
+                            else
+                                if (getBoard(next.ID).turn == playerID) color = Color.Orange;
                             Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
                         }
                     }
@@ -1220,7 +1352,7 @@ namespace Neno
 
         public void step()
         {
-            if (Key.pressed(Keys.Escape) && !choosingWild) Main.Switch(Focus.Menu);
+            if (Key.pressed(Keys.Escape) && !choosingWild && entSelect == null) Main.Switch(Focus.Menu);
 
             if (Status != ClientStatus.Waiting_For_Connection
                 && Status != ClientStatus.Disconnected)

@@ -21,6 +21,7 @@ namespace Neno
         public const int defaultWordBoardRounds = 4; //Rounds per player for a full wordboard round
         public const int defaultBattleTimeLimit = 60 * 45; //Time limit for turns in WordBoard
         public const int defaultBattleBoardRounds = 4; //Rounds per player per board for a full battleboard round (i.e. 4 with 3 players = 3 boards = 4*3=12 per player total)
+        public const bool isDebug = true; //Allows some cheaty stuff
 
         public static int battleRounds = 4; //Rounds per player per board for a full battleboard round (i.e. 4 with 3 players = 3 boards = 4*3=12 per player total)
         public static int battleTimeLimit = 60 * 45; //Time limit for turns in WordBoard
