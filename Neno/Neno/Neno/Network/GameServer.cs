@@ -23,7 +23,8 @@ namespace Neno
         readyToStart = 105,
         placeTile = 106,
         doneWord = 107,
-        doneTurn = 108
+        doneTurn = 108,
+        entMove = 109
     }
     enum ServerStatus
     {
@@ -52,6 +53,7 @@ namespace Neno
         int turnNumber = 1;
         int turnTime = 0;
         Viewing view = Viewing.Wordboard;
+        public static int entityIDinc = 0;
 
         #endregion
 
@@ -253,6 +255,9 @@ namespace Neno
                                 nextBattleTurn(board);
 
                                 break;
+                            case ServerMsg.entMove: //Client moved an entity
+                                
+                                break;
                         }
                         break;
                         case NetIncomingMessageType.StatusChanged:
@@ -370,6 +375,7 @@ namespace Neno
             sendMsg.Write(board.entityList.Count);
             foreach(Entity entity in board.entityList)
             {
+                sendMsg.Write(entity.ID);
                 sendMsg.Write(entity.Name);
                 var packed = entity.Pack();
                 sendMsg.Write(packed.Length);
@@ -562,7 +568,17 @@ namespace Neno
         }
         void sendBoardEnd(BattleBoard board)
         {
+            //TODO
+        }
+        void sendEntityProp(Entity ent, BattleBoard board, byte[] propID, byte[] prop)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
 
+            sendMsg.Write((byte)ClientMsg.entProp);
+            sendMsg.Write(propID); //Array of property IDs
+            sendMsg.Write(prop); //Array of property values
+
+            server.SendMessage(sendMsg, getPlayer(board.player1_ID).Connection, NetDeliveryMethod.ReliableOrdered);
         }
         #endregion
 
@@ -693,6 +709,18 @@ namespace Neno
             {
                 if (next.player1_ID == playerID1 && next.player2_ID == playerID2)
                     return next;
+            }
+            return null;
+        }
+        Entity getEntity(int ID)
+        {
+            foreach(BattleBoard board in battleBoards)
+            {
+                foreach(Entity ent in board.entityList)
+                {
+                    if (ent.ID == ID)
+                        return ent;
+                }
             }
             return null;
         }

@@ -35,7 +35,7 @@ namespace Neno
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
         newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp, newCoins,
-        wordMode, boardEnd
+        wordMode, boardEnd, entProp
     }
     enum Direction
     {
@@ -212,10 +212,11 @@ namespace Neno
                                 List<Entity> entitylist = new List<Entity>();
                                 for (int i = 0; i < entityCount; i++ )
                                 {
+                                    int entityID = inc.ReadInt32();
                                     string entityName = inc.ReadString();
                                     int packedLength = inc.ReadInt32();
                                     byte[] entityPacked = inc.ReadBytes(packedLength);
-                                    entitylist.Add(new Entity(entityName, entityPacked));
+                                    entitylist.Add(new Entity(entityName, entityPacked, entityID));
                                 }
                                 var nextBoard = new BattleBoard()
                                 {
@@ -339,6 +340,9 @@ namespace Neno
                                     int time = inc.ReadInt32();
                                     getBoard(p1, p2).time = time;
                                 }
+                                break;
+                            case ClientMsg.entProp:
+                                //TODO
                                 break;
                         }
                         break;
@@ -1057,13 +1061,13 @@ namespace Neno
 
                         if (Main.mouseLeftPressed)
                         {
-                            if (entSelect == null && ent != null && ent.ownerID == playerID)
+                            if (entSelect == null && ent != null && entSelect.Prop(PropType.Owner) == playerID)
                             {
                                 entSelect = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
                                 Sound.Play("place");
                             }
                             else
-                                if (ent != null && ent.ownerID != playerID)
+                                if (ent != null && entSelect.Prop(PropType.Owner) != playerID)
                                 {
                                     mouseMsg("That's not yours", Color.Yellow);
                                 }
@@ -1154,9 +1158,14 @@ namespace Neno
                     foreach(Entity ent in currentBoard.entityList)
                     {
                         if (entSelect == ent)
-                            Main.sb.Draw(Main.pix, new Rectangle(ent.X * 8, ent.Y * 8, 8, 8),
+                            Main.sb.Draw(Main.pix, new Rectangle(ent.Prop(PropType.X) * 8, ent.Prop(PropType.Y) * 8, 8, 8),
                                 new Color(pulse, pulse, pulse, 1f));
-                        Char.draw(new Vector2(ent.X * 8, ent.Y * 8), ent.hairColor, ent.skinColor, Color.DarkSeaGreen, Color.SkyBlue, Color.DarkSlateBlue);
+                        Char.draw(new Vector2(ent.Prop(PropType.X) * 8, ent.Prop(PropType.Y) * 8),
+                            ent.getColor(PropType.HairR, PropType.HairG, PropType.HairB),
+                            ent.getColor(PropType.SkinR, PropType.SkinG, PropType.SkinB),
+                            ent.getColor(PropType.PantsR, PropType.PantsG, PropType.PantsB),
+                            ent.getColor(PropType.ShirtR, PropType.ShirtG, PropType.ShirtB),
+                            ent.getColor(PropType.EyeR, PropType.EyeG, PropType.EyeB));
                     }
                     #endregion
                     Main.sb.End();
@@ -1187,8 +1196,8 @@ namespace Neno
                         int y = Main.windowHeight - 398;
                         Main.drawText(Main.consoleFont, entSelect.Name, new Vector2(Main.windowWidth - 100, y), Color.White, 1.25f, TextOrient.Middle); y += 30;
                         Main.drawText(Main.consoleFont, "Type is " + entSelect.Type.ToString(), new Vector2(Main.windowWidth - 198, y), Color.LightGoldenrodYellow, 1f, TextOrient.Left); y += 20;
-                        Main.drawText(Main.consoleFont, "HP = " + entSelect.HP + " / " + entSelect.MaxHP, new Vector2(Main.windowWidth - 198, y), Color.LightCoral, 1f, TextOrient.Left); y += 20;
-                        Main.drawText(Main.consoleFont, "Stamina = " + entSelect.Stamina + " / " + entSelect.MaxStamina, new Vector2(Main.windowWidth - 198, y), Color.LightGreen, 1f, TextOrient.Left); y += 20;
+                        Main.drawText(Main.consoleFont, "HP = " + entSelect.Prop(PropType.Hp) + " / " + entSelect.Prop(PropType.MaxHp), new Vector2(Main.windowWidth - 198, y), Color.LightCoral, 1f, TextOrient.Left); y += 20;
+                        Main.drawText(Main.consoleFont, "Stamina = " + entSelect.Prop(PropType.Stamina) + " / " + entSelect.Prop(PropType.MaxStamina), new Vector2(Main.windowWidth - 198, y), Color.LightGreen, 1f, TextOrient.Left); y += 20;
                     }
 
                     //Other

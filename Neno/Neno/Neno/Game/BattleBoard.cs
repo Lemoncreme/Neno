@@ -90,7 +90,7 @@ namespace Neno
         {
             foreach(Entity ent in entityList)
             {
-                if (ent.Type == type && ent.X == x && ent.Y == y)
+                if (ent.Type == type && ent.Prop(PropType.X) == x && ent.Prop(PropType.Y) == y)
                 {
                     return ent;
                 }

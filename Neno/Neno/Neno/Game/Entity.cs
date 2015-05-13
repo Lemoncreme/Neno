@@ -17,41 +17,63 @@ namespace Neno
         creature, //NPC
         inventory //Bags, chests, single dropped items, etc.
     }
+    public enum PropType
+    {
+        X, Y, MaxHp, Hp, MaxStamina, Stamina, Owner,
+        HairR, HairG, HairB,
+        SkinR, SkinG, SkinB,
+        EyeR, EyeG, EyeB,
+        ShirtR, ShirtG, ShirtB,
+        PantsR, PantsG, PantsB
+    }
+    public class EntProp
+    {
+        public PropType Type;
+        public int Value;
+
+        public EntProp(PropType type, int value)
+        {
+            Type = type; Value = value;
+        }
+    }
     public class Entity
     {
         //Describes any moving, updating entity
         public string Name;
-        public int X;
-        public int Y;
-        public int MaxHP;
-        public int HP;
-        public byte ownerID;
         public EntityType Type;
+        public int ID;
 
-        #region player type
-        public Color hairColor;
-        public Color skinColor;
-        public int MaxStamina;
-        public int Stamina;
-        #endregion
+        public List<EntProp> propList;
 
         public Entity(string name, int x, int y, int hp, byte ownerid, EntityType Type = EntityType.person)
         {
+            ID = GameServer.entityIDinc; GameServer.entityIDinc++;
             Name = name;
-            X = x;
-            Y = y;
-            MaxHP = hp;
-            HP = hp;
-            MaxStamina = (int)(0.1f + ((float)MaxHP) * Main.rFloat(0.6f));
-            Stamina = MaxStamina;
-            ownerID = ownerid;
+
+            propList.Add(new EntProp(PropType.X, x));
+            propList.Add(new EntProp(PropType.Y, y));
+            propList.Add(new EntProp(PropType.MaxHp, hp));
+            propList.Add(new EntProp(PropType.Hp, hp));
+            var val = (int)(0.1f + ((float)hp) * Main.rFloat(0.6f));
+            propList.Add(new EntProp(PropType.MaxStamina, val));
+            propList.Add(new EntProp(PropType.Stamina, val));
+            propList.Add(new EntProp(PropType.Owner, ownerid));
+
+            #region Colors
+
+            //Skin
             int mix = Main.rInt(-8, 15);
-            skinColor = Main.choose<Color>(new List<Color>(){
-                new Color(Main.rInt(219, 255), Main.rInt(180, 220), Main.rInt(60, 100)),
-                new Color(Main.rInt(90, 142) + mix, Math.Abs(mix), Main.rInt(8, 72) + mix)
+            Color color = Main.choose<Color>(new List<Color>(){
+                new Color(Main.rInt(219, 255) + mix, Main.rInt(180, 220) + mix, Main.rInt(60, 100) + mix),
+                new Color(72 + Main.rInt(-8, 8), Main.rInt(20, 60), Main.rInt(32, 50))
             });
+            propList.Add(new EntProp(PropType.SkinR, color.R));
+            propList.Add(new EntProp(PropType.SkinG, color.G));
+            propList.Add(new EntProp(PropType.SkinB, color.B));
+
+            //Hair
             mix = Main.rInt(-8, 15);
-            hairColor = Main.choose<Color>(new List<Color>(){
+            color = Main.choose<Color>(new List<Color>(){
                 new Color(9 + mix, 8 + mix, 6 + mix),
                 new Color(Main.rInt(240, 255), 245 + mix, Main.rInt(210, 225)),
                 new Color(59 + mix, 48 + mix, 36 + mix),
@@ -60,38 +82,91 @@ namespace Neno
                 new Color(106 + mix, 78 + mix, 66 + mix)
             });
             if (Main.chance(10))
-                hairColor = new Color(Main.rInt(50, 200), Main.rInt(50, 200), Main.rInt(50, 200));
-            Console.WriteLine("Entity created; name = " + Name + " location = " + x + "," + y + " owner = " + ownerID);
+                color = new Color(Main.rInt(50, 200), Main.rInt(50, 200), Main.rInt(50, 200));
+            propList.Add(new EntProp(PropType.HairR, color.R));
+            propList.Add(new EntProp(PropType.HairG, color.G));
+            propList.Add(new EntProp(PropType.HairB, color.B));
+
+            //Eyes
+            color = Main.choose<Color>(new List<Color>(){
+                Color.PowderBlue,
+                Color.AliceBlue,
+                Color.CornflowerBlue,
+                Color.SandyBrown,
+                Color.Brown,
+                Color.RosyBrown,
+                Color.SaddleBrown,
+                Color.GreenYellow,
+                Color.SeaGreen,
+                Color.LightSeaGreen
+            });
+            if (Main.chance(65))
+                color = Color.Black;
+            propList.Add(new EntProp(PropType.EyeR, color.R));
+            propList.Add(new EntProp(PropType.EyeG, color.G));
+            propList.Add(new EntProp(PropType.EyeB, color.B));
+
+            //Shirt
+            color = new Color(Main.rInt(50, 200), Main.rInt(50, 200), Main.rInt(50, 200));
+            propList.Add(new EntProp(PropType.ShirtR, color.R));
+            propList.Add(new EntProp(PropType.ShirtG, color.G));
+            propList.Add(new EntProp(PropType.ShirtB, color.B));
+
+            //Pants
+            mix = Main.rInt(-50, 50);
+            color = new Color((int)(color.R + mix * Main.rFloat(0.5f)), (int)(color.G + mix * Main.rFloat(0.5f)), (int)(color.B + mix * Main.rFloat(0.5f)));
+            propList.Add(new EntProp(PropType.PantsR, color.R));
+            propList.Add(new EntProp(PropType.PantsG, color.G));
+            propList.Add(new EntProp(PropType.PantsB, color.B));
+
+            #endregion
+
+            Console.WriteLine("Entity created; name = " + Name + " location = " + x + "," + y + " owner = " + ownerid);
         }
-        public Entity(string name, byte[] packed)
+        public Entity(string name, byte[] packed, int ID)
         {
             Name = name;
             Unpack(packed);
 
-            Console.WriteLine("Entity unpacked; name = " + Name + " location = " + X + "," + Y + " owner = " + ownerID);
+            Console.WriteLine("Entity unpacked; name = " + Name + " location = " + Prop(PropType.X) + "," + Prop(PropType.Y) + " owner = " + Prop(PropType.Owner));
         }
 
         public byte[] Pack()
         {
-            return new byte[]{
-            (byte)X, (byte)Y, (byte)HP, ownerID, (byte)Type, 
-            hairColor.R, hairColor.G, hairColor.B,
-            skinColor.R, skinColor.G, skinColor.B,
-            (byte)MaxHP, (byte)MaxStamina, (byte)Stamina
-            };
+            byte[] array = new byte[propList.Count]; int i = 1;
+            array[0] = (byte)propList.Count;
+            foreach(EntProp prop in propList)
+            {
+                array[i] = (byte)prop.Type;
+                array[i + 1] = (byte)prop.Value;
+                i += 2;
+            }
+            return array;
         }
         public void Unpack(byte[] packed)
         {
-            X = (int)packed[0];
-            Y = (int)packed[1];
-            HP = (int)packed[2];
-            ownerID = packed[3];
-            Type = (EntityType)packed[4];
-            hairColor = new Color(packed[5], packed[6], packed[7]);
-            skinColor = new Color(packed[8], packed[9], packed[10]);
-            MaxHP = (int)packed[11];
-            MaxStamina = (int)packed[12];
-            Stamina = (int)packed[13];
+            propList.Clear();
+            int count = packed[0];
+
+            for(int i = 0; i < count; i += 2)
+            {
+                propList.Add(new EntProp((PropType)packed[i], packed[i + 1]));
+            }
+        }
+
+        public int Prop(PropType type)
+        {
+            foreach(EntProp prop in propList)
+            {
+                if (type == prop.Type)
+                    return prop.Value;
+            }
+            return -1;
+        }
+
+        public Color getColor(PropType R, PropType G, PropType B)
+        {
+            return new Color(Prop(R), Prop(G), Prop(B));
         }
 
     }

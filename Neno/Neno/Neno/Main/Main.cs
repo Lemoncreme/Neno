@@ -163,6 +163,10 @@ namespace Neno
         {
             return (R.Next(num) == 0);
         }
+        public static bool chance(float percent)
+        {
+            return (rFloat(1f) <= (percent / 100f));
+        }
         public static byte randomLetter()
         {
             byte newLetter = 0;
