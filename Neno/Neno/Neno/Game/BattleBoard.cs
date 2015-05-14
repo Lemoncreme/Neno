@@ -28,6 +28,7 @@ namespace Neno
         public byte turn;
         public byte turnNumber = 0;
         public int time = Settings.battleTimeLimit;
+        public List<Point> changeList = new List<Point>(); //List of edited entities for each round (entity ID, property)
 
         #region Camera Movement
         public float viewX = 0;
@@ -91,6 +92,17 @@ namespace Neno
             foreach(Entity ent in entityList)
             {
                 if (ent.Type == type && ent.Prop(PropType.X) == x && ent.Prop(PropType.Y) == y)
+                {
+                    return ent;
+                }
+            }
+            return null;
+        }
+        public Entity findEntity(int ID)
+        {
+            foreach (Entity ent in entityList)
+            {
+                if (ent.ID == ID)
                 {
                     return ent;
                 }

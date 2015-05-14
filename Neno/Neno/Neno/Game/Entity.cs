@@ -43,7 +43,7 @@ namespace Neno
         public EntityType Type;
         public int ID;
 
-        public List<EntProp> propList;
+        public List<EntProp> propList = new List<EntProp>();
 
         public Entity(string name, int x, int y, int hp, byte ownerid, EntityType Type = EntityType.person)
         {
@@ -133,8 +133,8 @@ namespace Neno
 
         public byte[] Pack()
         {
-            byte[] array = new byte[propList.Count]; int i = 1;
-            array[0] = (byte)propList.Count;
+            byte[] array = new byte[propList.Count * 2 + 1]; int i = 1;
+            array[0] = (byte)(propList.Count * 2 + 1);
             foreach(EntProp prop in propList)
             {
                 array[i] = (byte)prop.Type;
@@ -148,7 +148,7 @@ namespace Neno
             propList.Clear();
             int count = packed[0];
 
-            for(int i = 0; i < count; i += 2)
+            for(int i = 1; i < count; i += 2)
             {
                 propList.Add(new EntProp((PropType)packed[i], packed[i + 1]));
             }
@@ -169,5 +169,18 @@ namespace Neno
             return new Color(Prop(R), Prop(G), Prop(B));
         }
 
+        public void EditProp(PropType type, int newValue)
+        {
+            foreach (EntProp prop in propList)
+            {
+                if (type == prop.Type)
+                    prop.Value = newValue;
+            }
+        }
+
+        public Vector2 getPos()
+        {
+            return new Vector2(Prop(PropType.X), Prop(PropType.Y));
+        }
     }
 }

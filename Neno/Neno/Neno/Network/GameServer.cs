@@ -23,8 +23,7 @@ namespace Neno
         readyToStart = 105,
         placeTile = 106,
         doneWord = 107,
-        doneTurn = 108,
-        entMove = 109
+        doneTurn = 108
     }
     enum ServerStatus
     {
@@ -248,15 +247,21 @@ namespace Neno
                                 player = getPlayer(inc.SenderConnection);
                                 p1 = inc.ReadByte();
                                 p2 = inc.ReadByte();
+                                var other = inc.ReadByte();
                                 board = getBoard(p1, p2);
-
+                                int length = inc.ReadInt32();
+                                Console.WriteLine("<SERVER> <DEBUG> Recieved " + length + " prop changes");
+                                for (int ii = 0; ii < length; ii++ )
+                                {
+                                    int entityID = inc.ReadInt32();
+                                    PropType type = (PropType)inc.ReadByte();
+                                    byte newValue = inc.ReadByte();
+                                    board.findEntity(entityID).EditProp(type, newValue);
+                                    board.changeList.Add(new Point(entityID, (int)type));
+                                }
+                                sendEndTurn(getPlayer(other).Connection, board);
                                 Console.WriteLine("<SERVER> " + player.Name + " finished a turn");
-
                                 nextBattleTurn(board);
-
-                                break;
-                            case ServerMsg.entMove: //Client moved an entity
-                                
                                 break;
                         }
                         break;
@@ -570,15 +575,24 @@ namespace Neno
         {
             //TODO
         }
-        void sendEntityProp(Entity ent, BattleBoard board, byte[] propID, byte[] prop)
+        void sendEndTurn(NetConnection recipient, BattleBoard board)
         {
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
             sendMsg.Write((byte)ClientMsg.entProp);
-            sendMsg.Write(propID); //Array of property IDs
-            sendMsg.Write(prop); //Array of property values
+            sendMsg.Write(board.player1_ID);
+            sendMsg.Write(board.player2_ID);
+            sendMsg.Write(board.changeList.Count);
+            foreach (Point edit in board.changeList)
+            {
+                sendMsg.Write(edit.X); //Entity ID
+                sendMsg.Write((byte)edit.Y); //Property Type
+                sendMsg.Write((byte)board.findEntity(edit.X).Prop((PropType)edit.Y)); //New value
+            }
+            board.changeList.Clear();
 
-            server.SendMessage(sendMsg, getPlayer(board.player1_ID).Connection, NetDeliveryMethod.ReliableOrdered);
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+            Console.WriteLine("<SERVER> Relay End Turn: Sent " + sendMsg.LengthBytes + " bytes");
         }
         #endregion
 

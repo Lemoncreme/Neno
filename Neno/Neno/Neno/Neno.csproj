@@ -94,6 +94,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\SelectMenu.cs" />
     <Compile Include="Game\BattleBoard.cs" />
     <Compile Include="Game\Char.cs" />
     <Compile Include="Other\NameGen.cs" />
