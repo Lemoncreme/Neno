@@ -49,12 +49,13 @@ namespace Neno
         {
             ID = GameServer.entityIDinc; GameServer.entityIDinc++;
             Name = name;
+            Type = EntityType.person;
 
             propList.Add(new EntProp(PropType.X, x));
             propList.Add(new EntProp(PropType.Y, y));
             propList.Add(new EntProp(PropType.MaxHp, hp));
             propList.Add(new EntProp(PropType.Hp, hp));
-            var val = (int)(0.1f + ((float)hp) * Main.rFloat(0.6f));
+            var val = (int)(6f + ((float)hp) * Main.rFloat(0.4f));
             propList.Add(new EntProp(PropType.MaxStamina, val));
             propList.Add(new EntProp(PropType.Stamina, val));
             propList.Add(new EntProp(PropType.Owner, ownerid));
@@ -123,10 +124,12 @@ namespace Neno
 
             Console.WriteLine("Entity created; name = " + Name + " location = " + x + "," + y + " owner = " + ownerid);
         }
-        public Entity(string name, byte[] packed, int ID)
+        public Entity(string name, byte[] packed, int id, EntityType type)
         {
             Name = name;
             Unpack(packed);
+            ID = id;
+            Type = type;
 
             Console.WriteLine("Entity unpacked; name = " + Name + " location = " + Prop(PropType.X) + "," + Prop(PropType.Y) + " owner = " + Prop(PropType.Owner));
         }

@@ -29,6 +29,8 @@ namespace Neno
         public byte turnNumber = 0;
         public int time = Settings.battleTimeLimit;
         public List<Point> changeList = new List<Point>(); //List of edited entities for each round (entity ID, property)
+        public bool finished = false;
+        public byte winner = 0;
 
         #region Camera Movement
         public float viewX = 0;
@@ -98,6 +100,17 @@ namespace Neno
             }
             return null;
         }
+        public Entity findEntity(int x, int y)
+        {
+            foreach (Entity ent in entityList)
+            {
+                if (ent.Prop(PropType.X) == x && ent.Prop(PropType.Y) == y)
+                {
+                    return ent;
+                }
+            }
+            return null;
+        }
         public Entity findEntity(int ID)
         {
             foreach (Entity ent in entityList)
@@ -108,6 +121,29 @@ namespace Neno
                 }
             }
             return null;
+        }
+        public List<Entity> findEntitiesbyOwner(int owner)
+        {
+            List<Entity> list = new List<Entity>();
+            foreach (Entity ent in entityList)
+            {
+                if (ent.Prop(PropType.Owner) == owner)
+                {
+                    list.Add(ent);
+                }
+            }
+            return list;
+        }
+        public bool checkAllDead(int owner)
+        {
+            foreach (Entity ent in entityList)
+            {
+                if (ent.Prop(PropType.Owner) == owner)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

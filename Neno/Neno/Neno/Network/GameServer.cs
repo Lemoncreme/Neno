@@ -245,10 +245,14 @@ namespace Neno
                                 break;
                             case ServerMsg.doneTurn: //Client finished a battle turn
                                 player = getPlayer(inc.SenderConnection);
+
+                                //Get board
                                 p1 = inc.ReadByte();
                                 p2 = inc.ReadByte();
                                 var other = inc.ReadByte();
                                 board = getBoard(p1, p2);
+
+                                //Property changes
                                 int length = inc.ReadInt32();
                                 Console.WriteLine("<SERVER> <DEBUG> Recieved " + length + " prop changes");
                                 for (int ii = 0; ii < length; ii++ )
@@ -259,7 +263,17 @@ namespace Neno
                                     board.findEntity(entityID).EditProp(type, newValue);
                                     board.changeList.Add(new Point(entityID, (int)type));
                                 }
+
+                                //Sim
+                                simulatePeople(board, player);
+
+                                //End turn
                                 sendEndTurn(getPlayer(other).Connection, board);
+
+                                //Refill Stamina
+                                sendEndTurn(player.Connection, board);
+
+                                //Next turn
                                 Console.WriteLine("<SERVER> " + player.Name + " finished a turn");
                                 nextBattleTurn(board);
                                 break;
@@ -382,6 +396,7 @@ namespace Neno
             {
                 sendMsg.Write(entity.ID);
                 sendMsg.Write(entity.Name);
+                sendMsg.Write((byte)entity.Type);
                 var packed = entity.Pack();
                 sendMsg.Write(packed.Length);
                 sendMsg.Write(packed);
@@ -545,11 +560,13 @@ namespace Neno
             if (i > 0)
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
-        void sendBattleTimeUp(NetConnection recipient)
+        void sendBattleTimeUp(NetConnection recipient, BattleBoard board)
         {
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
             sendMsg.Write((byte)ClientMsg.battleTimeUp);
+            sendMsg.Write((byte)board.player1_ID);
+            sendMsg.Write((byte)board.player2_ID);
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
@@ -593,6 +610,58 @@ namespace Neno
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
             Console.WriteLine("<SERVER> Relay End Turn: Sent " + sendMsg.LengthBytes + " bytes");
+        }
+        void sendBattleDone(NetConnection recipient, BattleBoard board)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleDone);
+            sendMsg.Write((byte)board.player1_ID);
+            sendMsg.Write((byte)board.player2_ID);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendBattleWon(NetConnection recipient, BattleBoard board)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.battleWon);
+            sendMsg.Write((byte)board.winner);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendWaitingFor()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.waitingFor);
+            int i = 0;
+            foreach (BattleBoard board in battleBoards)
+            {
+                if (!board.finished)
+                {
+                    i += 2;
+                }
+            }
+            sendMsg.Write((byte)i);
+            foreach (BattleBoard board in battleBoards)
+            {
+                if (!board.finished)
+                {
+                    sendMsg.Write((byte)board.player1_ID);
+                    sendMsg.Write((byte)board.player2_ID);
+                }
+            }
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendDeleteEntity(NetConnection recipient, Entity ent)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.entDelete);
+            sendMsg.Write(ent.ID);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
         }
         #endregion
 
@@ -653,12 +722,28 @@ namespace Neno
         }
         void nextBattleTurn(BattleBoard board)
         {
+            //Check if all are dead
+            if (board.checkAllDead(board.player1_ID))
+            {
+                sendBattleWon(getPlayer(board.player2_ID).Connection, board);
+            }
+            if (board.checkAllDead(board.player2_ID))
+            {
+                sendBattleWon(getPlayer(board.player1_ID).Connection, board);
+            }
+
             //Check if end of current game
-            if (turnNumber == Settings.wordBoardRounds * playerList.Count)
+            if (board.turnNumber == Settings.battleRounds * 2)
             {
                 Console.WriteLine("<SERVER> The battle on the board between " + getName(board.player1_ID) + " and " + getName(board.player2_ID) + " has ended");
-                //TODO: End board
-
+                board.finished = true;
+                sendBattleDone(getPlayer(board.player1_ID).Connection, board);
+                sendBattleDone(getPlayer(board.player2_ID).Connection, board);
+                if (checkAllBoardDone())
+                {
+                    switchToWord();
+                }
+                return;
             }
             
             //Increment turn number
@@ -676,6 +761,7 @@ namespace Neno
             //Send to both players on board
             sendBattleTurn(getPlayer(board.player1_ID).Connection, board);
             sendBattleTurn(getPlayer(board.player2_ID).Connection, board);
+            sendWaitingFor();
 
             Console.WriteLine("<SERVER> It's now " + getName(board.turn) + "'s turn on battle board " + board.player1_ID + "-" + board.player2_ID);
         }
@@ -706,6 +792,13 @@ namespace Neno
             //View
             view = Viewing.Battleboard;
 
+            //Set all boards to not finished
+            foreach(BattleBoard board in battleBoards)
+            {
+                board.finished = false;
+                board.turnNumber = 0;
+            }
+
             //Send players battleboard message
             sendSwitchToBattle();
         }
@@ -714,8 +807,11 @@ namespace Neno
             //View
             view = Viewing.Wordboard;
 
+            //New turn
+            turn = Main.choose<ServerPlayer>(playerList).ID;
+
             //Send players battleboard message
-            sendSwitchToBattle();
+            sendSwitchToWordBoard();
         }
         public BattleBoard getBoard(byte playerID1, byte playerID2)
         {
@@ -737,6 +833,70 @@ namespace Neno
                 }
             }
             return null;
+        }
+        void refillStamina(BattleBoard board, ServerPlayer player)
+        {
+            var list = board.findEntitiesbyOwner(player.ID);
+            foreach(Entity ent in list)
+            {
+                editProp(board, ent, PropType.Stamina, ent.Prop(PropType.MaxStamina));
+            }
+        }
+        void editProp(BattleBoard board, Entity ent, PropType prop, int value)
+        {
+            ent.EditProp(prop, value);
+            var newAdd = new Point(ent.ID, (int)prop);
+            board.changeList.Add(newAdd);
+        }
+        void editProp(BattleBoard board, Entity ent, PropType prop, int value, PropType max)
+        {
+            ent.EditProp(prop, (byte)MathHelper.Clamp(value, 0, ent.Prop(max)));
+            var newAdd = new Point(ent.ID, (int)prop);
+            board.changeList.Add(newAdd);
+        }
+        void addProp(BattleBoard board, Entity ent, PropType prop, int value, PropType max)
+        {
+            ent.EditProp(prop, (byte)MathHelper.Clamp(ent.Prop(prop) + value, 0, ent.Prop(max)));
+            var newAdd = new Point(ent.ID, (int)prop);
+            board.changeList.Add(newAdd);
+        }
+        bool checkAllBoardDone()
+        {
+            foreach(BattleBoard board in battleBoards)
+            {
+                if (board.finished == false)
+                    return false;
+            }
+            return true;
+        }
+        void simulatePeople(BattleBoard board, ServerPlayer player)
+        {
+            var list = board.entityList;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Prop(PropType.Hp) <= 0)
+                {
+                    deleteEntity(board, list[i]);
+                    Console.WriteLine("<SERVER> <DEBUG> " + list[i].Name + " has died");
+                }
+                else
+                {
+                    addProp(board, list[i], PropType.Stamina, 10, PropType.MaxStamina);
+                    if (Main.chance(10f))
+                        addProp(board, list[i], PropType.Hp, 2, PropType.MaxHp);
+                }
+            }
+        }
+        void deleteEntity(BattleBoard board, Entity ent)
+        {
+            for (int i = 0; i < board.changeList.Count; i++ )
+            {
+                if (board.changeList[i].X == ent.ID)
+                    board.changeList.RemoveAt(i);
+            }
+            board.entityList.Remove(ent);
+            sendDeleteEntity(getPlayer(board.player1_ID).Connection, ent);
+            sendDeleteEntity(getPlayer(board.player2_ID).Connection, ent);
         }
 
         void Create()
@@ -838,9 +998,7 @@ namespace Neno
                                     if (next.time == 0)
                                     {
                                         //Forced end turn
-                                        sendBattleTimeUp(getPlayer(next.turn).Connection);
-                                        nextBattleTurn(next);
-                                        sendBattleTurn(getPlayer(next.turn).Connection, next);
+                                        sendBattleTimeUp(getPlayer(next.turn).Connection, next);
                                     }
                                 }
                             }

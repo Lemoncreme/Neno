@@ -35,7 +35,7 @@ namespace Neno
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
         newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp, newCoins,
-        wordMode, boardEnd, entProp
+        wordMode, boardEnd, entProp, battleDone, waitingFor, entDelete, battleWon
     }
     enum Direction
     {
@@ -113,9 +113,12 @@ namespace Neno
         Point tileSelect;
         Vector2 tileSelectMouse;
         bool interact = false;
+        List<string> waitingForNumber = new List<string>();
         SelectMenu selectMenu = new SelectMenu(new List<string>() { 
         "Move Here",
-        "Hurt This"
+        "Hurt This",
+        "Kill This",
+        "Test2"
         });
         #endregion
 
@@ -468,13 +471,13 @@ namespace Neno
 
                         if (Main.mouseLeftPressed)
                         {
-                            if (entSelect == null && ent != null && ent.Prop(PropType.Owner) == playerID)
+                            if (ent != null && ent.Prop(PropType.Owner) == playerID)
                             {
                                 entSelect = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
                                 Sound.Play("place");
                             }
                             else
-                                if (entSelect == null && ent != null && entSelect.Prop(PropType.Owner) != playerID)
+                                if (ent != null && ent.Prop(PropType.Owner) != playerID)
                                 {
                                     mouseMsg("That's not yours", Color.Yellow);
                                 }
@@ -496,7 +499,8 @@ namespace Neno
                     //Select Tile
                     if (entSelect != null && Main.mouseRightPressed)
                     {
-                        if (!interact)
+                        if (!interact
+                            && new Vector2(currentBoard.selectX, currentBoard.selectY) != entSelect.getPos())
                         {
                             tileSelect = new Point(currentBoard.selectX, currentBoard.selectY);
                             tileSelectMouse = Main.mousePos;
@@ -510,13 +514,14 @@ namespace Neno
                     if (interact)
                     {
                         selectMenu.Update(tileSelectMouse);
+                        var dist = (int)Vector2.Distance(entSelect.getPos(), new Vector2(tileSelect.X, tileSelect.Y));
+                        var target = currentBoard.findEntity(tileSelect.X, tileSelect.Y);
                         switch(selectMenu.CheckClicked())
                         {
                             case "Move Here":
-                                var dist = (int)Vector2.Distance(entSelect.getPos(), new Vector2(tileSelect.X, tileSelect.Y));
                                 if (dist <= entSelect.Prop(PropType.Stamina))
                                 {
-                                    if (currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person) == null)
+                                    if (target == null)
                                     {
                                         editProp(entSelect, PropType.X, tileSelect.X);
                                         editProp(entSelect, PropType.Y, tileSelect.Y);
@@ -531,8 +536,45 @@ namespace Neno
                                     mouseMsg("That's too far"); Sound.Play("error");
                                 break;
                             case "Hurt This":
-                                mouseMsg("Nothing happens"); Sound.Play("error");
-                                interact = false;
+                                if (dist <= 1)
+                                {
+                                    if (target != null)
+                                    {
+                                        if (target.Prop(PropType.Owner) != playerID)
+                                        {
+                                            if (entSelect.Prop(PropType.Stamina) >= 3)
+                                            {
+                                                subtractProp(target, PropType.Hp, 1);
+                                                subtractProp(entSelect, PropType.Stamina, 3);
+                                                mouseMsg("-1 Hp", Color.LightPink); Sound.Play("place");
+                                                interact = false;
+                                            }
+                                            else
+                                                mouseMsg("Not enough stamina"); Sound.Play("error");
+                                        }
+                                        else
+                                            mouseMsg("You can't hurt that"); Sound.Play("error");
+                                    }
+                                    else
+                                        mouseMsg("Nothing's there"); Sound.Play("error");
+                                }
+                                else
+                                    mouseMsg("That's too far"); Sound.Play("error");
+                                break;
+                            case "Kill This":
+                                if (target != null)
+                                    {
+                                        if (target.Prop(PropType.Owner) != playerID)
+                                        {
+                                            editProp(target, PropType.Hp, 0);
+                                            mouseMsg("Killed", Color.Red); Sound.Play("place");
+                                            interact = false;
+                                        }
+                                        else
+                                            mouseMsg("You can't kill a friend"); Sound.Play("error");
+                                    }
+                                    else
+                                        mouseMsg("Nothing's there"); Sound.Play("error");
                                 break;
                         }
                     }
@@ -621,6 +663,7 @@ namespace Neno
                         if (entSelect == ent)
                             Main.sb.Draw(Main.pix, new Rectangle(ent.Prop(PropType.X) * 8, ent.Prop(PropType.Y) * 8, 8, 8),
                                 new Color(pulse, pulse, pulse, 1f));
+                        Main.sb.Draw(Main.img("shadow"), new Rectangle(ent.Prop(PropType.X) * 8, ent.Prop(PropType.Y) * 8 + 1, 8, 8), Color.Black);
                         Char.draw(new Vector2(ent.Prop(PropType.X) * 8, ent.Prop(PropType.Y) * 8),
                             ent.getColor(PropType.HairR, PropType.HairG, PropType.HairB),
                             ent.getColor(PropType.SkinR, PropType.SkinG, PropType.SkinB),
@@ -643,6 +686,8 @@ namespace Neno
             if (view == Viewing.Battleboard)
             {
                 if (currentBoard.turn != playerID)
+                    darken = true;
+                if (currentBoard.finished)
                     darken = true;
             }
             if (darken)
@@ -675,6 +720,16 @@ namespace Neno
                     }
 
                     //Not your turn
+                    if (currentBoard.finished)
+                    {
+                        Main.drawText(Main.font, "Players still battling:", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 0.5f, TextOrient.Middle);
+                        int ii = 0;
+                        foreach (string name in waitingForNumber)
+                        {
+                            Main.drawText(Main.font, name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + ii * 26), Color.White, 0.75f, TextOrient.Middle); ii++;
+                        }
+                    }
+                    else
                     if (currentBoard.turn != playerID)
                     { 
                         Main.drawText(Main.font, "Waiting for " + getPlayer(currentBoard.turn).Name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 1f, TextOrient.Middle);
@@ -687,7 +742,7 @@ namespace Neno
                         if (nextBox.Text.Contains(">"))
                         {
                             string add = "";
-                            add += " Turn " + boardList[nextBox.tag].turnNumber;
+                            add += " Turn " + boardList[nextBox.tag].turnNumber + " / " + Settings.battleRounds * 2;
                             if (currentBoard == boardList[nextBox.tag])
                                 nextBox.textColor = Color.Yellow;
                             else
@@ -824,6 +879,7 @@ namespace Neno
         {
             NetIncomingMessage inc;
             byte ID, tile, p1, p2;
+            int entityID;
             BattleBoard board;
 
             while ((inc = client.ReadMessage()) != null)
@@ -907,11 +963,12 @@ namespace Neno
                                 List<Entity> entitylist = new List<Entity>();
                                 for (int i = 0; i < entityCount; i++ )
                                 {
-                                    int entityID = inc.ReadInt32();
+                                    entityID = inc.ReadInt32();
                                     string entityName = inc.ReadString();
+                                    EntityType entityType = (EntityType)inc.ReadByte();
                                     int packedLength = inc.ReadInt32();
                                     byte[] entityPacked = inc.ReadBytes(packedLength);
-                                    entitylist.Add(new Entity(entityName, entityPacked, entityID));
+                                    entitylist.Add(new Entity(entityName, entityPacked, entityID, entityType));
                                 }
                                 var nextBoard = new BattleBoard()
                                 {
@@ -1036,6 +1093,12 @@ namespace Neno
                                     getBoard(p1, p2).time = time;
                                 }
                                 break;
+                            case ClientMsg.battleTimeUp:
+                                p1 = inc.ReadByte();
+                                p2 = inc.ReadByte();
+                                board = getBoard(p1, p2);
+                                sendEndTurn(board);
+                                break;
                             case ClientMsg.entProp: //Client finished a battle turn
                                 p1 = inc.ReadByte();
                                 p2 = inc.ReadByte();
@@ -1043,13 +1106,39 @@ namespace Neno
                                 length = inc.ReadInt32();
                                 for (int ii = 0; ii < length; ii++)
                                 {
-                                    int entityID = inc.ReadInt32();
+                                    entityID = inc.ReadInt32();
                                     PropType type = (PropType)inc.ReadByte();
                                     byte newValue = inc.ReadByte();
                                     board.findEntity(entityID).EditProp(type, newValue);
                                     Console.WriteLine("<DEBUG> " + board.findEntity(entityID).Name + "; " + type.ToString() + " = " + newValue);
                                 }
                                 Console.WriteLine("<DEBUG> Recieved " + length + " prop changes");
+                                break;
+                            case ClientMsg.battleDone:
+                                p1 = inc.ReadByte();
+                                p2 = inc.ReadByte();
+                                board = getBoard(p1, p2);
+                                board.finished = true;
+                                break;
+                            case ClientMsg.waitingFor:
+                                count = inc.ReadByte();
+                                waitingForNumber.Clear();
+                                for (int i = 0; i < count; i++ )
+                                {
+                                    waitingForNumber.Add(getPlayer(inc.ReadByte()).Name);
+                                }
+                                break;
+                            case ClientMsg.entDelete:
+                                entityID = inc.ReadInt32();
+                                foreach(BattleBoard next in boardList)
+                                {
+                                    Entity ent = next.findEntity(entityID);
+                                    if (ent != null)
+                                    {
+                                        Console.WriteLine("Deleted " + ent.Name);
+                                        next.entityList.Remove(ent); 
+                                    }
+                                }
                                 break;
                         }
                         break;
@@ -1296,8 +1385,10 @@ namespace Neno
         void editProp(Entity ent, PropType prop, int value)
         {
             ent.EditProp(prop, value);
-            currentBoard.changeList.Add(new Point(ent.ID, (int)prop));
+            var newAdd = new Point(ent.ID, (int)prop);
+            currentBoard.changeList.Add(newAdd);
             Console.WriteLine("<DEBUG> Edited property " + prop.ToString() + " in " + ent.Name);
+            Console.WriteLine("<DEBUG> Confirm " + currentBoard.findEntity(newAdd.X).Name);
         }
         void subtractProp(Entity ent, PropType prop, int value)
         {
@@ -1316,6 +1407,12 @@ namespace Neno
             buttonBattleBoard.dontDraw = false;
             currentBoard = boardList[0];
             showTurn = false;
+            //Set all boards to not finished
+            foreach (BattleBoard board in boardList)
+            {
+                board.finished = false;
+                board.turnNumber = 0;
+            }
             Sound.Stop("timer");
             resetBattleView();
         }
@@ -1668,6 +1765,14 @@ namespace Neno
                     Main.sb.DrawString(Main.consoleFont, "canInteract: " + canInteract, new Vector2(4, i), mainColor); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "direction: " + direction, new Vector2(4, i), mainColor); i += 16;
                     Main.sb.DrawString(Main.consoleFont, "choosing wild: " + choosingWild, new Vector2(4, i), mainColor); i += 16;
+                    if (currentBoard != null)
+                    {
+                        Main.sb.DrawString(Main.consoleFont, "Actions", new Vector2(4, i), mainColor); i += 16;
+                        foreach(Point edit in currentBoard.changeList)
+                        {
+                            Main.sb.DrawString(Main.consoleFont, currentBoard.findEntity(edit.X).Name + " " + ((PropType)edit.Y).ToString(), new Vector2(4, i), mainColor); i += 16;
+                        }
+                    }
                 }
             }
 
