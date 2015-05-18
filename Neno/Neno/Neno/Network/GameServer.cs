@@ -918,7 +918,7 @@ namespace Neno
         }
         void editProp(BattleBoard board, Entity ent, PropType prop, int value)
         {
-            ent.EditProp(prop, value);
+            ent.EditProp(prop, (byte)MathHelper.Clamp(value, 0, 255));
             var newAdd = new Point(ent.ID, (int)prop);
             board.changeList.Add(newAdd);
         }

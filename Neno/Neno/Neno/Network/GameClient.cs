@@ -472,7 +472,7 @@ namespace Neno
                     {
                         var ent = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
 
-                        if (Main.mouseLeftPressed)
+                        if (Main.mouseLeftPressed && !interact)
                         {
                             if (ent != null && ent.Prop(PropType.Owner) == playerID)
                             {
@@ -1449,7 +1449,7 @@ namespace Neno
         }
         void editProp(Entity ent, PropType prop, int value)
         {
-            ent.EditProp(prop, value);
+            ent.EditProp(prop, (int)MathHelper.Clamp(value, 0, 255));
             var newAdd = new Point(ent.ID, (int)prop);
             currentBoard.changeList.Add(newAdd);
             Console.WriteLine("<DEBUG> Edited property " + prop.ToString() + " in " + ent.Name);
@@ -1457,7 +1457,7 @@ namespace Neno
         }
         void subtractProp(Entity ent, PropType prop, int value)
         {
-            ent.EditProp(prop, ent.Prop(prop) - value);
+            ent.EditProp(prop, (int)MathHelper.Clamp(ent.Prop(prop) - value, 0, 255));
             currentBoard.changeList.Add(new Point(ent.ID, (int)prop));
             Console.WriteLine("<DEBUG> Edited property " + prop.ToString() + " in " + ent.Name);
         }

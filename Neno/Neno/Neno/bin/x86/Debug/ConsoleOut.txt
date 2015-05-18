@@ -4,163 +4,1322 @@ Client started
 <SERVER> Did not succesfully port forward port 25565
 Client connected
 Sent init request
-<SERVER> Player Benjamin (1) joined
-<SERVER> Sent init data to Benjamin
+<SERVER> Player Ben (1) joined
+<SERVER> Sent init data to Ben
 Server name is Neno Game Server, I am client #1
-<SERVER> Benjamin joined lobby
-Benjamin (1) info
-<SERVER> Player Benjamin (2) joined
-<SERVER> Name dupe, player 2 is now called Benjamin_0
-<SERVER> Sent init data to Benjamin_0
-<SERVER> Benjamin_0 joined lobby
-Benjamin_0 (2) info
+<SERVER> Ben joined lobby
+Ben (1) info
+<SERVER> Player Holden S (2) joined
+<SERVER> Sent init data to Holden S
+<SERVER> Holden S joined lobby
+Holden S (2) info
 Sent ready to play
-<SERVER> Benjamin is ready
-Benjamin (1) is ready
-<SERVER> Benjamin_0 is ready
-Benjamin_0 (2) is ready
+<SERVER> Ben is ready
+Ben (1) is ready
+<SERVER> Holden S is ready
+Holden S (2) is ready
+<SERVER> Player Ryan (3) joined
+<SERVER> Sent init data to Ryan
+<SERVER> Ryan joined lobby
+Ryan (3) info
+<SERVER> Ryan is ready
+Ryan (3) is ready
 <SERVER> starting game
-<SERVER> first turn is Benjamin_0
+<SERVER> first turn is Ryan
 WordBoard created
-Entity created; name = Voru location = 18,1 owner = 1
-Entity created; name = Leno location = 22,1 owner = 1
-Entity created; name = Twuga location = 25,1 owner = 1
-Entity created; name = Catoyu location = 29,1 owner = 1
-Entity created; name = Yvadoi location = 18,94 owner = 2
-Entity created; name = Coxo location = 22,94 owner = 2
-Entity created; name = Seehu location = 25,94 owner = 2
-Entity created; name = Julizoyo location = 29,94 owner = 2
-BattleBoard generated for Benjamin and Benjamin_0
-<SERVER> BattleBoard sent to Benjamin
-<SERVER> BattleBoard sent to Benjamin_0
-<SERVER> Sent letter tiles to Benjamin
-<SERVER> Sent letter tiles to Benjamin_0
+Entity created; name = Twido location = 18,1 owner = 1
+Entity created; name = Nesphe location = 22,1 owner = 1
+Entity created; name = Snugo location = 25,1 owner = 1
+Entity created; name = Kumu location = 29,1 owner = 1
+Entity created; name = Mewohi location = 18,94 owner = 2
+Entity created; name = Hazuki location = 22,94 owner = 2
+Entity created; name = Gozi location = 25,94 owner = 2
+Entity created; name = Voexi location = 29,94 owner = 2
+BattleBoard generated for Ben and Holden S
+<SERVER> BattleBoard sent to Ben
+<SERVER> BattleBoard sent to Holden S
+Entity created; name = Beidaxu location = 18,1 owner = 2
+Entity created; name = Qepa location = 22,1 owner = 2
+Entity created; name = Kawa location = 25,1 owner = 2
+Entity created; name = Botwe location = 29,1 owner = 2
+Entity created; name = Xexa location = 18,94 owner = 3
+Entity created; name = Puonou location = 22,94 owner = 3
+Entity created; name = Ghifla location = 25,94 owner = 3
+Entity created; name = Swedre location = 29,94 owner = 3
+BattleBoard generated for Holden S and Ryan
+<SERVER> BattleBoard sent to Holden S
+<SERVER> BattleBoard sent to Ryan
+Entity created; name = Muma location = 18,1 owner = 1
+Entity created; name = Vute location = 22,1 owner = 1
+Entity created; name = Lisplu location = 25,1 owner = 1
+Entity created; name = Lodo location = 29,1 owner = 1
+Entity created; name = Drasweo location = 18,94 owner = 3
+Entity created; name = Mueqe location = 22,94 owner = 3
+Entity created; name = Xaiso location = 25,94 owner = 3
+Entity created; name = Noyvi location = 29,94 owner = 3
+BattleBoard generated for Ben and Ryan
+<SERVER> BattleBoard sent to Ben
+<SERVER> BattleBoard sent to Ryan
+<SERVER> Sent letter tiles to Ben
+<SERVER> Sent letter tiles to Holden S
+<SERVER> Sent letter tiles to Ryan
 WordBoard created
-Entity unpacked; name = Voru location = 18,1 owner = 1
-Entity unpacked; name = Leno location = 22,1 owner = 1
-Entity unpacked; name = Twuga location = 25,1 owner = 1
-Entity unpacked; name = Catoyu location = 29,1 owner = 1
-Entity unpacked; name = Yvadoi location = 18,94 owner = 2
-Entity unpacked; name = Coxo location = 22,94 owner = 2
-Entity unpacked; name = Seehu location = 25,94 owner = 2
-Entity unpacked; name = Julizoyo location = 29,94 owner = 2
+Entity unpacked; name = Twido location = 18,1 owner = 1
+Entity unpacked; name = Nesphe location = 22,1 owner = 1
+Entity unpacked; name = Snugo location = 25,1 owner = 1
+Entity unpacked; name = Kumu location = 29,1 owner = 1
+Entity unpacked; name = Mewohi location = 18,94 owner = 2
+Entity unpacked; name = Hazuki location = 22,94 owner = 2
+Entity unpacked; name = Gozi location = 25,94 owner = 2
+Entity unpacked; name = Voexi location = 29,94 owner = 2
+BattleBoard loaded
+Entity unpacked; name = Muma location = 18,1 owner = 1
+Entity unpacked; name = Vute location = 22,1 owner = 1
+Entity unpacked; name = Lisplu location = 25,1 owner = 1
+Entity unpacked; name = Lodo location = 29,1 owner = 1
+Entity unpacked; name = Drasweo location = 18,94 owner = 3
+Entity unpacked; name = Mueqe location = 22,94 owner = 3
+Entity unpacked; name = Xaiso location = 25,94 owner = 3
+Entity unpacked; name = Noyvi location = 29,94 owner = 3
 BattleBoard loaded
 Recieved tiles
 <SERVER> All ready to start!
 <SERVER> Everybody is ready!
 Game is ready!
-It's Benjamin_0's turn!
-<SERVER> <D> Switching to BattleBoard mode
+It's Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: nan
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: an
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: hoes
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Sent letter tiles to Ryan
+<SERVER> it's now Ben's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+It's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: no
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Switching to BattleBoard mode
 Switching to battle mode
-<DEBUG> Edited property Hp in Yvadoi
-<DEBUG> Confirm Yvadoi
-<DEBUG> Edited property Hp in Coxo
-<DEBUG> Confirm Coxo
-<DEBUG> Edited property Hp in Seehu
-<DEBUG> Confirm Seehu
-End Turn: Sent 26 bytes
-<SERVER> <DEBUG> Recieved 3 prop changes
-<SERVER> <DEBUG> Yvadoi has died
-<SERVER> <DEBUG> Seehu has died
-<SERVER> Relay End Turn: Sent 49 bytes
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property X in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Y in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Stamina in Kumu
+End Turn: Sent 80 bytes
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
 <SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin finished a turn
-<SERVER> It's now Benjamin_0's turn on battle board 1-2
-Deleted Yvadoi
-Deleted Seehu
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
 <DEBUG> Recieved 0 prop changes
 New turn on board 1-2
+<DEBUG> Edited property X in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Y in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Stamina in Muma
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> Relay End Turn: Sent 73 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
 <SERVER> <DEBUG> Recieved 0 prop changes
-<SERVER> <DEBUG> Coxo has died
-<SERVER> Relay End Turn: Sent 31 bytes
-<SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin_0 finished a turn
-<SERVER> It's now Benjamin's turn on battle board 1-2
-Deleted Coxo
-<DEBUG> Voru; Stamina = 8
-<DEBUG> Leno; Stamina = 15
-<DEBUG> Twuga; Stamina = 15
-<DEBUG> Catoyu; Stamina = 8
-<DEBUG> Recieved 4 prop changes
-New turn on board 1-2
-<DEBUG> Edited property Hp in Julizoyo
-<DEBUG> Confirm Julizoyo
-End Turn: Sent 14 bytes
-<SERVER> <DEBUG> Recieved 1 prop changes
-<SERVER> <DEBUG> Julizoyo has died
-<SERVER> Relay End Turn: Sent 31 bytes
-<SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin finished a turn
-<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
-<SERVER> The game has ended!
-Deleted Julizoyo
-<DEBUG> Recieved 0 prop changes
-Game Ended
- changes
-Game Ended
-Client ended
-<SERVER> Server ended
-'s now Benjamin's turn on battle board 1-2
-Deleted Wode
-<DEBUG> Nothru; Stamina = 8
-<DEBUG> Nothru; Hp = 30
-<DEBUG> Kiswai; Stamina = 16
-<DEBUG> Kisnehi; Stamina = 7
-<DEBUG> Luobhibi; Stamina = 11
-<DEBUG> Recieved 5 prop changes
-New turn on board 1-2
-<DEBUG> Edited property X in Bribe
-<DEBUG> Confirm Bribe
-<DEBUG> Edited property Y in Bribe
-<DEBUG> Confirm Bribe
-<DEBUG> Edited property Stamina in Bribe
-End Turn: Sent 26 bytes
-<SERVER> <DEBUG> Recieved 3 prop changes
 <SERVER> Relay End Turn: Sent 61 bytes
 <SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin finished a turn
-<SERVER> It's now Benjamin_0's turn on battle board 1-2
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Mewohi; X = 18
+<DEBUG> Mewohi; Y = 84
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 88
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; X = 25
+<DEBUG> Gozi; Y = 84
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; X = 29
+<DEBUG> Voexi; Y = 87
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 20 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lisplu; Hp = 30
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 9 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+End Turn: Sent 80 bytes
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 133 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
 <DEBUG> Recieved 0 prop changes
 New turn on board 1-2
-<SERVER> <DEBUG> Recieved 1 prop changes
-<SERVER> <DEBUG> Nothru has died
-<SERVER> Relay End Turn: Sent 31 bytes
+<DEBUG> Edited property X in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Y in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Stamina in Muma
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> Relay End Turn: Sent 79 bytes
 <SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin_0 finished a turn
-<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
-<SERVER> The game has ended!
-Deleted Bribe
-<DEBUG> Kiswai; Stamina = 16
-<DEBUG> Kiswai; Hp = 30
-<DEBUG> Kisnehi; Stamina = 7
-<DEBUG> Luobhibi; Stamina = 11
-<DEBUG> Recieved 4 prop changes
-Game Ended
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
 <SERVER> <DEBUG> Recieved 0 prop changes
-<SERVER> Relay End Turn: Sent 43 bytes
+<SERVER> Relay End Turn: Sent 61 bytes
 <SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin_0 finished a turn
-<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
-<SERVER> The game has ended!
-<DEBUG> Nothru; Stamina = 8
-<DEBUG> Kiswai; Stamina = 16
-<DEBUG> Kiswai; Hp = 30
-<DEBUG> Kisnehi; Stamina = 7
-<DEBUG> Kisnehi; Hp = 30
-<DEBUG> Luobhibi; Stamina = 11
-<DEBUG> Recieved 6 prop changes
-Game Ended
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 82
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Mewohi; X = 18
+<DEBUG> Mewohi; Y = 75
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Gozi; X = 25
+<DEBUG> Gozi; Y = 77
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; X = 29
+<DEBUG> Voexi; Y = 80
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 20 prop changes
+New turn on board 1-2
 <SERVER> <DEBUG> Recieved 0 prop changes
-<SERVER> Relay End Turn: Sent 31 bytes
+<SERVER> Relay End Turn: Sent 55 bytes
 <SERVER> Relay End Turn: Sent 7 bytes
-<SERVER> Benjamin_0 finished a turn
-<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
-<SERVER> The game has ended!
-<DEBUG> Nothru; Stamina = 8
-<DEBUG> Kiswai; Stamina = 16
-<DEBUG> Kisnehi; Stamina = 7
-<DEBUG> Luobhibi; Stamina = 11
-<DEBUG> Recieved 4 prop changes
-Game Ended
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 8 prop changes
+New turn on board 1-3
+<DEBUG> Edited property X in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Y in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Stamina in Muma
+<DEBUG> Edited property X in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Y in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Stamina in Vute
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+<DEBUG> Edited property X in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Y in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Stamina in Lodo
+End Turn: Sent 80 bytes
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property X in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Y in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Stamina in Kumu
+End Turn: Sent 62 bytes
+<SERVER> <DEBUG> Recieved 9 prop changes
+<SERVER> Relay End Turn: Sent 121 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 9 prop changes
+<SERVER> Relay End Turn: Sent 115 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 76
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; X = 25
+<DEBUG> Gozi; Y = 75
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; X = 28
+<DEBUG> Voexi; Y = 75
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Hazuki; Hp = 30
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 18 prop changes
+New turn on board 1-2
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Drasweo; X = 20
+<DEBUG> Drasweo; Y = 86
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; X = 23
+<DEBUG> Mueqe; Y = 87
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Noyvi; X = 30
+<DEBUG> Noyvi; Y = 89
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Xaiso; X = 27
+<DEBUG> Xaiso; Y = 88
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 20 prop changes
+New turn on board 1-3
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property X in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Y in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Stamina in Kumu
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+End Turn: Sent 134 bytes
+<SERVER> <DEBUG> Recieved 21 prop changes
+<SERVER> Relay End Turn: Sent 199 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<DEBUG> Edited property X in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Y in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Stamina in Vute
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+<DEBUG> Edited property X in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Y in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Stamina in Muma
+<DEBUG> Edited property X in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Y in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Stamina in Lodo
+<DEBUG> Edited property X in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Y in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Stamina in Vute
+End Turn: Sent 98 bytes
+<SERVER> <DEBUG> Recieved 15 prop changes
+<SERVER> Relay End Turn: Sent 157 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lisplu; Hp = 30
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Xaiso; Hp = 30
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 10 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 70
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Mewohi; X = 18
+<DEBUG> Mewohi; Y = 67
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Voexi; X = 24
+<DEBUG> Voexi; Y = 68
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Gozi; X = 25
+<DEBUG> Gozi; Y = 70
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 20 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<DEBUG> Edited property X in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Y in Muma
+<DEBUG> Confirm Muma
+<DEBUG> Edited property Stamina in Muma
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+<DEBUG> Edited property X in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Y in Vute
+<DEBUG> Confirm Vute
+<DEBUG> Edited property Stamina in Vute
+<DEBUG> Edited property X in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Y in Lodo
+<DEBUG> Confirm Lodo
+<DEBUG> Edited property Stamina in Lodo
+End Turn: Sent 80 bytes
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ryan has ended
+<DEBUG> Recieved 0 prop changes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ryan has ended
+<DEBUG> Recieved 0 prop changes
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Holden S has ended
+<DEBUG> Recieved 0 prop changes
+Switching to word mode
+<SERVER> Sent letter tiles to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: new
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+safron is not a word!
+Found 1 words
+safron is not a word!
+Found 1 words
+safron is not a word!
+Found 1 words
+safron is not a word!
+Found 1 words
+safron is not a word!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: san
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+narf is not a word!
+Found 1 words
+narf is not a word!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: na
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Sent new letter tile to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan placed a tile
+<SERVER> Ryan finished1words
+<SERVER> Sent new letter tile to Ryan
+<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Ben placed a tile
+Found 1 words
+yeps is not a word!
+<SERVER> Ben placed a tile
+<SERVER> Ben placed a tile
+Found 1 words
+Checked and sent word: as
+<SERVER> Ben finished1words
+<SERVER> Sent new letter tile to Ben
+<SERVER> it's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Holden S placed a tile
+<SERVER> Holden S finished1words
+<SERVER> Sent new letter tile to Holden S
+<SERVER> Switching to BattleBoard mode
+Switching to battle mode
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 133 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 133 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 65
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Mewohi; X = 20
+<DEBUG> Mewohi; Y = 65
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Voexi; X = 24
+<DEBUG> Voexi; Y = 65
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Gozi; X = 27
+<DEBUG> Gozi; Y = 65
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Mewohi; Hp = 30
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 21 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Drasweo; Hp = 30
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 9 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+End Turn: Sent 62 bytes
+<SERVER> <DEBUG> Recieved 9 prop changes
+<SERVER> Relay End Turn: Sent 109 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> Relay End Turn: Sent 79 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 8 prop changes
+New turn on board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lisplu; Hp = 30
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Noyvi; Hp = 30
+<DEBUG> Recieved 10 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Vute; Hp = 30
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 9 prop changes
+New turn on board 1-3
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 127 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> Relay End Turn: Sent 85 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ryan's turn on battle board 1-3
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Ben's turn on battle board 1-3
+<DEBUG> Muma; Stamina = 8
+<DEBUG> Vute; Stamina = 10
+<DEBUG> Lisplu; Stamina = 16
+<DEBUG> Lodo; Stamina = 14
+<DEBUG> Drasweo; Stamina = 11
+<DEBUG> Mueqe; Stamina = 10
+<DEBUG> Xaiso; Stamina = 9
+<DEBUG> Xaiso; Hp = 30
+<DEBUG> Noyvi; Stamina = 14
+<DEBUG> Recieved 9 prop changes
+New turn on board 1-3
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<DEBUG> Edited property X in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Y in Lisplu
+<DEBUG> Confirm Lisplu
+<DEBUG> Edited property Stamina in Lisplu
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 145 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Mewohi; X = 20
+<DEBUG> Mewohi; Y = 59
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 59
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Voexi; X = 24
+<DEBUG> Voexi; Y = 59
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Gozi; X = 26
+<DEBUG> Gozi; Y = 59
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Nesphe; Hp = 30
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 14
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Gozi; Hp = 30
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Voexi; Hp = 30
+<DEBUG> Recieved 23 prop changes
+New turn on board 1-2
+<DEBUG> Edited property Hp in Drasweo
+<DEBUG> Edited property Stamina in Lisplu
+End Turn: Sent 38 bytes
+<SERVER> <DEBUG> Recieved 5 prop changes
+<SERVER> Relay End Turn: Sent 91 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ryan has ended
+<DEBUG> Recieved 0 prop changes
+<DEBUG> Edited property X in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Y in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Stamina in Kumu
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 139 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ryan's turn on battle board 2-3
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ryan finished a turn
+<SERVER> It's now Holden S's turn on battle board 2-3
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+End Turn: Sent 80 bytes
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 133 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 12 prop changes
+<SERVER> Relay End Turn: Sent 133 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ryan has ended
+<DEBUG> Recieved 0 prop changes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<SERVER> <DEBUG> Recieved 16 prop changes
+<SERVER> Relay End Turn: Sent 157 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Mewohi; X = 21
+<DEBUG> Mewohi; Y = 53
+<DEBUG> Mewohi; Stamina = 12
+<DEBUG> Snugo; Hp = 28
+<DEBUG> Mewohi; Stamina = 12
+<DEBUG> Snugo; Hp = 28
+<DEBUG> Mewohi; Stamina = 12
+<DEBUG> Hazuki; X = 22
+<DEBUG> Hazuki; Y = 53
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Voexi; X = 22
+<DEBUG> Voexi; Y = 52
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Gozi; X = 20
+<DEBUG> Gozi; Y = 53
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Nesphe; Hp = 30
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 12
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 25 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<DEBUG> Edited property X in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Y in Nesphe
+<DEBUG> Confirm Nesphe
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property X in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Y in Twido
+<DEBUG> Confirm Twido
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property X in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Y in Snugo
+<DEBUG> Confirm Snugo
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> The battle on the board between Holden S and Ryan has ended
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+End Turn: Sent 134 bytes
+<SERVER> <DEBUG> Recieved 21 prop changes
+<SERVER> Relay End Turn: Sent 187 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Holden S's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 27 prop changes
+<SERVER> Relay End Turn: Sent 217 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Holden S finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Twido; Hp = 21
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Twido; Hp = 21
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Hazuki; X = 23
+<DEBUG> Hazuki; Y = 53
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Twido; Hp = 21
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Mewohi; X = 22
+<DEBUG> Mewohi; Y = 53
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Twido; Hp = 21
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Twido; Hp = 21
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Twido; Hp = 21
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Twido; Hp = 21
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Gozi; X = 24
+<DEBUG> Gozi; Y = 52
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Hp = 21
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Hp = 21
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Twido; Stamina = 13
+<DEBUG> Nesphe; Stamina = 10
+<DEBUG> Snugo; Stamina = 13
+<DEBUG> Kumu; Stamina = 6
+<DEBUG> Mewohi; Stamina = 11
+<DEBUG> Hazuki; Stamina = 6
+<DEBUG> Gozi; Stamina = 10
+<DEBUG> Voexi; Stamina = 8
+<DEBUG> Recieved 35 prop changes
+New turn on board 1-2
+<DEBUG> Edited property X in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Y in Kumu
+<DEBUG> Confirm Kumu
+<DEBUG> Edited property Stamina in Kumu
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Nesphe
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Snugo
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+<DEBUG> Edited property Hp in Voexi
+<DEBUG> Edited property Stamina in Twido
+End Turn: Sent 158 bytes
+<SERVER> <DEBUG> Recieved 25 prop changes
+<SERVER> Relay End Turn: Sent 217 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Holden S has ended
+<DEBUG> Recieved 0 prop changes
+Switching to word mode
+<SERVER> Sent letter tiles to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Sent letter tiles to Ben
+<SERVER> it's now Holden S's turn!
+Recieved tiles
+It's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Sent letter tiles to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+It's now Ryan's turn!
+<SERVER> Sent letter tiles to Ryan
+<SERVER> it's now Ben's turn!
+It's now Ben's turn!
+It's now Ben's turn!
+<SERVER> Sent letter tiles to Ben
+<SERVER> it's now Holden S's turn!
+Recieved tiles
+It's now Holden S's turn!
+It's now Holden S's turn!
+<SERVER> Sent letter tiles to Holden S
+<SERVER> it's now Ryan's turn!
+It's now Ryan's turn!
+It's now Ryan's turn!
 Client ended
 <SERVER> Server ended
