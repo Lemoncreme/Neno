@@ -365,13 +365,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Sounds\splatter.png">
-      <Name>splatter</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Textures\splatter.png">
       <Name>splatter</Name>
       <Importer>TextureImporter</Importer>

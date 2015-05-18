@@ -298,7 +298,9 @@ namespace Neno
 
         #endregion
 
-
+        FileStream ostrm;
+        StreamWriter writer;
+        TextWriter oldOut;
 
 
 
@@ -311,6 +313,21 @@ namespace Neno
             this.Window.AllowUserResizing = true;
             this.Window.Title = "Neno";
             MediaPlayer.IsMuted = true;
+
+            //Console Saving
+            oldOut = Console.Out;
+            try
+            {
+                ostrm = new FileStream("./ConsoleOut.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                writer = new StreamWriter(ostrm);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Cannot open Redirect.txt for writing");
+                Console.WriteLine(e.Message);
+                return;
+            }
+            Console.SetOut(writer);
         }
 
         protected override void Initialize()
@@ -402,6 +419,10 @@ namespace Neno
 
         protected override void UnloadContent()
         {
+            Console.SetOut(oldOut);
+            writer.Close();
+            ostrm.Close();
+            Console.WriteLine("Done");
             Content.Unload();
         }
 

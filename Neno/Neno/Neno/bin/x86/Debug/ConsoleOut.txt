@@ -1,0 +1,166 @@
+Loaded words list containing 109583 words
+Client started
+<SERVER> Server running on port 25565 on external IP 
+<SERVER> Did not succesfully port forward port 25565
+Client connected
+Sent init request
+<SERVER> Player Benjamin (1) joined
+<SERVER> Sent init data to Benjamin
+Server name is Neno Game Server, I am client #1
+<SERVER> Benjamin joined lobby
+Benjamin (1) info
+<SERVER> Player Benjamin (2) joined
+<SERVER> Name dupe, player 2 is now called Benjamin_0
+<SERVER> Sent init data to Benjamin_0
+<SERVER> Benjamin_0 joined lobby
+Benjamin_0 (2) info
+Sent ready to play
+<SERVER> Benjamin is ready
+Benjamin (1) is ready
+<SERVER> Benjamin_0 is ready
+Benjamin_0 (2) is ready
+<SERVER> starting game
+<SERVER> first turn is Benjamin_0
+WordBoard created
+Entity created; name = Voru location = 18,1 owner = 1
+Entity created; name = Leno location = 22,1 owner = 1
+Entity created; name = Twuga location = 25,1 owner = 1
+Entity created; name = Catoyu location = 29,1 owner = 1
+Entity created; name = Yvadoi location = 18,94 owner = 2
+Entity created; name = Coxo location = 22,94 owner = 2
+Entity created; name = Seehu location = 25,94 owner = 2
+Entity created; name = Julizoyo location = 29,94 owner = 2
+BattleBoard generated for Benjamin and Benjamin_0
+<SERVER> BattleBoard sent to Benjamin
+<SERVER> BattleBoard sent to Benjamin_0
+<SERVER> Sent letter tiles to Benjamin
+<SERVER> Sent letter tiles to Benjamin_0
+WordBoard created
+Entity unpacked; name = Voru location = 18,1 owner = 1
+Entity unpacked; name = Leno location = 22,1 owner = 1
+Entity unpacked; name = Twuga location = 25,1 owner = 1
+Entity unpacked; name = Catoyu location = 29,1 owner = 1
+Entity unpacked; name = Yvadoi location = 18,94 owner = 2
+Entity unpacked; name = Coxo location = 22,94 owner = 2
+Entity unpacked; name = Seehu location = 25,94 owner = 2
+Entity unpacked; name = Julizoyo location = 29,94 owner = 2
+BattleBoard loaded
+Recieved tiles
+<SERVER> All ready to start!
+<SERVER> Everybody is ready!
+Game is ready!
+It's Benjamin_0's turn!
+<SERVER> <D> Switching to BattleBoard mode
+Switching to battle mode
+<DEBUG> Edited property Hp in Yvadoi
+<DEBUG> Confirm Yvadoi
+<DEBUG> Edited property Hp in Coxo
+<DEBUG> Confirm Coxo
+<DEBUG> Edited property Hp in Seehu
+<DEBUG> Confirm Seehu
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> <DEBUG> Yvadoi has died
+<SERVER> <DEBUG> Seehu has died
+<SERVER> Relay End Turn: Sent 49 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin finished a turn
+<SERVER> It's now Benjamin_0's turn on battle board 1-2
+Deleted Yvadoi
+Deleted Seehu
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> <DEBUG> Coxo has died
+<SERVER> Relay End Turn: Sent 31 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin_0 finished a turn
+<SERVER> It's now Benjamin's turn on battle board 1-2
+Deleted Coxo
+<DEBUG> Voru; Stamina = 8
+<DEBUG> Leno; Stamina = 15
+<DEBUG> Twuga; Stamina = 15
+<DEBUG> Catoyu; Stamina = 8
+<DEBUG> Recieved 4 prop changes
+New turn on board 1-2
+<DEBUG> Edited property Hp in Julizoyo
+<DEBUG> Confirm Julizoyo
+End Turn: Sent 14 bytes
+<SERVER> <DEBUG> Recieved 1 prop changes
+<SERVER> <DEBUG> Julizoyo has died
+<SERVER> Relay End Turn: Sent 31 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin finished a turn
+<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
+<SERVER> The game has ended!
+Deleted Julizoyo
+<DEBUG> Recieved 0 prop changes
+Game Ended
+ changes
+Game Ended
+Client ended
+<SERVER> Server ended
+'s now Benjamin's turn on battle board 1-2
+Deleted Wode
+<DEBUG> Nothru; Stamina = 8
+<DEBUG> Nothru; Hp = 30
+<DEBUG> Kiswai; Stamina = 16
+<DEBUG> Kisnehi; Stamina = 7
+<DEBUG> Luobhibi; Stamina = 11
+<DEBUG> Recieved 5 prop changes
+New turn on board 1-2
+<DEBUG> Edited property X in Bribe
+<DEBUG> Confirm Bribe
+<DEBUG> Edited property Y in Bribe
+<DEBUG> Confirm Bribe
+<DEBUG> Edited property Stamina in Bribe
+End Turn: Sent 26 bytes
+<SERVER> <DEBUG> Recieved 3 prop changes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin finished a turn
+<SERVER> It's now Benjamin_0's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 1 prop changes
+<SERVER> <DEBUG> Nothru has died
+<SERVER> Relay End Turn: Sent 31 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin_0 finished a turn
+<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
+<SERVER> The game has ended!
+Deleted Bribe
+<DEBUG> Kiswai; Stamina = 16
+<DEBUG> Kiswai; Hp = 30
+<DEBUG> Kisnehi; Stamina = 7
+<DEBUG> Luobhibi; Stamina = 11
+<DEBUG> Recieved 4 prop changes
+Game Ended
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 43 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin_0 finished a turn
+<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
+<SERVER> The game has ended!
+<DEBUG> Nothru; Stamina = 8
+<DEBUG> Kiswai; Stamina = 16
+<DEBUG> Kiswai; Hp = 30
+<DEBUG> Kisnehi; Stamina = 7
+<DEBUG> Kisnehi; Hp = 30
+<DEBUG> Luobhibi; Stamina = 11
+<DEBUG> Recieved 6 prop changes
+Game Ended
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 31 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Benjamin_0 finished a turn
+<SERVER> The battle on the board between Benjamin and Benjamin_0 has been won
+<SERVER> The game has ended!
+<DEBUG> Nothru; Stamina = 8
+<DEBUG> Kiswai; Stamina = 16
+<DEBUG> Kisnehi; Stamina = 7
+<DEBUG> Luobhibi; Stamina = 11
+<DEBUG> Recieved 4 prop changes
+Game Ended
+Client ended
+<SERVER> Server ended

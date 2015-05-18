@@ -29,13 +29,14 @@ namespace Neno
         Wordboard,
         Battleboard,
         Inventory,
-        Players
+        Players,
+        EndGame
     }
     enum ClientMsg
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
         newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp, newCoins,
-        wordMode, boardEnd, entProp, battleDone, waitingFor, entDelete, battleWon
+        wordMode, boardEnd, entProp, battleDone, waitingFor, entDelete, battleWon, gameEnd
     }
     enum Direction
     {
@@ -79,6 +80,8 @@ namespace Neno
         List<string> totalWords = new List<string>();
         int coins = 0;
         bool darken = false;
+        List<int> winnerList;
+        List<Point> scoreList;
 
         #region In-Game GUI
         //Main Buttons
@@ -595,6 +598,7 @@ namespace Neno
             Color color = Color.BlanchedAlmond;
             if (view == Viewing.Inventory) color = Color.DarkTurquoise;
             if (view == Viewing.Players) color = Color.DarkSlateBlue;
+            if (view == Viewing.EndGame) color = Color.LightGoldenrodYellow;
 
             Main.sb.Draw(Main.img("bg"),
                 new Vector2(
@@ -722,11 +726,27 @@ namespace Neno
                     //Not your turn
                     if (currentBoard.finished)
                     {
-                        Main.drawText(Main.font, "Players still battling:", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 0.5f, TextOrient.Middle);
-                        int ii = 0;
-                        foreach (string name in waitingForNumber)
+                        if (currentBoard.winner == 0)
                         {
-                            Main.drawText(Main.font, name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + ii * 26), Color.White, 0.75f, TextOrient.Middle); ii++;
+                            Main.drawText(Main.font, "Players still battling:", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 0.5f, TextOrient.Middle);
+                            int ii = 0;
+                            foreach (string name in waitingForNumber)
+                            {
+                                Main.drawText(Main.font, name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + ii * 26), Color.White, 0.75f, TextOrient.Middle); ii++;
+                            }
+                        }
+                        else
+                        {
+                            if (currentBoard.winner != playerID)
+                            {
+                                Main.drawText(Main.font, "You lost this board! Shame!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 1f, TextOrient.Middle);
+                                Main.drawText(Main.font, "The victor is " + getPlayer(currentBoard.winner).Name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 0.5f, TextOrient.Middle); 
+                            }
+                            else
+                            {
+                                Main.drawText(Main.font, "You won this board! Awesome!", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 1f, TextOrient.Middle);
+                                Main.drawText(Main.font, "The loser is " + getPlayer(currentBoard.otherPlayer).Name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 0.5f, TextOrient.Middle); 
+                            }
                         }
                     }
                     else
@@ -846,6 +866,24 @@ namespace Neno
                                 if (getBoard(next.ID).turn == playerID) color = Color.Orange;
                             Main.drawText(Main.consoleFont, "(" + next.ID + ") " + next.Name, new Vector2(xx, yy), color, 1f, TextOrient.Left); yy += 18;
                         }
+                    }
+                    #endregion
+                    break;
+                case Viewing.EndGame:
+                    #region EndGame
+                    Main.drawTextBox(Main.font, "Game!", new Vector2(Main.windowWidth / 2, 2), Color.LightGoldenrodYellow, 1.5f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                    int ix = 0;
+                    foreach(int id in winnerList)
+                    {
+                        Main.drawTextBox(Main.font, "#" + ix + " " + getPlayer((byte)id).Name, new Vector2(Main.windowWidth / 2, 128 + 64 * ix), Color.White, 1f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                        ix++;
+                    }
+                    ix = 0;
+                    Main.drawTextBox(Main.font, "Richest: ", new Vector2(2, 2), Color.LightGoldenrodYellow, 1.5f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                    foreach(Point next in scoreList)
+                    {
+                        Main.drawTextBox(Main.font, "#" + ix + " " + getPlayer((byte)next.X).Name + " - " + next.Y + " coins", new Vector2(2, 120 + 64 * ix), Color.White, 1f, TextOrient.Left, new Color(0f, 0f, 0f, 0.6f));
+                        ix++;
                     }
                     #endregion
                     break;
@@ -1140,6 +1178,33 @@ namespace Neno
                                     }
                                 }
                                 break;
+                            case ClientMsg.battleWon:
+                                p1 = inc.ReadByte();
+                                p2 = inc.ReadByte();
+                                board = getBoard(p1, p2);
+                                board.finished = true;
+                                board.winner = inc.ReadByte();
+                                break;
+                            case ClientMsg.gameEnd:
+                                count = inc.ReadByte();
+                                winnerList = new List<int>();
+                                for (int i = 0; i < count; i++ )
+                                {
+                                    winnerList.Add(inc.ReadByte());
+                                }
+                                scoreList = new List<Point>();
+                                for (int i = 0; i < playerList.Count; i++ )
+                                {
+                                    ID = inc.ReadByte();
+                                    var score = inc.ReadInt32();
+                                    scoreList.Add(new Point(ID, score));
+                                }
+                                view = Viewing.EndGame;
+                                buttonBattleBoard.dontDraw = true;
+                                buttonInventory.dontDraw = true;
+                                buttonOtherplayers.dontDraw = true;
+                                Console.WriteLine("Game Ended");
+                                break;
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
@@ -1410,7 +1475,8 @@ namespace Neno
             //Set all boards to not finished
             foreach (BattleBoard board in boardList)
             {
-                board.finished = false;
+                if (board.winner == 0)
+                    board.finished = false;
                 board.turnNumber = 0;
             }
             Sound.Stop("timer");
@@ -1596,7 +1662,7 @@ namespace Neno
 
         public void step()
         {
-            if (Key.pressed(Keys.Escape) && !choosingWild && entSelect == null) Main.Switch(Focus.Menu);
+            if (Key.pressed(Keys.Escape) && ((!choosingWild && entSelect == null) || Status == ClientStatus.Disconnected)) Main.Switch(Focus.Menu);
 
             if (Status != ClientStatus.Waiting_For_Connection
                 && Status != ClientStatus.Disconnected)

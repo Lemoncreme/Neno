@@ -53,6 +53,8 @@ namespace Neno
         int turnTime = 0;
         Viewing view = Viewing.Wordboard;
         public static int entityIDinc = 0;
+        List<int> winnerList;
+        List<Point> scoreList;
 
         #endregion
 
@@ -265,7 +267,7 @@ namespace Neno
                                 }
 
                                 //Sim
-                                simulatePeople(board, player);
+                                simulatePeople(board);
 
                                 //End turn
                                 sendEndTurn(getPlayer(other).Connection, board);
@@ -626,6 +628,8 @@ namespace Neno
             NetOutgoingMessage sendMsg = server.CreateMessage();
 
             sendMsg.Write((byte)ClientMsg.battleWon);
+            sendMsg.Write((byte)board.player1_ID);
+            sendMsg.Write((byte)board.player2_ID);
             sendMsg.Write((byte)board.winner);
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
@@ -662,6 +666,28 @@ namespace Neno
             sendMsg.Write(ent.ID);
 
             server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
+        void sendGameEnd()
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.gameEnd);
+
+            //Winners
+            sendMsg.Write((byte)winnerList.Count);
+            foreach (int id in winnerList)
+            { 
+                sendMsg.Write((byte)id); 
+            }
+
+            //Highest coin score
+            foreach (Point next in scoreList)
+            {
+                sendMsg.Write((byte)next.X);
+                sendMsg.Write(next.Y);
+            }
+
+            server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
         #endregion
 
@@ -723,17 +749,64 @@ namespace Neno
         void nextBattleTurn(BattleBoard board)
         {
             //Check if all are dead
-            if (board.checkAllDead(board.player1_ID))
+            if (board.checkAllDead(board.player1_ID) || board.checkAllDead(board.player2_ID))
             {
+                Console.WriteLine("<SERVER> The battle on the board between " + getName(board.player1_ID) + " and " + getName(board.player2_ID) + " has been won");
+                if (board.checkAllDead(board.player1_ID)) board.winner = board.player2_ID;
+                if (board.checkAllDead(board.player2_ID)) board.winner = board.player1_ID;
+                getPlayer(board.winner).coins += 50;
+                getPlayer(board.winner).boardsWon += 1;
+                sendCoins(getPlayer(board.winner).Connection);
+                sendBattleWon(getPlayer(board.player1_ID).Connection, board);
                 sendBattleWon(getPlayer(board.player2_ID).Connection, board);
             }
-            if (board.checkAllDead(board.player2_ID))
+
+            //Check if all boards are won
+            if (checkBoardsLeft() == 0)
             {
-                sendBattleWon(getPlayer(board.player1_ID).Connection, board);
+                Console.WriteLine("<SERVER> The game has ended!");
+                winnerList = new List<int>();
+                scoreList = new List<Point>();
+                int highestWins = 0, highestCoins = 0;
+
+                //Find highest num of boards
+                foreach (ServerPlayer player in playerList)
+                {
+                    if (player.boardsWon > highestWins)
+                        highestWins = player.boardsWon;
+                }
+
+                //Add all players with highest score to winner list
+                foreach (ServerPlayer player in playerList)
+                {
+                    if (player.boardsWon == highestWins)
+                        winnerList.Add(player.ID);
+                }
+
+                //Coins
+                foreach (ServerPlayer player in playerList)
+                {
+                    if (player.coins > highestCoins)
+                        highestCoins = player.coins;
+                }
+
+                //Add all players in order of coins
+                while (highestCoins > 0)
+                {
+                    foreach (ServerPlayer player in playerList)
+                    {
+                        if (player.coins == highestCoins)
+                            scoreList.Add(new Point(player.ID, player.coins));
+                    }
+                    highestCoins -= 1;
+                }
+
+                //Send end
+                sendGameEnd(); return;
             }
 
             //Check if end of current game
-            if (board.turnNumber == Settings.battleRounds * 2)
+            if (board.turnNumber == Settings.battleRounds * 2 || board.winner != 0)
             {
                 Console.WriteLine("<SERVER> The battle on the board between " + getName(board.player1_ID) + " and " + getName(board.player2_ID) + " has ended");
                 board.finished = true;
@@ -795,7 +868,8 @@ namespace Neno
             //Set all boards to not finished
             foreach(BattleBoard board in battleBoards)
             {
-                board.finished = false;
+                if (board.winner == 0)
+                    board.finished = false;
                 board.turnNumber = 0;
             }
 
@@ -869,15 +943,15 @@ namespace Neno
             }
             return true;
         }
-        void simulatePeople(BattleBoard board, ServerPlayer player)
+        void simulatePeople(BattleBoard board)
         {
             var list = board.entityList;
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i].Prop(PropType.Hp) <= 0)
                 {
-                    deleteEntity(board, list[i]);
                     Console.WriteLine("<SERVER> <DEBUG> " + list[i].Name + " has died");
+                    deleteEntity(board, list[i]);
                 }
                 else
                 {
@@ -897,6 +971,16 @@ namespace Neno
             board.entityList.Remove(ent);
             sendDeleteEntity(getPlayer(board.player1_ID).Connection, ent);
             sendDeleteEntity(getPlayer(board.player2_ID).Connection, ent);
+        }
+        int checkBoardsLeft()
+        {
+            int i = 0;
+            foreach(BattleBoard board in battleBoards)
+            {
+                if (board.winner == 0)
+                    i++;
+            }
+            return i;
         }
 
         void Create()
