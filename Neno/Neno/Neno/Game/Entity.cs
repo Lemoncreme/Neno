@@ -17,15 +17,7 @@ namespace Neno
         creature, //NPC
         inventory //Bags, chests, single dropped items, etc.
     }
-    public enum PropType
-    {
-        X, Y, MaxHp, Hp, MaxStamina, Stamina, Owner,
-        HairR, HairG, HairB,
-        SkinR, SkinG, SkinB,
-        EyeR, EyeG, EyeB,
-        ShirtR, ShirtG, ShirtB,
-        PantsR, PantsG, PantsB
-    }
+    
     public class EntProp
     {
         public PropType Type;

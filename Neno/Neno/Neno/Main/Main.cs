@@ -38,6 +38,7 @@ namespace Neno
         //File
         public static string workingDirectory = Directory.GetCurrentDirectory();
         public static List<string> wordsList;
+        public static string itemDirectory = "./Items/";
 
         //Drawing
         public static SpriteFont font;
@@ -143,13 +144,24 @@ namespace Neno
                 if (orientation == TextOrient.Right)
                     pos.X -= scale * font.MeasureString(Text).X;
 
-            Main.sb.Draw(Main.pix, new Rectangle((int)pos.X - 2, (int)pos.Y - 1, (int)font.MeasureString(Text).X + 4, (int)font.MeasureString(Text).Y + 2), boxColor);
+            Main.sb.Draw(Main.pix, new Rectangle((int)pos.X - 2, (int)pos.Y - 1, (int)(scale * font.MeasureString(Text).X + 4), (int)(scale * font.MeasureString(Text).Y + 2)), boxColor);
 
             Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
         public static T choose<T>(List<T> list)
         {
             return list[rInt(0, list.Count - 1)];
+        }
+        /// <summary>
+        /// Chooses a random value of the list using gaussian distribution; first is more likely
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static T chooseG<T>(List<T> list)
+        {
+            var nxt = rgInt(list.Count - 1);
+            return list[nxt];
         }
         public static int rInt(int min, int max)
         {
@@ -158,6 +170,16 @@ namespace Neno
         public static float rFloat(float max)
         {
             return (float)(R.NextDouble() * max);
+        }
+        public static float rgFloat(float max)
+        {
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(R.NextDouble())) * Math.Sin(2.0 * Math.PI * R.NextDouble());
+            return (float)(randStdNormal * max);
+        }
+        public static int rgInt(int max)
+        {
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(R.NextDouble())) * Math.Sin(2.0 * Math.PI * R.NextDouble());
+            return (int)Math.Floor(Math.Abs(randStdNormal * (double)max) / 4);
         }
         public static bool chance(int num)
         {
@@ -313,6 +335,12 @@ namespace Neno
             this.Window.AllowUserResizing = true;
             this.Window.Title = "Neno";
             MediaPlayer.IsMuted = true;
+
+            //Items
+            if (!Directory.Exists(itemDirectory))
+                Directory.CreateDirectory(itemDirectory);
+            if (!Directory.Exists("./ToAdd/"))
+                Directory.CreateDirectory("./ToAdd/");
 
             //Console Saving
             oldOut = Console.Out;

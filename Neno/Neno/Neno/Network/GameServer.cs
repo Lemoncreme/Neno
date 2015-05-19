@@ -256,7 +256,6 @@ namespace Neno
 
                                 //Property changes
                                 int length = inc.ReadInt32();
-                                Console.WriteLine("<SERVER> <DEBUG> Recieved " + length + " prop changes");
                                 for (int ii = 0; ii < length; ii++ )
                                 {
                                     int entityID = inc.ReadInt32();
@@ -681,6 +680,7 @@ namespace Neno
             }
 
             //Highest coin score
+            sendMsg.Write((byte)scoreList.Count);
             foreach (Point next in scoreList)
             {
                 sendMsg.Write((byte)next.X);
@@ -870,7 +870,12 @@ namespace Neno
             {
                 if (board.winner == 0)
                     board.finished = false;
+                simulatePeople(board);
                 board.turnNumber = 0;
+                board.turn = board.player1_ID;
+                sendBattleTurn(getPlayer(board.player1_ID).Connection, board);
+                sendBattleTurn(getPlayer(board.player2_ID).Connection, board);
+                sendWaitingFor();
             }
 
             //Send players battleboard message
@@ -948,17 +953,21 @@ namespace Neno
             var list = board.entityList;
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i].Prop(PropType.Hp) <= 0)
-                {
-                    Console.WriteLine("<SERVER> <DEBUG> " + list[i].Name + " has died");
-                    deleteEntity(board, list[i]);
+                var ent = list[i];
+
+                if (ent.Prop(PropType.Hp) <= 0)
+                { 
+                    deleteEntity(board, ent);
+                    i = 0;
                 }
-                else
-                {
-                    addProp(board, list[i], PropType.Stamina, 10, PropType.MaxStamina);
-                    if (Main.chance(10f))
-                        addProp(board, list[i], PropType.Hp, 2, PropType.MaxHp);
-                }
+            }
+            for (int i = 0; i < list.Count; i++)
+            {
+                var ent = list[i];
+
+                addProp(board, ent, PropType.Stamina, 10, PropType.MaxStamina);
+                if (Main.chance(10f))
+                    addProp(board, ent, PropType.Hp, 2, PropType.MaxHp);
             }
         }
         void deleteEntity(BattleBoard board, Entity ent)
@@ -1060,12 +1069,10 @@ namespace Neno
                                         getPlayer(turn).letterTiles.Add(Main.randomLetter());
                                     sendLetterTiles(getPlayer(turn).Connection, getPlayer(turn));
                                     nextTurn();
-                                    sendAllTurn();
                                 }
                             }
                             if (Key.pressed(Keys.F4) && Settings.isDebug)
                             {
-                                Console.WriteLine("<SERVER> <D> Switching to BattleBoard mode");
                                 switchToBattle();
                             }
                             break;

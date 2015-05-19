@@ -1,0 +1,13 @@
+NENO
+ITEM_DEFINITION
+name:Sword
+img:img
+id:0
+type:melee
+subtype:sword
+prop:Hp:10
+prop:Weight:3
+prop:DmgMin:4
+prop:DmgMax:6
+prop:DmgCap:10
+prop:DmgSharp:2

@@ -1,6 +1,6 @@
 Loaded words list containing 109583 words
-Client started
-<SERVER> Server running on port 25565 on external IP 
+<DEBUG> Item definition
+Server running on port 25565 on external IP 
 <SERVER> Did not succesfully port forward port 25565
 Client connected
 Sent init request
@@ -9,143 +9,158 @@ Sent init request
 Server name is Neno Game Server, I am client #1
 <SERVER> Ben joined lobby
 Ben (1) info
-<SERVER> Player Holden S (2) joined
-<SERVER> Sent init data to Holden S
-<SERVER> Holden S joined lobby
-Holden S (2) info
+<SERVER> Player Ben (2) joined
+<SERVER> Name dupe, player 2 is now called Ben_0
+<SERVER> Sent init data to Ben_0
+<SERVER> Ben_0 joined lobby
+Ben_0 (2) info
 Sent ready to play
 <SERVER> Ben is ready
 Ben (1) is ready
-<SERVER> Holden S is ready
-Holden S (2) is ready
-<SERVER> Player Ryan (3) joined
-<SERVER> Sent init data to Ryan
-<SERVER> Ryan joined lobby
-Ryan (3) info
-<SERVER> Ryan is ready
-Ryan (3) is ready
+<SERVER> Ben_0 is ready
+Ben_0 (2) is ready
 <SERVER> starting game
-<SERVER> first turn is Ryan
+<SERVER> first turn is Ben
 WordBoard created
-Entity created; name = Twido location = 18,1 owner = 1
-Entity created; name = Nesphe location = 22,1 owner = 1
-Entity created; name = Snugo location = 25,1 owner = 1
-Entity created; name = Kumu location = 29,1 owner = 1
-Entity created; name = Mewohi location = 18,94 owner = 2
-Entity created; name = Hazuki location = 22,94 owner = 2
-Entity created; name = Gozi location = 25,94 owner = 2
-Entity created; name = Voexi location = 29,94 owner = 2
-BattleBoard generated for Ben and Holden S
+Entity created; name = Vume location = 18,1 owner = 1
+Entity created; name = Snuyu location = 22,1 owner = 1
+Entity created; name = Fuscru location = 25,1 owner = 1
+Entity created; name = Tomo location = 29,1 owner = 1
+Entity created; name = Rhymoo location = 18,94 owner = 2
+Entity created; name = Juri location = 22,94 owner = 2
+Entity created; name = Payu location = 25,94 owner = 2
+Entity created; name = Rabu location = 29,94 owner = 2
+BattleBoard generated for Ben and Ben_0
 <SERVER> BattleBoard sent to Ben
-<SERVER> BattleBoard sent to Holden S
-Entity created; name = Beidaxu location = 18,1 owner = 2
-Entity created; name = Qepa location = 22,1 owner = 2
-Entity created; name = Kawa location = 25,1 owner = 2
-Entity created; name = Botwe location = 29,1 owner = 2
-Entity created; name = Xexa location = 18,94 owner = 3
-Entity created; name = Puonou location = 22,94 owner = 3
-Entity created; name = Ghifla location = 25,94 owner = 3
-Entity created; name = Swedre location = 29,94 owner = 3
-BattleBoard generated for Holden S and Ryan
-<SERVER> BattleBoard sent to Holden S
-<SERVER> BattleBoard sent to Ryan
-Entity created; name = Muma location = 18,1 owner = 1
-Entity created; name = Vute location = 22,1 owner = 1
-Entity created; name = Lisplu location = 25,1 owner = 1
-Entity created; name = Lodo location = 29,1 owner = 1
-Entity created; name = Drasweo location = 18,94 owner = 3
-Entity created; name = Mueqe location = 22,94 owner = 3
-Entity created; name = Xaiso location = 25,94 owner = 3
-Entity created; name = Noyvi location = 29,94 owner = 3
-BattleBoard generated for Ben and Ryan
-<SERVER> BattleBoard sent to Ben
-<SERVER> BattleBoard sent to Ryan
+<SERVER> BattleBoard sent to Ben_0
 <SERVER> Sent letter tiles to Ben
-<SERVER> Sent letter tiles to Holden S
-<SERVER> Sent letter tiles to Ryan
+<SERVER> Sent letter tiles to Ben_0
 WordBoard created
-Entity unpacked; name = Twido location = 18,1 owner = 1
-Entity unpacked; name = Nesphe location = 22,1 owner = 1
-Entity unpacked; name = Snugo location = 25,1 owner = 1
-Entity unpacked; name = Kumu location = 29,1 owner = 1
-Entity unpacked; name = Mewohi location = 18,94 owner = 2
-Entity unpacked; name = Hazuki location = 22,94 owner = 2
-Entity unpacked; name = Gozi location = 25,94 owner = 2
-Entity unpacked; name = Voexi location = 29,94 owner = 2
-BattleBoard loaded
-Entity unpacked; name = Muma location = 18,1 owner = 1
-Entity unpacked; name = Vute location = 22,1 owner = 1
-Entity unpacked; name = Lisplu location = 25,1 owner = 1
-Entity unpacked; name = Lodo location = 29,1 owner = 1
-Entity unpacked; name = Drasweo location = 18,94 owner = 3
-Entity unpacked; name = Mueqe location = 22,94 owner = 3
-Entity unpacked; name = Xaiso location = 25,94 owner = 3
-Entity unpacked; name = Noyvi location = 29,94 owner = 3
+Entity unpacked; name = Vume location = 18,1 owner = 1
+Entity unpacked; name = Snuyu location = 22,1 owner = 1
+Entity unpacked; name = Fuscru location = 25,1 owner = 1
+Entity unpacked; name = Tomo location = 29,1 owner = 1
+Entity unpacked; name = Rhymoo location = 18,94 owner = 2
+Entity unpacked; name = Juri location = 22,94 owner = 2
+Entity unpacked; name = Payu location = 25,94 owner = 2
+Entity unpacked; name = Rabu location = 29,94 owner = 2
 BattleBoard loaded
 Recieved tiles
 <SERVER> All ready to start!
 <SERVER> Everybody is ready!
 Game is ready!
-It's Ryan's turn!
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan finished1words
-<SERVER> Sent new letter tile to Ryan
-<SERVER> Sent new letter tile to Ryan
-<SERVER> Sent new letter tile to Ryan
-<SERVER> it's now Ben's turn!
-It's now Ben's turn!
-<SERVER> Ben placed a tile
-<SERVER> Ben placed a tile
+It's Ben's turn!
+New turn on board 1-2
+Switching to battle mode
+End Turn: Sent 26 bytes
+<SERVER> Relay End Turn: Sent 73 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ben_0's turn on battle board 1-2
+New turn on board 1-2
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben_0 finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+New turn on board 1-2
+End Turn: Sent 8 bytes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ben_0's turn on battle board 1-2
+New turn on board 1-2
+<SERVER> Relay End Turn: Sent 73 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben_0 finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+New turn on board 1-2
+End Turn: Sent 8 bytes
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ben_0's turn on battle board 1-2
+New turn on board 1-2
+<SERVER> Relay End Turn: Sent 61 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben_0 finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+New turn on board 1-2
+End Turn: Sent 8 bytes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ben_0's turn on battle board 1-2
+New turn on board 1-2
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben_0 finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+New turn on board 1-2
+End Turn: Sent 26 bytes
+<SERVER> Relay End Turn: Sent 73 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ben_0 has ended
+Switching to word mode
+New turn on board 1-2
+Switching to battle mode
+Client ended
+<SERVER> Server ended
+a tile
 Found 1 words
-Checked and sent word: nan
+Checked and sent word: yam
 <SERVER> Ben finished1words
 <SERVER> Sent new letter tile to Ben
 <SERVER> Sent new letter tile to Ben
-<SERVER> it's now Holden S's turn!
-It's now Holden S's turn!
-<SERVER> Holden S placed a tile
-<SERVER> Holden S placed a tile
-<SERVER> Holden S finished1words
-<SERVER> Sent new letter tile to Holden S
-<SERVER> Sent new letter tile to Holden S
-<SERVER> it's now Ryan's turn!
-It's now Ryan's turn!
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan finished1words
-<SERVER> Sent new letter tile to Ryan
-<SERVER> Sent new letter tile to Ryan
-<SERVER> it's now Ben's turn!
-It's now Ben's turn!
-<SERVER> Ben placed a tile
-Found 1 words
-Checked and sent word: an
-<SERVER> Ben finished1words
 <SERVER> Sent new letter tile to Ben
-<SERVER> it's now Holden S's turn!
-It's now Holden S's turn!
-<SERVER> Holden S placed a tile
-<SERVER> Holden S placed a tile
-<SERVER> Holden S finished1words
-<SERVER> Sent new letter tile to Holden S
-<SERVER> Sent new letter tile to Holden S
-<SERVER> it's now Ryan's turn!
-It's now Ryan's turn!
-<SERVER> Ryan placed a tile
-<SERVER> Ryan placed a tile
-<SERVER> Ryan finished1words
-<SERVER> Sent new letter tile to Ryan
-<SERVER> Sent new letter tile to Ryan
+<SERVER> it's now Ben_0's turn!
+It's now Ben_0's turn!
+<SERVER> Ben_0 placed a tile
+<SERVER> Ben_0 placed a tile
+<SERVER> Ben_0 placed a tile
+<SERVER> Ben_0 finished1words
+<SERVER> Sent new letter tile to Ben_0
+<SERVER> Sent new letter tile to Ben_0
+<SERVER> Sent new letter tile to Ben_0
 <SERVER> it's now Ben's turn!
 It's now Ben's turn!
+Ben_0 exited to menu
+Client ended
+<SERVER> Server ended
+ent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> It's now Ben_0's turn on battle board 1-2
+<DEBUG> Recieved 0 prop changes
+New turn on board 1-2
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 55 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben_0 finished a turn
+<SERVER> It's now Ben's turn on battle board 1-2
+<DEBUG> Loyoqei; Stamina = 6
+<DEBUG> Pyze; Stamina = 12
+<DEBUG> Zobu; Stamina = 13
+<DEBUG> Higi; Stamina = 16
+<DEBUG> Frupe; Stamina = 7
+<DEBUG> Paidu; Stamina = 9
+<DEBUG> Ryvekeroi; Stamina = 8
+<DEBUG> Hova; Stamina = 8
+<DEBUG> Recieved 8 prop changes
+New turn on board 1-2
+End Turn: Sent 8 bytes
+<SERVER> <DEBUG> Recieved 0 prop changes
+<SERVER> Relay End Turn: Sent 67 bytes
+<SERVER> Relay End Turn: Sent 7 bytes
+<SERVER> Ben finished a turn
+<SERVER> The battle on the board between Ben and Ben_0 has ended
+<DEBUG> Recieved 0 prop changes
+Switching to word mode
+<SERVER> <D> Switching to BattleBoard mode
+New turn on board 1-2
+Switching to battle mode
+Client ended
+<SERVER> Server ended
 <SERVER> Ben placed a tile
 Found 1 words
 Checked and sent word: hoes

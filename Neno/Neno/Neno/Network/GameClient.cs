@@ -258,6 +258,12 @@ namespace Neno
                                         nextBox.dontDraw = true;
                                     #endregion
                                     break;
+                                case "Skip Turn":
+                                    nextBox.Y = Main.windowHeight - 106;
+                                    nextBox.CheckSelect();
+                                    if (canInteract && nextBox.CheckClicked())
+                                        sendWords(new List<string>());
+                                    break;
                             }
                         }
 
@@ -598,7 +604,7 @@ namespace Neno
             Color color = Color.BlanchedAlmond;
             if (view == Viewing.Inventory) color = Color.DarkTurquoise;
             if (view == Viewing.Players) color = Color.DarkSlateBlue;
-            if (view == Viewing.EndGame) color = Color.LightGoldenrodYellow;
+            if (view == Viewing.EndGame) color = Color.DarkGoldenrod;
 
             Main.sb.Draw(Main.img("bg"),
                 new Vector2(
@@ -729,10 +735,11 @@ namespace Neno
                         if (currentBoard.winner == 0)
                         {
                             Main.drawText(Main.font, "Players still battling:", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 0.5f, TextOrient.Middle);
-                            int ii = 0;
-                            foreach (string name in waitingForNumber)
+
+                            for (int ii = 0; ii < waitingForNumber.Count; ii += 2 )
                             {
-                                Main.drawText(Main.font, name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + ii * 26), Color.White, 0.75f, TextOrient.Middle); ii++;
+                                Main.drawText(Main.font, waitingForNumber[ii] + " & " + waitingForNumber[ii + 1], 
+                                    new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 + ii * 12), Color.White, 0.5f, TextOrient.Middle);
                             }
                         }
                         else
@@ -756,19 +763,39 @@ namespace Neno
                         Main.drawText(Main.font, "To take their turn", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 0.5f, TextOrient.Middle); 
                     }
 
-                    //Other
+                    //Buttons
                     foreach (TextBox nextBox in buttonsBattleBoard)
                     {
                         if (nextBox.Text.Contains(">"))
                         {
                             string add = "";
-                            add += " Turn " + boardList[nextBox.tag].turnNumber + " / " + Settings.battleRounds * 2;
-                            if (currentBoard == boardList[nextBox.tag])
+                            var board = boardList[nextBox.tag];
+                            add += " Turn " + board.turnNumber + " / " + Settings.battleRounds * 2;
+
+                            //If selected
+                            if (currentBoard == board)
                                 nextBox.textColor = Color.Yellow;
                             else
-                                nextBox.textColor = Color.White;
-                            if (boardList[nextBox.tag].turn == playerID)
-                                add += " - Time Left: " + (int)(boardList[nextBox.tag].time / 60);
+                                nextBox.textColor = Color.LightGray;
+
+                            //If its your turn
+                            if (board.finished)
+                            {
+                                if (board.winner != 0)
+                                    add += " - Board Turns Up";
+                                else
+                                    add += " - Board Won";
+                                nextBox.textColor = Color.DimGray;
+                            }
+                            else
+                            if (board.turn == playerID)
+                            {
+                                nextBox.textColor = new Color((float)Math.Sin(Main.Time / 4f), (float)Math.Sin(Main.Time / 4f), 0f, 1f);
+                                add += " - Your turn!";
+                                add += " - Time Left: " + (int)(board.time / 60);
+                            }
+
+                            //Draw
                             nextBox.Draw(add, Main.sb);
                         }
                         else
@@ -871,18 +898,19 @@ namespace Neno
                     break;
                 case Viewing.EndGame:
                     #region EndGame
-                    Main.drawTextBox(Main.font, "Game!", new Vector2(Main.windowWidth / 2, 2), Color.LightGoldenrodYellow, 1.5f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                    Main.drawText(Main.font, "Game!", new Vector2(Main.windowWidth / 2, 2), Color.Goldenrod, 1.5f, TextOrient.Middle);
+                    Main.drawText(Main.font, "Winner(s):", new Vector2(Main.windowWidth / 2, 128), Color.Goldenrod, 1f, TextOrient.Middle);
                     int ix = 0;
                     foreach(int id in winnerList)
                     {
-                        Main.drawTextBox(Main.font, "#" + ix + " " + getPlayer((byte)id).Name, new Vector2(Main.windowWidth / 2, 128 + 64 * ix), Color.White, 1f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                        Main.drawText(Main.font, getPlayer((byte)id).Name, new Vector2(Main.windowWidth / 2, 200 + 64 * ix), Color.White, 0.75f, TextOrient.Middle);
                         ix++;
                     }
                     ix = 0;
-                    Main.drawTextBox(Main.font, "Richest: ", new Vector2(2, 2), Color.LightGoldenrodYellow, 1.5f, TextOrient.Middle, new Color(0f, 0f, 0f, 0.6f));
+                    Main.drawText(Main.font, "Richest: ", new Vector2(2, 2), Color.LightGoldenrodYellow, 1f, TextOrient.Left);
                     foreach(Point next in scoreList)
                     {
-                        Main.drawTextBox(Main.font, "#" + ix + " " + getPlayer((byte)next.X).Name + " - " + next.Y + " coins", new Vector2(2, 120 + 64 * ix), Color.White, 1f, TextOrient.Left, new Color(0f, 0f, 0f, 0.6f));
+                        Main.drawText(Main.font, "#" + (ix + 1) + " " + getPlayer((byte)next.X).Name + " - " + next.Y + " coins", new Vector2(2, 72 + 64 * ix), Color.White, 0.5f, TextOrient.Left);
                         ix++;
                     }
                     #endregion
@@ -895,9 +923,8 @@ namespace Neno
                 if (turn == playerID)
                 {
                     Color turnTimeColor = Color.Black;
-                    if (currentTurnTime < Settings.wordBoardTimeLimit / 2) turnTimeColor = Color.BlueViolet;
-                    if (currentTurnTime < Settings.wordBoardTimeLimit / 3) turnTimeColor = Color.DarkOrange;
-                    if (currentTurnTime < Settings.wordBoardTimeLimit / 4) turnTimeColor = Color.DarkRed;
+                    if (currentTurnTime < Settings.wordBoardTimeLimit / 2) turnTimeColor = Color.DarkOrange;
+                    if (currentTurnTime < Settings.wordBoardTimeLimit / 3) turnTimeColor = Color.DarkRed;
                     if (currentTurnTime < Settings.wordBoardTimeLimit / 5) turnTimeColor = new Color((float)Math.Sin(Main.Time / 3), (float)Math.Sin(Main.Time / 3), 0f);
                     Main.drawText(Main.font, "Time left: " + Math.Floor((double)currentTurnTime / 60), new Vector2(Main.windowWidth / 2, 152), new Color(0f, 0f, 0f, 0.5f), 0.75f, TextOrient.Middle);
                     Main.drawText(Main.font, "Time left: " + Math.Floor((double)currentTurnTime / 60), new Vector2(Main.windowWidth / 2, 150), turnTimeColor, 0.75f, TextOrient.Middle);
@@ -1148,9 +1175,7 @@ namespace Neno
                                     PropType type = (PropType)inc.ReadByte();
                                     byte newValue = inc.ReadByte();
                                     board.findEntity(entityID).EditProp(type, newValue);
-                                    Console.WriteLine("<DEBUG> " + board.findEntity(entityID).Name + "; " + type.ToString() + " = " + newValue);
                                 }
-                                Console.WriteLine("<DEBUG> Recieved " + length + " prop changes");
                                 break;
                             case ClientMsg.battleDone:
                                 p1 = inc.ReadByte();
@@ -1192,8 +1217,9 @@ namespace Neno
                                 {
                                     winnerList.Add(inc.ReadByte());
                                 }
+                                count = inc.ReadByte();
                                 scoreList = new List<Point>();
-                                for (int i = 0; i < playerList.Count; i++ )
+                                for (int i = 0; i < count; i++)
                                 {
                                     ID = inc.ReadByte();
                                     var score = inc.ReadInt32();
@@ -1261,6 +1287,7 @@ namespace Neno
 
             //WordBoard Buttons
             buttonsWordBoard.Add(new TextBox(0, Main.windowHeight - 106, "Submit Word", 0.5f, Main.font));
+            buttonsWordBoard.Add(new TextBox(180, Main.windowHeight - 106, "Skip Turn", 0.5f, Main.font));
             buttonsWordBoard.Add(new TextBox(Main.windowWidth, Main.windowHeight / 2, "Choose Letter: ", 1f, Main.font, TextOrient.Middle, true, ""));
             buttonsWordBoard[1].boxColor.A = 180;
 
@@ -1452,14 +1479,11 @@ namespace Neno
             ent.EditProp(prop, (int)MathHelper.Clamp(value, 0, 255));
             var newAdd = new Point(ent.ID, (int)prop);
             currentBoard.changeList.Add(newAdd);
-            Console.WriteLine("<DEBUG> Edited property " + prop.ToString() + " in " + ent.Name);
-            Console.WriteLine("<DEBUG> Confirm " + currentBoard.findEntity(newAdd.X).Name);
         }
         void subtractProp(Entity ent, PropType prop, int value)
         {
             ent.EditProp(prop, (int)MathHelper.Clamp(ent.Prop(prop) - value, 0, 255));
             currentBoard.changeList.Add(new Point(ent.ID, (int)prop));
-            Console.WriteLine("<DEBUG> Edited property " + prop.ToString() + " in " + ent.Name);
         }
         #endregion
 

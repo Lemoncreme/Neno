@@ -79,14 +79,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="91000">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="96632">
       <assemblyIdentity name="Neno" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>3kRLfzYINdBnd9XZb9F+Ic2GeCg=</dsig:DigestValue>
+        <dsig:DigestValue>yLRg4yglNo4nJqHoCm/1RJIjul8=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
