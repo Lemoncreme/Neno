@@ -62,7 +62,9 @@ namespace Neno
             if (Key.pressed(Keys.F5))
                 System.Windows.Forms.MessageBox.Show("ITEM GEN TEST " + (Item.RandomGen("A").Name));
             if (Key.pressed(Keys.F6))
-                System.Windows.Forms.MessageBox.Show("ITEM LOAD TEST " + (Item.Load("Sword").propList.Count));
+            { 
+                Item.Load("Axe");
+            }
 
             currentItem = null;
             foreach(TextBox item in currentMenu)

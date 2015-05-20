@@ -1,0 +1,13 @@
+NENO
+ITEM_DEFINITION
+name:Axe
+img:img
+id:0
+type:melee
+subtype:sword
+prop:Hp:8
+prop:Weight:4
+prop:DmgMin:4
+prop:DmgMax:5
+prop:DmgCap:12
+prop:DmgSharp:2

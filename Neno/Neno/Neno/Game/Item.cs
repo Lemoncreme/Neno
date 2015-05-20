@@ -226,13 +226,72 @@ namespace Neno
         }
         public static void WriteNewDefinition(Item item)
         {
+            //Define
             int number = 1;
-            //TODO: make this find a workable file
-            while(File.OpenText(Main.itemDirectory + "items" + number + ".txt").ReadLine())
+            bool keepFinding = true;
+            string path;
+
+            //Find usable item list file
+            while(keepFinding)
             {
-                number++;
+                path = Main.itemDirectory + "items" + number + ".txt";
+                if (File.Exists(path))
+                {
+                    var stream = File.ReadAllLines(path);
+                    if (stream[0] == "NENO")
+                    {
+                        if (stream[1] == "ITEM_LIST")
+                        {
+                            var countLine = stream[2];
+                            if (countLine.Contains("terms"))
+                            {
+                                int count = Convert.ToInt32(countLine.Split(new char[] { ':' })[1]);
+                                if (count < 500)
+                                    keepFinding = false;
+                            }
+                        }
+                    }
+                    stream = null;
+                }
+                else
+                    keepFinding = false;
+                if (keepFinding)
+                    number++;
             }
-            var stream = File.Open(Main.itemDirectory + "items" + number + ".txt");
+
+            //Create file if it doesnt exist
+            path = Main.itemDirectory + "items" + number + ".txt";
+            if (!File.Exists(path))
+            {
+                File.WriteAllLines(path, new string[] { "NENO", "ITEM_LIST", "terms:0" });
+            }
+
+            //Get terms
+            string[] lines = File.ReadAllLines(path);
+            int terms = Convert.ToInt32(lines[2].Split(new char[] { ':' })[1]);
+            Console.WriteLine("<DEBUG> {0} terms", terms);
+            foreach(string line in lines)
+            {
+                if (line.Contains(""))
+            }
+
+            //Write new
+            StreamWriter write; write = File.AppendText(path);
+            write.WriteLine("term_{0}:name:{1}", terms, item.Name);
+            write.WriteLine("term_{0}:img:{1}", terms, item.Frame);
+            write.WriteLine("term_{0}:id:{1}", terms, terms + 1);
+            write.WriteLine("term_{0}:type:{1}", terms, item.Type.ToString());
+            write.WriteLine("term_{0}:subtype:{1}", terms, item.SubType.ToString());
+            foreach (ItemProp prop in item.propList)
+            {
+                write.WriteLine("term_{0}:{1}:{2}", terms, prop.Type.ToString(), prop.Value.ToString()); 
+            }
+            write.Close();
+
+            //Edit terms
+            var next = File.ReadAllLines(path);
+            next[2] = "terms:" + (terms + 1);
+            File.WriteAllLines(path, next);
         }
     }
 }
