@@ -1,0 +1,12 @@
+NENO
+ITEM_DEFINITION
+name:Bat
+id:0
+img:img
+type:melee
+subtype:bludgeon
+prop:Weight:4
+prop:DmgMin:1
+prop:DmgMax:4
+prop:DmgCap:10
+prop:DmgBlunt:2

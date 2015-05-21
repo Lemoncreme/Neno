@@ -25,6 +25,7 @@ namespace Neno
         public List<string> words = new List<string>();
         public int coins = 0;
         public int boardsWon = 0;
+        public Inventory inv = new Inventory(12, 8);
 
         public ServerPlayer(string name, byte id, NetConnection connection)
         {

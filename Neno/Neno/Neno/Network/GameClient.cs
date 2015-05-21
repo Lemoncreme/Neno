@@ -36,7 +36,7 @@ namespace Neno
     {
         init, playerInfo, playerIsReady, playerLeft, starting, newBoard, connectionTest, letterTiles, readyToStart, tilePlace, newLetterTile,
         newTurn, newWordNumber, ping, backToLobby, currentTimeLeft, timeUp, battleMode, battleTurn, battleTimeLeft, battleTimeUp, newCoins,
-        wordMode, boardEnd, entProp, battleDone, waitingFor, entDelete, battleWon, gameEnd
+        wordMode, boardEnd, entProp, battleDone, waitingFor, entDelete, battleWon, gameEnd, item
     }
     enum Direction
     {
@@ -82,6 +82,16 @@ namespace Neno
         bool darken = false;
         List<int> winnerList;
         List<Point> scoreList;
+        Point mouseInv = new Point(0, 0);
+        Point mouseInvMenu = new Point(0, 0);
+        Point offset = new Point(128, 256);
+        bool showItemMenu = false;
+        Item toEquip = null;
+        SelectMenu itemMenu = new SelectMenu(new List<string>() { 
+        "Equip",
+        "Unequip",
+        "Sell"
+        });
 
         #region In-Game GUI
         //Main Buttons
@@ -107,6 +117,7 @@ namespace Neno
         #endregion
 
         #region Battle
+        Inventory inv = new Inventory(12, 8);
         BattleBoard currentBoard = null;
         Matrix BattleBoardView;
         Entity entSelect = null;
@@ -117,12 +128,13 @@ namespace Neno
         Vector2 tileSelectMouse;
         bool interact = false;
         List<string> waitingForNumber = new List<string>();
+        bool equipMode = false;
         SelectMenu selectMenu = new SelectMenu(new List<string>() { 
         "Move Here",
         "Hurt This",
-        "Kill This",
-        "Test2"
+        "Use Items"
         });
+        List<string> actionList = new List<string>();
         #endregion
 
         #endregion
@@ -483,6 +495,18 @@ namespace Neno
                             if (ent != null && ent.Prop(PropType.Owner) == playerID)
                             {
                                 entSelect = currentBoard.findEntity(currentBoard.selectX, currentBoard.selectY, EntityType.person);
+
+                                //Equip
+                                if (equipMode)
+                                {
+                                    entSelect.equip = toEquip;
+                                    toEquip.isEquipped = true;
+                                    toEquip.equippedBy = entSelect.ID;
+                                    entSelect = null;
+                                    equipMode = false;
+                                    mouseMsg("Equipped " + toEquip.Name, Color.LightCoral);
+                                    toEquip = null;
+                                }
                                 Sound.Play("place");
                             }
                             else
@@ -528,6 +552,7 @@ namespace Neno
                         switch(selectMenu.CheckClicked())
                         {
                             case "Move Here":
+                                #region Move to a tile
                                 if (dist <= entSelect.Prop(PropType.Stamina))
                                 {
                                     if (target == null)
@@ -543,8 +568,10 @@ namespace Neno
                                 }
                                 else
                                     mouseMsg("That's too far"); Sound.Play("error");
+                                #endregion
                                 break;
                             case "Hurt This":
+                                #region Hurt an entity
                                 if (dist <= 1)
                                 {
                                     if (target != null)
@@ -569,8 +596,51 @@ namespace Neno
                                 }
                                 else
                                     mouseMsg("That's too far"); Sound.Play("error");
+                                #endregion
+                                break;
+                            case "Use Item":
+                                #region Use an item on an entity
+                                if (entSelect.equip == null)
+                                { mouseMsg("You don't have an item equipped"); break; }
+                                if (dist <= 1)
+                                {
+                                    if (target != null)
+                                    {
+                                        if (target.Prop(PropType.Owner) != playerID)
+                                        {
+                                            if (entSelect.Prop(PropType.Stamina) >= entSelect.equip.Prop(PropType.Weight))
+                                            {
+                                                //Get damage
+                                                int damage = 
+                                                    Main.rInt(
+                                                    entSelect.equip.Prop(PropType.DmgMin),
+                                                    entSelect.equip.Prop(PropType.DmgMax))
+                                                     + entSelect.equip.Prop(PropType.DmgSharp)
+                                                      + entSelect.equip.Prop(PropType.DmgBlunt)
+                                                       + entSelect.equip.Prop(PropType.DmgMagic);
+
+                                                //Subtract
+                                                subtractProp(target, PropType.Hp, damage);
+                                                subtractProp(entSelect, PropType.Stamina, entSelect.equip.Prop(PropType.Weight));
+                                                entSelect.equip.AddProp(PropType.Hp, -(int)MathHelper.Clamp(damage / 3, 1, 10));
+                                                mouseMsg("-" + damage + " Hp", Color.LightPink); Sound.Play("place");
+                                                interact = false;
+                                            }
+                                            else
+                                                mouseMsg("Most have more than " + entSelect.equip.Prop(PropType.Weight) + " stamina"); Sound.Play("error");
+                                        }
+                                        else
+                                            mouseMsg("You can't hurt that"); Sound.Play("error");
+                                    }
+                                    else
+                                        mouseMsg("Nothing's there"); Sound.Play("error");
+                                }
+                                else
+                                    mouseMsg("That's too far"); Sound.Play("error");
+                                #endregion
                                 break;
                             case "Kill This":
+                                #region DEBUG kill
                                 if (target != null)
                                     {
                                         if (target.Prop(PropType.Owner) != playerID)
@@ -584,10 +654,60 @@ namespace Neno
                                     }
                                     else
                                         mouseMsg("Nothing's there"); Sound.Play("error");
+                                #endregion
                                 break;
                         }
                     }
 
+                    #endregion
+
+                    break;
+                case Viewing.Inventory:
+
+                    #region Select Item
+                    //Find item slot selected
+                    mouseInv = new Point(
+                        (Main.mousePosP.X - offset.X) / inv.drawSize,
+                        (Main.mousePosP.Y - offset.Y) / inv.drawSize);
+
+                    //Select Item
+                    if (inv.Get(mouseInv) != null && Main.mouseRightPressed && showItemMenu == false)
+                    { 
+                        showItemMenu = true;
+                        mouseInvMenu = Main.mousePosP;
+                        toEquip = inv.Get(mouseInv);
+                    }
+                    else
+                    if (showItemMenu == true && Main.mouseRightPressed)
+                    {
+                        showItemMenu = false;
+                    }
+
+                    //Update menu
+                    if (showItemMenu)
+                    { 
+                        itemMenu.Update(new Vector2(mouseInvMenu.X, mouseInvMenu.Y));
+                        switch(itemMenu.CheckClicked())
+                        {
+                            case "Equip":
+                                if (!toEquip.isEquipped)
+                                {
+                                    view = Viewing.Battleboard;
+                                    entSelect = null;
+                                    equipMode = true;
+                                    showItemMenu = false;
+                                }
+                                break;
+                            case "Unequip":
+                                if (toEquip.isEquipped)
+                                {
+                                    findEntity(toEquip.equippedBy).equip = null;
+                                    toEquip.equippedBy = 0;
+                                    toEquip.isEquipped = false;
+                                }
+                                break;
+                        }
+                    }
                     #endregion
 
                     break;
@@ -727,6 +847,8 @@ namespace Neno
                         Main.drawText(Main.consoleFont, "Type is " + entSelect.Type.ToString(), new Vector2(Main.windowWidth - 198, y), Color.LightGoldenrodYellow, 1f, TextOrient.Left); y += 20;
                         Main.drawText(Main.consoleFont, "HP = " + entSelect.Prop(PropType.Hp) + " / " + entSelect.Prop(PropType.MaxHp), new Vector2(Main.windowWidth - 198, y), Color.LightCoral, 1f, TextOrient.Left); y += 20;
                         Main.drawText(Main.consoleFont, "Stamina = " + entSelect.Prop(PropType.Stamina) + " / " + entSelect.Prop(PropType.MaxStamina), new Vector2(Main.windowWidth - 198, y), Color.LightGreen, 1f, TextOrient.Left); y += 20;
+                        if (entSelect.equip != null)
+                        Main.drawText(Main.consoleFont, "Item = " + entSelect.equip.Name, new Vector2(Main.windowWidth - 198, y), Color.AntiqueWhite, 0.25f, TextOrient.Left); y += 20;
                     }
 
                     //Not your turn
@@ -762,6 +884,10 @@ namespace Neno
                         Main.drawText(Main.font, "Waiting for " + getPlayer(currentBoard.turn).Name, new Vector2(Main.windowWidth / 2, Main.windowHeight / 2 - 64), Color.White, 1f, TextOrient.Middle);
                         Main.drawText(Main.font, "To take their turn", new Vector2(Main.windowWidth / 2, Main.windowHeight / 2), Color.White, 0.5f, TextOrient.Middle); 
                     }
+
+                    //Equip Mode
+                    if (equipMode)
+                        Main.drawText(Main.font, "Choose a Player to Equip", new Vector2(Main.windowWidth / 2, Main.windowHeight - 32), Color.White, 0.5f, TextOrient.Middle);
 
                     //Buttons
                     foreach (TextBox nextBox in buttonsBattleBoard)
@@ -867,6 +993,30 @@ namespace Neno
                     {
                         Main.drawText(Main.consoleFont, word, new Vector2(xx, yy), Color.White, 1f, TextOrient.Right); yy += 18;
                     }
+
+                    //Draw inventory
+                    inv.Draw(offset);
+
+                    //Draw Item Desc
+                    if (mouseInv.X >= 0 && mouseInv.X < inv.width && mouseInv.Y >= 0 && mouseInv.Y < inv.height)
+                    if (inv.Get(mouseInv) != null)
+                    {
+                        var item = inv.Get(mouseInv);
+                        string properties = "";
+                        foreach(ItemProp prop in item.propList)
+                        {
+                            properties += prop.Type.ToString() + " = " + prop.Value + "\n";
+                        }
+                        Main.drawTextBox(Main.consoleFont, 
+                            item.Name + "\n" + 
+                            item.Type.ToString() + "\n" + 
+                            item.SubType.ToString() + "\n" + properties,
+                            new Vector2(offset.X + inv.drawSize * inv.width + 4, offset.Y + inv.drawSize * inv.height + 4), Color.White, 1f, TextOrient.Left, new Color(0f, 0f, 0f, 0.5f));
+                    }
+
+                    //Draw item menu
+                    if (showItemMenu)
+                        itemMenu.Draw(new Vector2(mouseInvMenu.X, mouseInvMenu.Y));
                     #endregion
                     break;
                 case Viewing.Players:
@@ -1164,7 +1314,7 @@ namespace Neno
                                 board = getBoard(p1, p2);
                                 sendEndTurn(board);
                                 break;
-                            case ClientMsg.entProp: //Client finished a battle turn
+                            case ClientMsg.entProp:
                                 p1 = inc.ReadByte();
                                 p2 = inc.ReadByte();
                                 board = getBoard(p1, p2);
@@ -1174,7 +1324,13 @@ namespace Neno
                                     entityID = inc.ReadInt32();
                                     PropType type = (PropType)inc.ReadByte();
                                     byte newValue = inc.ReadByte();
-                                    board.findEntity(entityID).EditProp(type, newValue);
+                                    var entity = board.findEntity(entityID);
+                                    int diff = newValue - entity.Prop(type);
+                                    entity.EditProp(type, newValue);
+                                    if (diff > 0)
+                                        actionList.Add(entity.Name + ": +" + (diff) + " " + type.ToString());
+                                    else
+                                        actionList.Add(entity.Name + ": " + (diff) + " " + type.ToString());
                                 }
                                 break;
                             case ClientMsg.battleDone:
@@ -1230,6 +1386,20 @@ namespace Neno
                                 buttonInventory.dontDraw = true;
                                 buttonOtherplayers.dontDraw = true;
                                 Console.WriteLine("Game Ended");
+                                break;
+                            case ClientMsg.item:
+
+                                //get item
+                                name = inc.ReadString();
+                                int frame = inc.ReadInt32();
+                                var itemtype = (ItemType)inc.ReadByte();
+                                var subtype = (ItemSubtype)inc.ReadByte();
+                                int packedlength = inc.ReadInt32();
+                                var packed = inc.ReadBytes(packedlength);
+                                Item item = new Item(name, itemtype, subtype, packed);
+                                item.Frame = frame;
+
+                                inv.Add(item);
                                 break;
                         }
                         break;
@@ -1484,6 +1654,16 @@ namespace Neno
         {
             ent.EditProp(prop, (int)MathHelper.Clamp(ent.Prop(prop) - value, 0, 255));
             currentBoard.changeList.Add(new Point(ent.ID, (int)prop));
+        }
+        Entity findEntity(int ID)
+        {
+            foreach(BattleBoard board in boardList)
+            {
+                var find = board.findEntity(ID);
+                if (find != null)
+                    return find;
+            }
+            return null;
         }
         #endregion
 

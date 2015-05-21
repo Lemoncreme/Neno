@@ -1,0 +1,8 @@
+NENO
+ITEM_DEFINITION
+name:Water
+id:0
+img:img
+type:consumable
+subtype:drink
+prop:AddHp:1

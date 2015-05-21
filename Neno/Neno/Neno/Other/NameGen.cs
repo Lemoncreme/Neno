@@ -87,20 +87,20 @@ namespace Neno
 
         private static string Consanant()
         {
-            return Main.choose<string>(new List<string>() { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z" });
+            return Main.choose<string>("b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z" );
         }
         private static string Vowel()
         {
-            return Main.choose<string>(new List<string>() { "a", "e", "i", "o", "u" });
+            return Main.choose<string>("a", "e", "i", "o", "u" );
         }
         private static string Vowels()
         {
-            return Main.choose<string>(new List<string>() { "ee", "oo", "ae", "io", "oi", "uo", "ou", "ue", "ei", "ie", "ai", "ia", "ay", "y", "oyo", "oyu", "oe", "eo" });
+            return Main.choose<string>("ee", "oo", "ae", "io", "oi", "uo", "ou", "ue", "ei", "ie", "ai", "ia", "ay", "y", "oyo", "oyu", "oe", "eo" );
         }
         private static string Consanants()
         {
-            return Main.choose<string>(new List<string>() { "th", "sh", "bh", "rh", "ph", "gh", "kh", "yv", "sw", "spl", "thr", "gr", "tr", "pr", "scr", "tw", "kw", "fr",
-                                                            "br", "sph", "sn", "dr", "fl" });
+            return Main.choose<string>( "th", "sh", "bh", "rh", "ph", "gh", "kh", "yv", "sw", "spl", "thr", "gr", "tr", "pr", "scr", "tw", "kw", "fr",
+                                                            "br", "sph", "sn", "dr", "fl" );
         }
     }
 }

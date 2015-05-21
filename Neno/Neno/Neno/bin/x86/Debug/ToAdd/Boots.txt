@@ -1,0 +1,10 @@
+NENO
+ITEM_DEFINITION
+name:Boots
+id:0
+img:img
+type:equip
+subtype:armor
+prop:ArmorSharp:1
+prop:ArmorBlunt:1
+prop:Armor:1

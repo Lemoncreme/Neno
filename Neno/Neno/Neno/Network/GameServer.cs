@@ -165,7 +165,7 @@ namespace Neno
                                 if (playerID == 1)
                                 {
                                     Console.WriteLine("<SERVER> starting game");
-                                    turn = Main.choose<ServerPlayer>(playerList).ID;
+                                    turn = Main.choose<ServerPlayer>(playerList.ToArray()).ID;
                                     Console.WriteLine("<SERVER> first turn is " + getPlayer(turn).Name);
                                     sendStarting();
                                     Create();
@@ -225,6 +225,9 @@ namespace Neno
                                 {
                                     string next = inc.ReadString();
                                     player.words.Add(next);
+                                    Item newItem = Item.RandomGen("A");
+                                    player.inv.Add(newItem);
+                                    sendItem(player.Connection, newItem);
                                     player.wordsMade++;
                                     value += next.Length;
                                 }
@@ -689,6 +692,21 @@ namespace Neno
 
             server.SendToAll(sendMsg, NetDeliveryMethod.ReliableOrdered);
         }
+        void sendItem(NetConnection recipient, Item item)
+        {
+            NetOutgoingMessage sendMsg = server.CreateMessage();
+
+            sendMsg.Write((byte)ClientMsg.item);
+            sendMsg.Write(item.Name);
+            sendMsg.Write(item.Frame);
+            sendMsg.Write((byte)item.Type);
+            sendMsg.Write((byte)item.SubType);
+            var packed = item.Pack();
+            sendMsg.Write(packed.Length);
+            sendMsg.Write(packed);
+
+            server.SendMessage(sendMsg, recipient, NetDeliveryMethod.ReliableOrdered);
+        }
         #endregion
 
         string getName(byte playerID)
@@ -887,7 +905,7 @@ namespace Neno
             view = Viewing.Wordboard;
 
             //New turn
-            turn = Main.choose<ServerPlayer>(playerList).ID;
+            turn = Main.choose<ServerPlayer>(playerList.ToArray()).ID;
 
             //Send players battleboard message
             sendSwitchToWordBoard();

@@ -1,0 +1,8 @@
+NENO
+ITEM_DEFINITION
+name:Jar
+id:0
+img:img
+type:melee
+subtype:bludgeon
+prop:DmgBlunt:1

@@ -1,0 +1,12 @@
+NENO
+ITEM_DEFINITION
+name:Ax
+id:0
+img:img
+type:melee
+subtype:axe
+prop:Weight:2
+prop:DmgMin:2
+prop:DmgMax:6
+prop:DmgCap:12
+prop:DmgSharp:3

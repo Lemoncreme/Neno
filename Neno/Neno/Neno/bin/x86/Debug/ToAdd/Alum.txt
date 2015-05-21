@@ -1,0 +1,11 @@
+NENO
+ITEM_DEFINITION
+name:Alum
+id:0
+img:img
+type:consumable
+subtype:potion
+prop:EffectTime:2
+prop:AddHp:1
+prop:Hp:1
+prop:Stamina:1

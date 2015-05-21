@@ -1,0 +1,9 @@
+NENO
+ITEM_DEFINITION
+name:Seed
+id:0
+img:img
+type:consumable
+subtype:food
+prop:AddFood:1
+prop:AddHp:1

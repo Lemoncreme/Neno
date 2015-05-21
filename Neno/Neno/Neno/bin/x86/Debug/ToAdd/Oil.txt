@@ -1,0 +1,7 @@
+NENO
+ITEM_DEFINITION
+name:Oil
+id:0
+img:img
+type:consumable
+subtype:potion

@@ -1,0 +1,8 @@
+NENO
+ITEM_DEFINITION
+name:Tie
+id:0
+img:img
+type:equip
+subtype:armor
+prop:Armor:1

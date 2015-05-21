@@ -35,7 +35,11 @@ namespace Neno
         public EntityType Type;
         public int ID;
 
+        public Item equip = null;
+
         public List<EntProp> propList = new List<EntProp>();
+
+
 
         public Entity(string name, int x, int y, int hp, byte ownerid, EntityType Type = EntityType.person)
         {
@@ -56,24 +60,24 @@ namespace Neno
 
             //Skin
             int mix = Main.rInt(-8, 15);
-            Color color = Main.choose<Color>(new List<Color>(){
+            Color color = Main.choose<Color>(
                 new Color(Main.rInt(219, 255) + mix, Main.rInt(180, 220) + mix, Main.rInt(60, 100) + mix),
                 new Color(72 + Main.rInt(-8, 8), Main.rInt(20, 60), Main.rInt(32, 50))
-            });
+            );
             propList.Add(new EntProp(PropType.SkinR, color.R));
             propList.Add(new EntProp(PropType.SkinG, color.G));
             propList.Add(new EntProp(PropType.SkinB, color.B));
 
             //Hair
             mix = Main.rInt(-8, 15);
-            color = Main.choose<Color>(new List<Color>(){
+            color = Main.choose<Color>(
                 new Color(9 + mix, 8 + mix, 6 + mix),
                 new Color(Main.rInt(240, 255), 245 + mix, Main.rInt(210, 225)),
                 new Color(59 + mix, 48 + mix, 36 + mix),
                 new Color(183 + mix, 166 + mix, 158 + mix),
                 new Color(184 + mix, 151 + mix, 120 + mix),
                 new Color(106 + mix, 78 + mix, 66 + mix)
-            });
+            );
             if (Main.chance(10))
                 color = new Color(Main.rInt(50, 200), Main.rInt(50, 200), Main.rInt(50, 200));
             propList.Add(new EntProp(PropType.HairR, color.R));
@@ -81,7 +85,7 @@ namespace Neno
             propList.Add(new EntProp(PropType.HairB, color.B));
 
             //Eyes
-            color = Main.choose<Color>(new List<Color>(){
+            color = Main.choose<Color>(
                 Color.PowderBlue,
                 Color.AliceBlue,
                 Color.CornflowerBlue,
@@ -92,7 +96,7 @@ namespace Neno
                 Color.GreenYellow,
                 Color.SeaGreen,
                 Color.LightSeaGreen
-            });
+            );
             if (Main.chance(65))
                 color = Color.Black;
             propList.Add(new EntProp(PropType.EyeR, color.R));

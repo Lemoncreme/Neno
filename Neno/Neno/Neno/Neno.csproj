@@ -97,6 +97,7 @@
     <Compile Include="Drawing\SelectMenu.cs" />
     <Compile Include="Game\BattleBoard.cs" />
     <Compile Include="Game\Char.cs" />
+    <Compile Include="Game\Inventory.cs" />
     <Compile Include="Game\Item.cs" />
     <Compile Include="Game\PropType.cs" />
     <Compile Include="Other\NameGen.cs" />

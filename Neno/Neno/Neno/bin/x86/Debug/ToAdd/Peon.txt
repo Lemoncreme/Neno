@@ -1,0 +1,9 @@
+NENO
+ITEM_DEFINITION
+name:Peon
+id:0
+img:img
+type:entity
+subtype:place
+prop:MaxHp:30
+prop:MaxStamina:10

@@ -148,9 +148,9 @@ namespace Neno
 
             Main.sb.DrawString(font, Text, pos, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
-        public static T choose<T>(List<T> list)
+        public static T choose<T>(params T[] list)
         {
-            return list[rInt(0, list.Count - 1)];
+            return list[rInt(0, list.Length - 1)];
         }
         /// <summary>
         /// Chooses a random value of the list using gaussian distribution; first is more likely
@@ -158,9 +158,9 @@ namespace Neno
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
         /// <returns></returns>
-        public static T chooseG<T>(List<T> list)
+        public static T chooseG<T>(params T[] list)
         {
-            var nxt = rgInt(list.Count - 1);
+            var nxt = rgInt(list.Length - 1);
             return list[nxt];
         }
         public static int rInt(int min, int max)

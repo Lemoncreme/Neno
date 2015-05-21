@@ -12,6 +12,9 @@ namespace Neno
         ShirtR, ShirtG, ShirtB,
         PantsR, PantsG, PantsB,
 
+        //Items
+        Value,
+
         //Attributes
         IsRandomGen,
         Unbreakable,
@@ -21,9 +24,12 @@ namespace Neno
         DmgSharp, DmgBlunt, DmgMagic,
 
         //Consumable
-        EffectTime, AddFood,
+        EffectTime, AddFood, AddHp,
 
         //Entity Place
         Count,
+
+        //Equip
+        Armor, ArmorBlunt, ArmorSharp,
     }
 }

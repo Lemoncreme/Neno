@@ -1,0 +1,9 @@
+NENO
+ITEM_DEFINITION
+name:Girly
+id:0
+img:img
+type:entity
+subtype:place
+prop:MaxHp:15
+prop:MaxStamina:5
