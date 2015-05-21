@@ -2,9 +2,9 @@ Loaded words list containing 109583 words
 <DEBUG> Item definition
 <DEBUG> 1 terms
 <DEBUG> Item definition
-<DEBUG> 2 terms
+<DEBUG> 1 terms
 <DEBUG> Item definition
-<DEBUG> 3 terms
+<DEBUG> 1 terms
 <DEBUG> Item definition
 <DEBUG> 4 terms
 <DEBUG> Item definition

@@ -1,0 +1,9 @@
+NENO
+ITEM_DEFINITION
+name:Man
+img:img
+id:0
+type:entity
+subtype:place
+prop:MaxHp:30
+prop:MaxStamina:8

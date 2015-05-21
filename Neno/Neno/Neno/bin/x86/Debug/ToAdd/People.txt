@@ -1,0 +1,9 @@
+NENO
+ITEM_DEFINITION
+name:People
+img:img
+id:0
+type:entity
+subtype:place
+prop:Hp:10
+prop:Count:4

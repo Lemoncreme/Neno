@@ -14,11 +14,12 @@ namespace Neno
 {
     public enum ItemType
     {
-        melee, ranged, consumable, equip
+        melee, ranged, consumable, equip, entity
     }
     public enum ItemSubtype
     {
-        sword, axe, bow, crossbow, food, potion, armor, trinket
+        sword, axe, bow, crossbow, food, potion, armor, trinket,
+        edit, place
     }
     public class ItemProp
     {
@@ -156,13 +157,20 @@ namespace Neno
             }
         }
 
+        public static void LoadAll()
+        {
+            var files = Directory.EnumerateFiles("./ToAdd/", "*.txt");
+            foreach(string file in files)
+            {
+                Load(file.Replace("./ToAdd/", "").Replace(".txt", ""));
+            }
+        }
         public static Item Load(string String)
         {
             Item item = new Item(0);
 
             //Open
             var stream = File.OpenText("./ToAdd/" + String + ".txt");
-            bool define = false;
             string line;
 
             //Line 1 should be "NENO"
@@ -175,10 +183,9 @@ namespace Neno
 
             //Line 2 should be "ITEM_DEFINITION" or "ITEM_LIST"
             line = stream.ReadLine();
-            if (line == "ITEM_DEFINITION")
+            if (line != "ITEM_DEFINITION")
             {
-                Console.WriteLine("<DEBUG> Item definition");
-                define = true;
+                return null;
             }
 
             //Tags and values
@@ -219,8 +226,10 @@ namespace Neno
             stream.Dispose();
 
             //Add new definition
-            if (define)
-                WriteNewDefinition(item);
+            WriteNewDefinition(item);
+
+            //Stitch
+            //TODO: Stitch new images to spritesheet
 
             return item;
         }
@@ -269,10 +278,12 @@ namespace Neno
             //Get terms
             string[] lines = File.ReadAllLines(path);
             int terms = Convert.ToInt32(lines[2].Split(new char[] { ':' })[1]);
+            int index = terms;
             Console.WriteLine("<DEBUG> {0} terms", terms);
             foreach(string line in lines)
             {
-                if (line.Contains(""))
+                if (line.Contains("name:" + item.Name))
+                    return;
             }
 
             //Write new
@@ -289,9 +300,8 @@ namespace Neno
             write.Close();
 
             //Edit terms
-            var next = File.ReadAllLines(path);
-            next[2] = "terms:" + (terms + 1);
-            File.WriteAllLines(path, next);
+            lines[2] = "terms:" + (terms + 1);
+            File.WriteAllLines(path, lines);
         }
     }
 }

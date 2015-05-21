@@ -4,7 +4,7 @@ name:Axe
 img:img
 id:0
 type:melee
-subtype:sword
+subtype:axe
 prop:Hp:8
 prop:Weight:4
 prop:DmgMin:4

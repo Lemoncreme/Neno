@@ -12,16 +12,18 @@ namespace Neno
         ShirtR, ShirtG, ShirtB,
         PantsR, PantsG, PantsB,
 
-        //Item Properties
-
-        //Basic
-        Weight, DmgMin, DmgMax, DmgCap,
-
-        //Damage Types
-        DmgSharp, DmgBlunt, DmgMagic,
-
         //Attributes
         IsRandomGen,
-        Unbreakable
+        Unbreakable,
+
+        //Weapon
+        Weight, DmgMin, DmgMax, DmgCap,
+        DmgSharp, DmgBlunt, DmgMagic,
+
+        //Consumable
+        EffectTime, AddFood,
+
+        //Entity Place
+        Count,
     }
 }

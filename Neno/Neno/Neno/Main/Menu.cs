@@ -62,8 +62,24 @@ namespace Neno
             if (Key.pressed(Keys.F5))
                 System.Windows.Forms.MessageBox.Show("ITEM GEN TEST " + (Item.RandomGen("A").Name));
             if (Key.pressed(Keys.F6))
-            { 
-                Item.Load("Axe");
+            {
+                Item.LoadAll();
+            }
+            if (Key.pressed(Keys.F7))
+            {
+                string lastWord = "";
+                while(lastWord.Length < 6)
+                {
+                    string tryWord = "";
+                    int letters = 4 + Main.rgInt(10);
+                    for (int ii = 0; ii < letters; ii++)
+                    {
+                        tryWord += Main.wordTileLetter[(int)MathHelper.Clamp(Main.randomLetter(), 1, 26)];
+                    }
+                    if (GameClient.checkWord(tryWord))
+                        lastWord = tryWord;
+                }
+                Console.Write(", " + lastWord);
             }
 
             currentItem = null;

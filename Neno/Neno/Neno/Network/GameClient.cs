@@ -1297,7 +1297,7 @@ namespace Neno
         #endregion
 
         #region Wordboard
-        bool checkWord(string word)
+        public static bool checkWord(string word)
         {
             return (Main.wordsList.Contains(word));
         }

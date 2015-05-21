@@ -343,19 +343,22 @@ namespace Neno
                 Directory.CreateDirectory("./ToAdd/");
 
             //Console Saving
-            oldOut = Console.Out;
-            try
+            if (!Settings.isDebug)
             {
-                ostrm = new FileStream("./ConsoleOut.txt", FileMode.OpenOrCreate, FileAccess.Write);
-                writer = new StreamWriter(ostrm);
+                oldOut = Console.Out;
+                try
+                {
+                    ostrm = new FileStream("./ConsoleOut.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                    writer = new StreamWriter(ostrm);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Cannot open Redirect.txt for writing");
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+                Console.SetOut(writer);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("Cannot open Redirect.txt for writing");
-                Console.WriteLine(e.Message);
-                return;
-            }
-            Console.SetOut(writer);
         }
 
         protected override void Initialize()
@@ -447,10 +450,14 @@ namespace Neno
 
         protected override void UnloadContent()
         {
-            Console.SetOut(oldOut);
-            writer.Close();
-            ostrm.Close();
-            Console.WriteLine("Done");
+            if (!Settings.isDebug)
+            {
+                Console.SetOut(oldOut);
+                writer.Close();
+                ostrm.Close();
+                Console.WriteLine("Done");
+            }
+
             Content.Unload();
         }
 
