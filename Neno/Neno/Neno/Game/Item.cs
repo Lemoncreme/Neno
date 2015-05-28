@@ -97,7 +97,8 @@ namespace Neno
                     new KeyValuePair<string, ItemProp>("Skillfully Crafted", new ItemProp(PropType.Value, 12)));
             else
                 effect = new KeyValuePair<string, ItemProp>("Common", null);
-            item.Name += effect.Key;
+            item.Name += " " + effect.Key;
+            if (effect.Value != null)
             item.AddProp(effect.Value.Type, effect.Value.Value);
             #endregion
 
@@ -157,12 +158,12 @@ namespace Neno
                 new KeyValuePair<string, int>("Adamantium", 50), 
                 new KeyValuePair<string, int>("Supernova Metal", 75),
                 new KeyValuePair<string, int>("Awesomium", 99));
-            item.Name += material.Key;
+            item.Name += " " + material.Key;
             materialQuality = material.Value;
             #endregion
 
             #region Blade type
-            KeyValuePair<string, int> blade;
+            KeyValuePair<string, int> blade = new KeyValuePair<string, int>("-", 0);
             if (item.SubType == ItemSubtype.sword)
                 blade = Main.choose<KeyValuePair<string, int>>(
                     new KeyValuePair<string, int>("Broadsword", 4), 
@@ -193,14 +194,15 @@ namespace Neno
                     new KeyValuePair<string, int>("Ax", 3), 
                     new KeyValuePair<string, int>("Hatchet", 2),
                     new KeyValuePair<string, int>("Fireaxe", 2));
-            item.Name += blade.Key;
+            item.Name += " " + blade.Key;
             item.AddProp(PropType.Weight, blade.Value);
             #endregion
 
             #endregion
 
-            int dmg = 1 + Main.rgInt(10);
-            int dmg2 = dmg + 1 + Main.rgInt(10);
+            //Damage
+            int dmg = 1 + Main.rgInt(10 + materialQuality) + (materialQuality / 2);
+            int dmg2 = dmg + 1 + Main.rgInt(10 + materialQuality) + (materialQuality);
             item.propList.Add(new ItemProp(PropType.DmgMin, dmg));
             item.propList.Add(new ItemProp(PropType.DmgMax, dmg2));
             item.propList.Add(new ItemProp(PropType.DmgCap, dmg2 + 1 + Main.rgInt(10)));
@@ -208,7 +210,14 @@ namespace Neno
             item.propList.Add(new ItemProp(PropType.DmgBlunt, Main.rgInt(10)));
             if (Main.chance(30f))
             item.propList.Add(new ItemProp(PropType.DmgMagic, Main.rgInt(10)));
-            item.propList.Add(new ItemProp(PropType.Value, dmg + dmg2 + Main.rgInt(20)));
+
+            //Material properties
+            int num = Main.rgInt(materialQuality * 3);
+            item.AddProp(PropType.Hp, materialQuality + num);
+            item.AddProp(PropType.MaxHp, (int)(materialQuality * 1.5f));
+
+            //Sell value
+            item.propList.Add(new ItemProp(PropType.Value, dmg + dmg2 + Main.rgInt(20) + materialQuality));
 
             return item;
         }

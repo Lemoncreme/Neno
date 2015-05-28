@@ -79,14 +79,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="103288">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Neno.exe" size="105848">
       <assemblyIdentity name="Neno" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>tuawK7WttaLVZZdPbtokSaD2NEA=</dsig:DigestValue>
+        <dsig:DigestValue>imekp6hQGy4q2vehmH2GvoVUmmU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -312,7 +312,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>RMZMcN1xZh3SYl9pJPIg2QCYt2U=</dsig:DigestValue>
+      <dsig:DigestValue>KcdRk3LuD3lZmmxKs4biu1RBgUE=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\Textures\logo.xnb" size="1224891">

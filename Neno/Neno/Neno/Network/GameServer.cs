@@ -1111,6 +1111,8 @@ namespace Neno
                                     }
                                 }
                             }
+                            if (Key.pressed(Keys.F8))
+                                sendItem(playerList[0].Connection, Item.RandomGen("A"));
                             break;
                     }
                     

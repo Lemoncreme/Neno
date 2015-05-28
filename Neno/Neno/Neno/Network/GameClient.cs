@@ -48,6 +48,7 @@ namespace Neno
 
         #region Variables
 
+        #region Network Client
         NetClient client;
         NetPeerConfiguration config;
         public static string connectIP;
@@ -55,45 +56,63 @@ namespace Neno
         ClientStatus Status = ClientStatus.Waiting_For_Connection;
         string serverName = "";
         string clientName = "";
+        int ping = 0;
+        #endregion
+
+        #region Players Info
         byte playerID;
         List<ClientPlayer> playerList = new List<ClientPlayer>();
-        TextBox readyBox;
-        TextBox startBox;
-        TextBox timeLimitBox;
-        TextBox roundsBox;
         bool ready = false;
         public bool isOwner = false;
-        byte turn;
+        int coins = 0;
+        #endregion
+
+        #region Wordboard
         WordBoard wordBoard;
-        List<BattleBoard> boardList = new List<BattleBoard>();
+        byte turn;
         List<byte> letterTiles;
         List<string> wordsCreated = new List<string>();
-        Viewing view = Viewing.Wordboard;
         bool canInteract = false;
         Direction direction = Direction.None;
         int turnNumber = 1;
         int wordsMade = 0;
-        int ping = 0;
         bool choosingWild = false;
         int currentTurnTime = 0;
         bool showTurn = true;
         List<string> totalWords = new List<string>();
-        int coins = 0;
-        bool darken = false;
+
+        #endregion
+
+        #region Endgame
         List<int> winnerList;
         List<Point> scoreList;
+        #endregion
+
+        #region Inventory
         Point mouseInv = new Point(0, 0);
         Point mouseInvMenu = new Point(0, 0);
         Point offset = new Point(128, 256);
         bool showItemMenu = false;
         Item toEquip = null;
+
         SelectMenu itemMenu = new SelectMenu(new List<string>() { 
         "Equip",
         "Unequip",
         "Sell"
         });
+        #endregion
 
         #region In-Game GUI
+        //Main
+        Viewing view = Viewing.Wordboard;
+        bool darken = false;
+
+        //Lobby Buttons
+        TextBox readyBox;
+        TextBox startBox;
+        TextBox timeLimitBox;
+        TextBox roundsBox;
+
         //Main Buttons
         TextBox buttonWordBoard;
         TextBox buttonBattleBoard;
@@ -117,6 +136,7 @@ namespace Neno
         #endregion
 
         #region Battle
+        List<BattleBoard> boardList = new List<BattleBoard>();
         Inventory inv = new Inventory(12, 8);
         BattleBoard currentBoard = null;
         Matrix BattleBoardView;
@@ -132,7 +152,7 @@ namespace Neno
         SelectMenu selectMenu = new SelectMenu(new List<string>() { 
         "Move Here",
         "Hurt This",
-        "Use Items"
+        "Use Item"
         });
         List<string> actionList = new List<string>();
         #endregion
@@ -848,7 +868,7 @@ namespace Neno
                         Main.drawText(Main.consoleFont, "HP = " + entSelect.Prop(PropType.Hp) + " / " + entSelect.Prop(PropType.MaxHp), new Vector2(Main.windowWidth - 198, y), Color.LightCoral, 1f, TextOrient.Left); y += 20;
                         Main.drawText(Main.consoleFont, "Stamina = " + entSelect.Prop(PropType.Stamina) + " / " + entSelect.Prop(PropType.MaxStamina), new Vector2(Main.windowWidth - 198, y), Color.LightGreen, 1f, TextOrient.Left); y += 20;
                         if (entSelect.equip != null)
-                        Main.drawText(Main.consoleFont, "Item = " + entSelect.equip.Name, new Vector2(Main.windowWidth - 198, y), Color.AntiqueWhite, 0.25f, TextOrient.Left); y += 20;
+                        Main.drawText(Main.consoleFont, "Item = " + entSelect.equip.Name, new Vector2(Main.windowWidth - 198, y), Color.AntiqueWhite, 0.5f, TextOrient.Left); y += 20;
                     }
 
                     //Not your turn
@@ -967,6 +987,8 @@ namespace Neno
                     break;
                 case Viewing.Inventory:
                     #region Inventory
+
+                    #region Info
                     xx = 4; yy = 72;
                     Main.drawText(Main.consoleFont, "Name: " + clientName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
                     Main.drawText(Main.consoleFont, "Server Name: " + serverName, new Vector2(xx, yy), Color.White, 1f, TextOrient.Left); yy += 18;
@@ -993,6 +1015,7 @@ namespace Neno
                     {
                         Main.drawText(Main.consoleFont, word, new Vector2(xx, yy), Color.White, 1f, TextOrient.Right); yy += 18;
                     }
+                    #endregion
 
                     //Draw inventory
                     inv.Draw(offset);
@@ -1008,15 +1031,16 @@ namespace Neno
                             properties += prop.Type.ToString() + " = " + prop.Value + "\n";
                         }
                         Main.drawTextBox(Main.consoleFont, 
-                            item.Name + "\n" + 
-                            item.Type.ToString() + "\n" + 
-                            item.SubType.ToString() + "\n" + properties,
-                            new Vector2(offset.X + inv.drawSize * inv.width + 4, offset.Y + inv.drawSize * inv.height + 4), Color.White, 1f, TextOrient.Left, new Color(0f, 0f, 0f, 0.5f));
+                            item.Name + "\n" +
+                            item.Type.ToString().ToUpperInvariant() + " (" + item.SubType.ToString().ToUpperInvariant() + ")"
+                             + "\n" + properties,
+                            new Vector2(offset.X, offset.Y + inv.drawSize * inv.height + 4), Color.White, 1f, TextOrient.Left, new Color(0f, 0f, 0f, 0.5f));
                     }
 
                     //Draw item menu
                     if (showItemMenu)
                         itemMenu.Draw(new Vector2(mouseInvMenu.X, mouseInvMenu.Y));
+
                     #endregion
                     break;
                 case Viewing.Players:
